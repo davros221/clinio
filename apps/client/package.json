@@ -1,0 +1,8 @@
+{
+  "name": "@clinio/client",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@clinio/api": "workspace:*"
+  }
+}
