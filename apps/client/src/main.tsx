@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import * as ReactDOM from "react-dom/client";
 import "./api/client";
+import { AppComponent } from "./appComponent";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -8,6 +9,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <StrictMode>
-    <h1>ClinIO App!</h1>
+    <AppComponent />
   </StrictMode>
 );
