@@ -1,8 +1,16 @@
 {
   "name": "@clinio/client",
-  "version": "0.0.1",
   "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "devDependencies": {
+    "postcss": "^8.5.8",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1"
+  },
   "dependencies": {
-    "@clinio/api": "workspace:*"
+    "@mantine/core": "^8.3.16",
+    "@mantine/hooks": "^8.3.16",
+    "react-router": "^7.13.1"
   }
 }
