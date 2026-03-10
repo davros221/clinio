@@ -31,12 +31,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Public()
   @Get("me")
   @ApiOperation({ operationId: "me" })
   @ApiOkResponse({ type: MeResponse })
   @ApiBearerAuth()
-  me(@CurrentUser() user?: { id: string }): Promise<MeResponse> {
-    return this.authService.me(user?.id);
+  me(@CurrentUser() user: { id: string }): Promise<MeResponse> {
+    return this.authService.me(user.id);
   }
 }

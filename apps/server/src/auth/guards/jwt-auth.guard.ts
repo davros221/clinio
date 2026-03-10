@@ -10,24 +10,20 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
     super();
   }
 
-  private isPublic = false;
-
   override canActivate(context: ExecutionContext) {
-    this.isPublic =
-      this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-        context.getHandler(),
-        context.getClass(),
-      ]) ?? false;
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
 
     return super.canActivate(context);
   }
 
   override handleRequest<T>(err: Error | null, user: T): T {
-    // For public routes, dont throw 401 error ( this is because of /me route which is public but still needs to access the user if token is provided )
-    if (this.isPublic) {
-      return user;
-    }
-
     if (err || !user) {
       throw unauthorized();
     }

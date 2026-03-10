@@ -34,23 +34,15 @@ export class AuthService {
     };
   }
 
-  async me(userId: string | undefined): Promise<MeResponse> {
-    if (!userId) {
-      return { auth: false, authData: null };
-    }
-
-    try {
-      const user = await this.userService.findById(userId);
-      return {
-        auth: true,
-        authData: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-        },
-      };
-    } catch {
-      return { auth: false, authData: null };
-    }
+  async me(userId: string): Promise<MeResponse> {
+    const user = await this.userService.findById(userId);
+    return {
+      auth: true,
+      authData: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    };
   }
 }
