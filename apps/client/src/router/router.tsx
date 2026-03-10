@@ -4,11 +4,16 @@ import { RootLayout } from "../components/RootLayout.tsx";
 import { RequireAuth } from "../components/RequireAuth.tsx";
 import { DashboardSwitch } from "../components/DashboardSwitch.tsx";
 import { APP_PATHS } from "./routes.ts";
+import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
 
 export const routes: RouteObject[] = [
   {
     element: <RootLayout />,
     children: [
+      {
+        path: APP_PATHS.FORBIDDEN,
+        element: <ForbiddenPage />,
+      },
       {
         path: APP_PATHS.LOGIN,
         element: <Login />,

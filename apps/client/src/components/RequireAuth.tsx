@@ -10,11 +10,8 @@ export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
     return <Navigate to={APP_PATHS.LOGIN} state={{ from: location }} replace />;
   }
 
-  // Basic role-based access control
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    // TODO TBD Return unauthorized or home (which will redirect to correct dashboard anyway)
-    // For now simply redirect to home to prevent infinite loops if home is allowed
-    return <Navigate to={APP_PATHS.HOME} replace />;
+    return <Navigate to={APP_PATHS.FORBIDDEN} replace />;
   }
 
   return <Outlet />;
