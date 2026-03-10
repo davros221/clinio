@@ -2,10 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
+    "noEmit": true,
+
+    // Overrides for Config files
     "module": "esnext",
     "moduleResolution": "bundler",
-    "types": ["node"],
-    "lib": ["ES2022"]
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    "types": ["node"]
   },
   "include": ["vite.config.mts", "vitest.config.mts", "eslint.config.js"]
 }
