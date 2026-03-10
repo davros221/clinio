@@ -1,7 +1,7 @@
 import { AppShell, Container } from "@mantine/core";
 import { Outlet } from "react-router";
 
-export function RootLayout() {
+export const RootLayout = () => {
   return (
     <AppShell>
       <AppShell.Main className="root-main">
@@ -12,4 +12,4 @@ export function RootLayout() {
       </AppShell.Main>
     </AppShell>
   );
-}
+};

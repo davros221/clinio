@@ -11,7 +11,7 @@ import {
   Center,
 } from "@mantine/core";
 
-export function Login() {
+export const Login = () => {
   return (
     <Center h="100dvh">
       <Container size={420} w="100%">
@@ -54,4 +54,4 @@ export function Login() {
       </Container>
     </Center>
   );
-}
+};

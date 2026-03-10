@@ -1,9 +1,9 @@
 import { USER_ROLES } from "../types/user";
 import { useAuth } from "../hooks/useAuth";
 import { AdminDashboard } from "../pages/dashboards/AdminDashboard";
-import DoctorDashboard from "../pages/dashboards/DoctorDashboard";
-import NurseDashboard from "../pages/dashboards/NurseDashboard";
-import ClientDashboard from "../pages/dashboards/ClientDashboard";
+import { DoctorDashboard } from "../pages/dashboards/DoctorDashboard.tsx";
+import { NurseDashboard } from "../pages/dashboards/NurseDashboard.tsx";
+import { ClientDashboard } from "../pages/dashboards/ClientDashboard.tsx";
 
 export const DashboardSwitch = () => {
   const { user } = useAuth();
