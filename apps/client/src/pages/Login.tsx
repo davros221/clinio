@@ -27,11 +27,17 @@ export const Login = () => {
           <Stack>
             <TextInput
               placeholder="Your e-mail/username"
+              label="Email / Username"
               radius="md"
               size="md"
             />
 
-            <PasswordInput placeholder="Your Password" radius="md" size="md" />
+            <PasswordInput
+              placeholder="Your Password"
+              label="Password"
+              radius="md"
+              size="md"
+            />
           </Stack>
 
           <Button
