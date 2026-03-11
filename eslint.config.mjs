@@ -10,6 +10,8 @@ export default [
       "**/out-tsc",
       "**/vite.config.*.timestamp*",
       "packages/api/src/generated/**",
+      "**/*.spec.*",
+      "**/*.test.*",
     ],
   },
   {
