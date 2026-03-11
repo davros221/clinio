@@ -76,6 +76,66 @@ After running the server
 - modules: feature modules (e.g. user, appointment, etc.)
 - openapi: OpenAPI configuration and code (e.g. controllers, DTOs, etc.)
 
+### Documenting APIs
+
+We use **OpenAPI** and **Swagger** to document and generate API contracts. Validation schemas are shared between frontend and backend using **Zod** (defined in `@clinio/shared`).
+
+#### Response DTOs
+
+Response DTOs are plain classes decorated with `@ApiProperty()` from `@nestjs/swagger`. Swagger uses these decorators to generate the response schema.
+
+```typescript
+import { ApiProperty } from "@nestjs/swagger";
+
+export class AuthResponse {
+  @ApiProperty()
+  accessToken!: string;
+
+  @ApiProperty({ type: AuthData })
+  authData!: AuthData;
+}
+```
+
+#### Request DTOs (Zod-based)
+
+Request DTOs are generated from shared Zod schemas using `createZodDto` from `nestjs-zod`. This makes the Zod schema visible to Swagger and ensures the generated OpenAPI spec includes the request body definition.
+
+```typescript
+import { createZodDto } from "nestjs-zod";
+import { loginSchema } from "@clinio/shared";
+
+export class LoginDto extends createZodDto(loginSchema) {}
+```
+
+> **Important:** Do not use `type LoginDto = z.infer<typeof schema>` — Swagger cannot read TypeScript types. Always use `createZodDto` to create a class.
+
+#### Controller documentation
+
+Every controller must include the following decorators:
+
+- **`@ApiTags("EntityName")`** — groups endpoints in SwaggerUI. Use singular entity name (e.g. `User`, `Auth`, `Appointment`).
+- **`@ApiOperation({ operationId: "methodName" })`** — required on every endpoint. The `operationId` determines the generated client method name.
+- **Success responses** — use `@ApiOkResponse({ type: ResponseDto })`, `@ApiCreatedResponse()`, etc. Always specify the `type`.
+- **Error responses** — document expected errors with `@ApiBadRequestResponse()`, `@ApiUnauthorizedResponse()`, `@ApiNotFoundResponse()`, etc. Include a `description`.
+- **`@ApiBearerAuth()`** — add to endpoints that require authentication.
+
+Example:
+
+```typescript
+@Controller("auth")
+@ApiTags("Auth")
+export class AuthController {
+  @Post("login")
+  @ApiOperation({ operationId: "login" })
+  @ApiOkResponse({ type: AuthResponse })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiUnauthorizedResponse({ description: "Invalid email or password" })
+  login(@Body() dto: LoginDto): Promise<AuthResponse> {
+    return this.authService.login(dto);
+  }
+}
+```
+
 ### Error Handling
 
 - The backend server uses a global error handler to catch and handle errors. The error handler returns a JSON response with the following format:

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { createZodDto } from "nestjs-zod";
 import { loginSchema } from "@clinio/shared";
 
-export type LoginDto = z.infer<typeof loginSchema>;
+export class LoginDto extends createZodDto(loginSchema) {}

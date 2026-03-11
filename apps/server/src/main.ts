@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app/app.module";
 import { SwaggerModule } from "@nestjs/swagger";
+import { cleanupOpenApiDoc } from "nestjs-zod";
 import { openApiConfig } from "./openapi/openApi.config";
 
 async function bootstrap() {
@@ -21,7 +22,7 @@ async function bootstrap() {
 
   // Set up Swagger for API documentation
   const documentFactory = () =>
-    SwaggerModule.createDocument(app, openApiConfig);
+    cleanupOpenApiDoc(SwaggerModule.createDocument(app, openApiConfig));
   SwaggerModule.setup("api", app, documentFactory);
 
   // Start the application on the specified port

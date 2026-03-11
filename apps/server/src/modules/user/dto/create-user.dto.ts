@@ -1,4 +1,4 @@
-import { z } from "zod";
 import { createUserSchema } from "@clinio/shared";
+import { createZodDto } from "nestjs-zod";
 
-export type CreateUserDto = z.infer<typeof createUserSchema>;
+export class CreateUserDto extends createZodDto(createUserSchema) {}
