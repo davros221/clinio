@@ -6,6 +6,7 @@ import { UserService } from "../modules/user/user.service";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
+import { UserMapper } from "../modules/user/mapper/UserMapper";
 
 @Injectable()
 export class AuthService {
@@ -21,28 +22,27 @@ export class AuthService {
       throw invalidCredentials();
     }
 
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
+    const authData = UserMapper.toAuthData(user);
 
     return {
       accessToken,
-      authData: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      authData,
     };
   }
 
   async me(userId: string): Promise<MeResponse> {
     const user = await this.userService.findById(userId);
+    const authData = UserMapper.toAuthData(user);
+
     return {
       auth: true,
-      authData: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      authData,
     };
   }
 }

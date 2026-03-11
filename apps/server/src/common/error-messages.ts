@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -30,5 +31,12 @@ export function unauthorized(): UnauthorizedException {
   return new UnauthorizedException({
     errorCode: ErrorCode.UNAUTHORIZED,
     message: "Unauthorized",
+  });
+}
+
+export function forbidden(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.FORBIDDEN,
+    message: "Forbidden",
   });
 }

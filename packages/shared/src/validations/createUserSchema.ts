@@ -1,12 +1,13 @@
 import { z } from "zod";
 
-export enum EUserRole {
-  ADMIN = "ADMIN",
-  DOCTOR = "DOCTOR",
-  CLIENT = "CLIENT",
-}
+export const UserRole = {
+  ADMIN: "ADMIN",
+  DOCTOR: "DOCTOR",
+  CLIENT: "CLIENT",
+} as const;
 
-const userRoleEnum = z.enum([...Object.values(EUserRole)]);
+const userRoleEnum = z.enum(UserRole);
+export type TUserRole = z.infer<typeof userRoleEnum>;
 
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;

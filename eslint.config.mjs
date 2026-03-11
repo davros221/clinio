@@ -1,17 +1,19 @@
 import nx from "@nx/eslint-plugin";
 
 export default [
-  ...nx.configs["flat/base"],
-  ...nx.configs["flat/typescript"],
-  ...nx.configs["flat/javascript"],
   {
     ignores: [
       "**/dist",
       "**/out-tsc",
       "**/vite.config.*.timestamp*",
       "packages/api/src/generated/**",
+      "**/*.spec.*",
+      "**/*.test.*",
     ],
   },
+  ...nx.configs["flat/base"],
+  ...nx.configs["flat/typescript"],
+  ...nx.configs["flat/javascript"],
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     rules: {
