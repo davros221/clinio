@@ -22,7 +22,11 @@ export class AuthService {
       throw invalidCredentials();
     }
 
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     const accessToken = this.jwtService.sign(payload);
     const authData = UserMapper.toAuthData(user);
 
@@ -35,6 +39,7 @@ export class AuthService {
   async me(userId: string): Promise<MeResponse> {
     const user = await this.userService.findById(userId);
     const authData = UserMapper.toAuthData(user);
+
     return {
       auth: true,
       authData,

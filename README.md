@@ -136,6 +136,40 @@ export class AuthController {
 }
 ```
 
+### Authorization
+
+Endpoints have 3 access levels:
+
+| Decorator                | Access                 | HTTP error |
+| ------------------------ | ---------------------- | ---------- |
+| `@Public()`              | Anyone (no token)      | —          |
+| `@Roles(UserRole.ADMIN)` | Only specified roles   | 403        |
+| _(none)_                 | Any authenticated user | 401        |
+
+**API-level** — restrict endpoint to specific roles:
+
+```typescript
+import { Roles } from "../common/decorators/roles.decorator";
+import { UserRole } from "@clinio/shared";
+
+@Roles(UserRole.ADMIN, UserRole.DOCTOR)
+@Get("patients")
+findPatients() { ... }
+```
+
+**Application-level** — return different data based on role:
+
+```typescript
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { AuthUser } from "../auth/strategies/jwt.strategy";
+
+@Get("dashboard")
+getDashboard(@CurrentUser() user: AuthUser) {
+  if (user.role === UserRole.ADMIN) return this.service.getAdminData();
+  if (user.role === UserRole.DOCTOR) return this.service.getDoctorData();
+}
+```
+
 ### Error Handling
 
 - The backend server uses a global error handler to catch and handle errors. The error handler returns a JSON response with the following format:
