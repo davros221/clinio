@@ -3,26 +3,31 @@
   "compilerOptions": {
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "jsx": "react-jsx",
-    "lib": ["dom"],
-    "types": [
-      "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
-      "vite/client"
-    ],
+    "noEmit": true,
+    "composite": true,
+
+    // Vite/React specific overrides (Root is nodenext)
     "module": "esnext",
     "moduleResolution": "bundler",
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    // Path Aliases
+    "baseUrl": ".",
     "paths": {
       "@clinio/shared": ["../../packages/shared/src/index.ts"],
       "@clinio/api": ["../../packages/api/src/index.ts"]
-    }
+    },
+
+    "types": [
+      "@nx/react/typings/cssmodule.d.ts",
+      "@nx/react/typings/image.d.ts",
+      "vite/client"
+    ]
   },
-  "references": [
-    {
-      "path": "../../packages/api/tsconfig.lib.json"
-    }
-  ],
+  "references": [{ "path": "../../packages/api/tsconfig.lib.json" }],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "exclude": [
     "out-tsc",
     "dist",
@@ -37,6 +42,5 @@
     "eslint.config.js",
     "eslint.config.cjs",
     "eslint.config.mjs"
-  ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  ]
 }
