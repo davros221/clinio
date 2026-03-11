@@ -1,5 +1,6 @@
 import { User } from "../dto/user.dto";
 import { UserEntity } from "../user.entity";
+import { AuthData } from "../../../auth/dto/auth-response.dto";
 
 export class UserMapper {
   static toDto(user: UserEntity): User {
@@ -13,5 +14,13 @@ export class UserMapper {
 
   static toDtoList(users: UserEntity[]): User[] {
     return users.map(this.toDto);
+  }
+
+  static toAuthData(user: UserEntity): AuthData {
+    return {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+    };
   }
 }

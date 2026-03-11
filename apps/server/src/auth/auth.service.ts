@@ -4,7 +4,9 @@ import * as bcrypt from "bcryptjs";
 import { invalidCredentials } from "../common/error-messages";
 import { UserService } from "../modules/user/user.service";
 import { LoginDto } from "./dto/login.dto";
+import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
+import { UserMapper } from "../modules/user/mapper/UserMapper";
 
 @Injectable()
 export class AuthService {
@@ -13,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+  async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.userService.findByEmail(dto.email);
 
     if (!user || !(await bcrypt.compare(dto.password, user.password))) {
@@ -22,7 +24,20 @@ export class AuthService {
 
     const payload: JwtPayload = { sub: user.id, email: user.email };
     const accessToken = this.jwtService.sign(payload);
+    const authData = UserMapper.toAuthData(user);
 
-    return { accessToken };
+    return {
+      accessToken,
+      authData,
+    };
+  }
+
+  async me(userId: string): Promise<MeResponse> {
+    const user = await this.userService.findById(userId);
+    const authData = UserMapper.toAuthData(user);
+    return {
+      auth: true,
+      authData,
+    };
   }
 }

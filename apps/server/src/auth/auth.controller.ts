@@ -1,17 +1,19 @@
-import { Body, Controller, Post, UsePipes } from "@nestjs/common";
+import { Body, Controller, Get, Post, UsePipes } from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
 import { loginSchema } from "@clinio/shared";
 import { Public } from "../common/decorators/public.decorator";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AuthService } from "./auth.service";
 import { type LoginDto } from "./dto/login.dto";
-import { AuthResponse } from "./dto/auth-response.dto";
+import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -27,5 +29,13 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(loginSchema))
   login(@Body() dto: LoginDto): Promise<AuthResponse> {
     return this.authService.login(dto);
+  }
+
+  @Get("me")
+  @ApiOperation({ operationId: "me" })
+  @ApiOkResponse({ type: MeResponse })
+  @ApiBearerAuth()
+  me(@CurrentUser() user: { id: string }): Promise<MeResponse> {
+    return this.authService.me(user.id);
   }
 }
