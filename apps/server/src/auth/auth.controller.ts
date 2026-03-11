@@ -8,12 +8,12 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
-import { loginSchema } from "@clinio/shared";
 import { Public } from "../common/decorators/public.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AuthService } from "./auth.service";
-import { type LoginDto } from "./dto/login.dto";
+import { LoginDto } from "./dto/login.dto";
 import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
+import { loginSchema } from "@clinio/shared";
 
 @Controller("auth")
 @ApiTags("Auth")

@@ -18,7 +18,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Public } from "../../common/decorators/public.decorator";
-import { type CreateUserDto } from "./dto/create-user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { ZodValidationPipe } from "nestjs-zod";
 import { UserService } from "./user.service";
 import { createUserSchema } from "@clinio/shared";

@@ -83,7 +83,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint",
+      "eslint --no-warn-ignored",
       "prettier --check"
     ],
     "*.{json,md,html,css,scss,yaml,yml}": [
