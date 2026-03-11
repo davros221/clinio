@@ -140,19 +140,19 @@ export class AuthController {
 
 Endpoints have 3 access levels:
 
-| Decorator                 | Access                 | HTTP error |
-| ------------------------- | ---------------------- | ---------- |
-| `@Public()`               | Anyone (no token)      | —          |
-| `@Roles(EUserRole.ADMIN)` | Only specified roles   | 403        |
-| _(none)_                  | Any authenticated user | 401        |
+| Decorator                | Access                 | HTTP error |
+| ------------------------ | ---------------------- | ---------- |
+| `@Public()`              | Anyone (no token)      | —          |
+| `@Roles(UserRole.ADMIN)` | Only specified roles   | 403        |
+| _(none)_                 | Any authenticated user | 401        |
 
 **API-level** — restrict endpoint to specific roles:
 
 ```typescript
 import { Roles } from "../common/decorators/roles.decorator";
-import { EUserRole } from "@clinio/shared";
+import { UserRole } from "@clinio/shared";
 
-@Roles(EUserRole.ADMIN, EUserRole.DOCTOR)
+@Roles(UserRole.ADMIN, UserRole.DOCTOR)
 @Get("patients")
 findPatients() { ... }
 ```
@@ -165,8 +165,8 @@ import { AuthUser } from "../auth/strategies/jwt.strategy";
 
 @Get("dashboard")
 getDashboard(@CurrentUser() user: AuthUser) {
-  if (user.role === EUserRole.ADMIN) return this.service.getAdminData();
-  if (user.role === EUserRole.DOCTOR) return this.service.getDoctorData();
+  if (user.role === UserRole.ADMIN) return this.service.getAdminData();
+  if (user.role === UserRole.DOCTOR) return this.service.getDoctorData();
 }
 ```
 
