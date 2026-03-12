@@ -4,7 +4,11 @@ import { ErrorCode } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { internalError, notFound } from "../../common/error-messages";
+import {
+  emailAlreadyExists,
+  internalError,
+  notFound,
+} from "../../common/error-messages";
 import * as bcrypt from "bcryptjs";
 
 @Injectable()
@@ -38,6 +42,11 @@ export class UserService {
   }
 
   async create(user: CreateUserDto): Promise<UserEntity> {
+    const existingUser = await this.findByEmail(user.email);
+    if (existingUser) {
+      throw emailAlreadyExists();
+    }
+
     const hashedPassword = await bcrypt.hash(user.password, 10);
     const newUser = this.userRepository.create({
       ...user,
