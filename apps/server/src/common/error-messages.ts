@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
@@ -31,6 +32,13 @@ export function unauthorized(): UnauthorizedException {
   return new UnauthorizedException({
     errorCode: ErrorCode.UNAUTHORIZED,
     message: "Unauthorized",
+  });
+}
+
+export function emailAlreadyExists(): ConflictException {
+  return new ConflictException({
+    errorCode: ErrorCode.EMAIL_ALREADY_EXISTS,
+    message: "Email already exists",
   });
 }
 
