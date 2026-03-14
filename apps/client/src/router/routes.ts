@@ -1,4 +1,4 @@
-export const APP_PATHS = {
+export const ROUTER_PATHS = {
   HOME: "/",
   LOGIN: "/login",
   FORBIDDEN: "/forbidden",
