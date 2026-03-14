@@ -1,6 +1,5 @@
 import { Paper, Text, Container, Center, Box, Transition } from "@mantine/core";
 import { useState, useRef, useEffect } from "react";
-import "../../api/client";
 import { LoginPanel } from "./LoginPanel";
 import { SignUpPanel } from "./SignUpPanel";
 

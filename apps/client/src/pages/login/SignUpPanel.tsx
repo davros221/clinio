@@ -76,7 +76,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
 
       notifySuccess(
         "Account created!",
-        "Logged you in automatically, welcome to Clinio!"
+        "Logging you in automatically, welcome to Clinio!"
       );
       await login(email, password);
       onSuccess(email, password);

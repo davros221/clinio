@@ -9,7 +9,8 @@ import { router } from "../router/router.tsx";
 import { ROUTER_PATHS } from "../router/routes.ts";
 
 export const DashboardSwitch = () => {
-  const { role } = useUser();
+  const user = useUser();
+  const role = user?.role;
 
   const roleDashboardMap: Record<string, JSX.Element> = {
     [USER_ROLES.ADMIN]: <AdminDashboard />,
