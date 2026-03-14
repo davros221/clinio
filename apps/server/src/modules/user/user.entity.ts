@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { type TUserRole, UserRole } from "@clinio/shared";
+import { UserRole } from "@clinio/shared";
 
 @Entity("users")
 @Unique(["email"])
@@ -20,5 +20,5 @@ export class UserEntity {
   lastName!: string;
 
   @Column({ type: "enum", enum: Object.values(UserRole) })
-  role!: TUserRole;
+  role!: UserRole;
 }

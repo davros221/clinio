@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { TUserRole } from "@clinio/shared";
+import { UserRole } from "@clinio/shared";
 import { ROLES_KEY } from "../../common/decorators/roles.decorator";
 import { IS_PUBLIC_KEY } from "../../common/decorators/public.decorator";
 import { forbidden } from "../../common/error-messages";
@@ -20,7 +20,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const requiredRoles = this.reflector.getAllAndOverride<TUserRole[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()]
     );

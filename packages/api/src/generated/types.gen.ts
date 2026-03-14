@@ -16,7 +16,7 @@ export type CreateUserDto = {
     password: string;
     firstName: string;
     lastName: string;
-    role: 'ADMIN' | 'DOCTOR' | 'CLIENT';
+    role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
 };
 
 export type LoginDto = {
@@ -27,7 +27,7 @@ export type LoginDto = {
 export type AuthData = {
     firstName: string;
     lastName: string;
-    role: 'ADMIN' | 'DOCTOR' | 'CLIENT';
+    role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
 };
 
 export type AuthResponse = {
