@@ -2,12 +2,12 @@ import { z } from "zod";
 
 export const UserRole = {
   ADMIN: "ADMIN",
+  NURSE: "NURSE",
   DOCTOR: "DOCTOR",
   CLIENT: "CLIENT",
 } as const;
 
-const userRoleEnum = z.enum(UserRole);
-export type TUserRole = z.infer<typeof userRoleEnum>;
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -23,6 +23,6 @@ export const createUserSchema = z
       ),
     firstName: z.string().min(1, "First name is required."),
     lastName: z.string().min(1, "Last name is required."),
-    role: userRoleEnum,
+    role: z.enum(UserRole),
   })
   .required();
