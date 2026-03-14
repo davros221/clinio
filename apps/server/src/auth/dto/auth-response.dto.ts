@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { type TUserRole, UserRole } from "@clinio/shared";
+import { UserRole } from "@clinio/shared";
 
 export class AuthData {
   @ApiProperty()
@@ -9,7 +9,7 @@ export class AuthData {
   lastName!: string;
 
   @ApiProperty({ enum: UserRole })
-  role!: TUserRole;
+  role!: UserRole;
 }
 
 export class AuthResponse {
