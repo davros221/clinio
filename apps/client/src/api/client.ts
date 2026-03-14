@@ -7,9 +7,7 @@ client.setConfig({
 
 // Authentication Interceptors
 client.instance.interceptors.request.use((config) => {
-  // ToDo: Add request interceptors here
   // first there should be authentication call to get the accessToken and then add it to the header of the request
-
   const accessToken = localStorage.getItem("accessToken");
 
   if (accessToken && config.headers)
@@ -21,16 +19,22 @@ client.instance.interceptors.request.use((config) => {
 client.instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // if unauthorized
-    if (error.response && error.response.status === 401) {
-      // Clear invalid token
-      localStorage.removeItem("accessToken");
+    const isLoginRequest = error.config?.url?.includes("/auth/login");
 
-      if (typeof window !== "undefined") {
-        // window.location.href enforces the hard refresh of the page to reset the data
+    if (!isLoginRequest) {
+      // Server responded with 401 — clear the stale token and let the component handle it
+      if (error.response?.status === 401) {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+      }
+
+      // No response at all (network crash, timeout) — last resort fallback to login
+      if (!error.response && typeof window !== "undefined") {
         window.location.href = ROUTER_PATHS.LOGIN;
       }
     }
+
+    console.error("error", error);
 
     return Promise.reject(error);
   }

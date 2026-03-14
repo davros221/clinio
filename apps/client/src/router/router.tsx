@@ -1,5 +1,5 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
-import { Login } from "../pages/Login.tsx";
+import { Login } from "../pages/login";
 import { RootLayout } from "../components/RootLayout.tsx";
 import { RequireAuth } from "../components/RequireAuth.tsx";
 import { DashboardSwitch } from "../components/DashboardSwitch.tsx";

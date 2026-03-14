@@ -29,6 +29,11 @@ interface ApiError {
   errors: ValidationError[];
 }
 
+interface ServerError {
+  errorCode: string;
+  message: string;
+}
+
 function isApiError(error: unknown): error is ApiError {
   return (
     typeof error === "object" &&
@@ -38,11 +43,24 @@ function isApiError(error: unknown): error is ApiError {
   );
 }
 
+function isServerError(error: unknown): error is ServerError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "errorCode" in error &&
+    "message" in error
+  );
+}
+
 export const mapApiErrorToNotification = (error: unknown) => {
   if (isApiError(error)) {
     error.errors.forEach((err) => {
       notifyError("Validation Error", `${err.code}: ${err.message}`);
     });
+  } else if (isServerError(error)) {
+    notifyError("Error", error.message);
+  } else {
+    notifyError("Error", "An unexpected error occurred");
   }
 };
 

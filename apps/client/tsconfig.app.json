@@ -3,6 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "rootDir": "../..",
     "noEmit": true,
     "composite": true,
     "allowImportingTsExtensions": true,
@@ -27,7 +28,10 @@
       "vite/client"
     ]
   },
-  "references": [{ "path": "../../packages/api/tsconfig.lib.json" }],
+  "references": [
+    { "path": "../../packages/api/tsconfig.lib.json" },
+    { "path": "../../packages/shared/tsconfig.lib.json" }
+  ],
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "exclude": [
     "out-tsc",
