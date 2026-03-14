@@ -20,27 +20,15 @@ export const notifySuccess = (title: string, message: string) => {
   notify(title, message, "green");
 };
 
-interface ValidationError {
-  code: string;
-  message: string;
-}
-
-interface ApiError {
-  errors: ValidationError[];
+interface NestValidationError {
+  statusCode: number;
+  message: string | string[];
+  error?: string;
 }
 
 interface ServerError {
   errorCode: string;
   message: string;
-}
-
-function isApiError(error: unknown): error is ApiError {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "errors" in error &&
-    Array.isArray((error as { errors: unknown }).errors)
-  );
 }
 
 function isServerError(error: unknown): error is ServerError {
@@ -52,13 +40,29 @@ function isServerError(error: unknown): error is ServerError {
   );
 }
 
+function isNestValidationError(error: unknown): error is NestValidationError {
+  if (typeof error !== "object" || error === null) {
+    return false;
+  }
+  const maybeError = error as { statusCode?: unknown; message?: unknown };
+  const hasStatusCode = typeof maybeError.statusCode === "number";
+  const msg = maybeError.message;
+  const hasMessage =
+    typeof msg === "string" ||
+    (Array.isArray(msg) && msg.every((item) => typeof item === "string"));
+  return hasStatusCode && hasMessage;
+}
+
 export const mapApiErrorToNotification = (error: unknown) => {
-  if (isApiError(error)) {
-    error.errors.forEach((err) => {
-      notifyError("Validation Error", `${err.code}: ${err.message}`);
-    });
-  } else if (isServerError(error)) {
+  if (isServerError(error)) {
     notifyError("Error", error.message);
+  } else if (isNestValidationError(error)) {
+    const message =
+      typeof error.message === "string"
+        ? error.message
+        : error.message.join("; ");
+    const title = error.statusCode === 400 ? "Validation Error" : "Error";
+    notifyError(title, message);
   } else {
     notifyError("Error", "An unexpected error occurred");
   }
