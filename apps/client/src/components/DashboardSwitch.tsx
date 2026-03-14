@@ -1,16 +1,16 @@
 import { USER_ROLES } from "../types/user";
-import { useAuth } from "../hooks/useAuth";
+import { useUser } from "../hooks/useUser.ts";
 import { AdminDashboard } from "../pages/dashboards/AdminDashboard";
 import { DoctorDashboard } from "../pages/dashboards/DoctorDashboard.tsx";
 import { NurseDashboard } from "../pages/dashboards/NurseDashboard.tsx";
 import { ClientDashboard } from "../pages/dashboards/ClientDashboard.tsx";
 
 export const DashboardSwitch = () => {
-  const { user } = useAuth();
+  const { role } = useUser();
 
-  if (!user) return null;
+  if (!role) return null;
 
-  switch (user.role) {
+  switch (role) {
     case USER_ROLES.ADMIN:
       return <AdminDashboard />;
     case USER_ROLES.DOCTOR:
@@ -18,8 +18,7 @@ export const DashboardSwitch = () => {
     case USER_ROLES.NURSE:
       return <NurseDashboard />;
     case USER_ROLES.CLIENT:
-      return <ClientDashboard />;
     default:
-      return <div>Unknown role</div>;
+      return <ClientDashboard />;
   }
 };

@@ -28,6 +28,7 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: "Invalid email or password" })
   @UsePipes(new ZodValidationPipe(loginSchema))
   login(@Body() dto: LoginDto): Promise<AuthResponse> {
+    console.log("dto", dto);
     return this.authService.login(dto);
   }
 

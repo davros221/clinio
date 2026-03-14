@@ -5,6 +5,7 @@
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "noEmit": true,
     "composite": true,
+    "allowImportingTsExtensions": true,
 
     // Vite/React specific overrides (Root is nodenext)
     "module": "esnext",
