@@ -1,9 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { AuthService } from "@clinio/api";
-import {
-  mapApiErrorToNotification,
-  mapSystemErrorToNotification,
-} from "../utils/notification.ts";
+import { handleError } from "../utils/notification.ts";
 import { router } from "../router/router.tsx";
 import { ROUTER_PATHS } from "../router/routes.ts";
 import { useAuthStore } from "../stores/authStore.ts";
@@ -11,7 +8,7 @@ import { useAuthStore } from "../stores/authStore.ts";
 export const useLogin = () => {
   const { login, logout } = useAuthStore();
 
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (credentials: { email: string; password: string }) =>
       AuthService.login({ body: credentials, throwOnError: true }),
 
@@ -22,16 +19,15 @@ export const useLogin = () => {
       }
     },
 
-    onError: (error) => {
-      if (error && typeof error === "object") mapApiErrorToNotification(error);
-      else mapSystemErrorToNotification(error);
-
+    onError: (error: unknown) => {
+      handleError(error);
       logout();
     },
   });
 
   return {
-    login: (email: string, password: string) => mutate({ email, password }),
+    login: (email: string, password: string) =>
+      mutateAsync({ email, password }),
     loading: isPending,
   };
 };
