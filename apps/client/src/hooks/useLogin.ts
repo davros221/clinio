@@ -6,19 +6,14 @@ import {
 } from "../utils/notification.ts";
 import { router } from "../router/router.tsx";
 import { ROUTER_PATHS } from "../router/routes.ts";
+import { useAuthStore } from "../stores/authStore.ts";
 
 export const useLogin = () => {
   const [loading, setLoading] = useState(false);
+  const { login, logout } = useAuthStore();
 
-  const login = async (email: string, password: string) => {
+  const loginUser = async (email: string, password: string) => {
     setLoading(true);
-
-    const clearStaleSession = () => {
-      if (localStorage.getItem("accessToken")) {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
-      }
-    };
 
     try {
       const { data, error } = await AuthService.login({
@@ -27,22 +22,21 @@ export const useLogin = () => {
 
       if (error && typeof error === "object") {
         mapApiErrorToNotification(error);
-        clearStaleSession();
+        logout();
         return;
       }
 
       if (data && data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("user", JSON.stringify(data.authData));
+        login(data.accessToken, data.authData);
         await router.navigate(ROUTER_PATHS.HOME);
       }
     } catch (networkError) {
       mapSystemErrorToNotification(networkError);
-      clearStaleSession();
+      logout();
     } finally {
       setLoading(false);
     }
   };
 
-  return { login, loading };
+  return { login: loginUser, loading };
 };

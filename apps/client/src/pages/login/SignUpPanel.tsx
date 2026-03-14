@@ -19,7 +19,7 @@ import { USER_ROLES } from "../../types/user.ts";
 import { useLogin } from "../../hooks/useLogin.ts";
 
 interface SignUpPanelProps {
-  onSuccess: (email: string, password: string) => void;
+  onSuccess: (email: string) => void;
   onBack: () => void;
 }
 
@@ -79,7 +79,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
         "Logging you in automatically, welcome to Clinio!"
       );
       await login(email, password);
-      onSuccess(email, password);
+      onSuccess(email);
     } catch (networkError) {
       mapSystemErrorToNotification(networkError);
     } finally {

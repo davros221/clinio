@@ -8,107 +8,108 @@ import {
   Center,
   Group,
 } from "@mantine/core";
-import { FormEvent, useState } from "react";
+import { FormEvent, forwardRef, useImperativeHandle, useState } from "react";
 import { loginSchema } from "@clinio/shared";
 import { useLogin } from "../../hooks/useLogin.ts";
 
 interface LoginPanelProps {
-  email: string;
-  password: string;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
   onForgotPassword?: () => void;
   onSignUp: () => void;
 }
 
-export const LoginPanel = ({
-  email,
-  password,
-  onEmailChange,
-  onPasswordChange,
-  onForgotPassword,
-  onSignUp,
-}: LoginPanelProps) => {
-  const { login, loading } = useLogin();
-  const [touched, setTouched] = useState(false);
+export interface LoginPanelRef {
+  prefillEmail: (email: string) => void;
+}
 
-  const passwordValidation = touched
-    ? loginSchema.shape.password.safeParse(password)
-    : null;
-  const passwordError =
-    passwordValidation && !passwordValidation.success
-      ? passwordValidation.error.issues[0].message
-      : undefined;
+export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
+  ({ onForgotPassword, onSignUp }, ref) => {
+    const { login, loading } = useLogin();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [touched, setTouched] = useState(false);
 
-  const isValid = !passwordError && !!email && !!password;
+    useImperativeHandle(ref, () => ({
+      prefillEmail: (value) => setEmail(value),
+    }));
 
-  const handleLogin = async (event: FormEvent) => {
-    event.preventDefault();
-    await login(email, password);
-  };
+    const passwordValidation = touched
+      ? loginSchema.shape.password.safeParse(password)
+      : null;
+    const passwordError =
+      passwordValidation && !passwordValidation.success
+        ? passwordValidation.error.issues[0].message
+        : undefined;
 
-  return (
-    <>
-      <Title ta="center" c="blue" order={1} mb="xl">
-        WELCOME!
-      </Title>
+    const isValid = !passwordError && !!email && !!password;
 
-      <form onSubmit={handleLogin}>
-        <Stack>
-          <TextInput
-            placeholder="Your e-mail/username"
-            label="Email / Username"
-            radius="md"
+    const handleLogin = async (event: FormEvent) => {
+      event.preventDefault();
+      await login(email, password);
+    };
+
+    return (
+      <>
+        <Title ta="center" c="blue" order={1} mb="xl">
+          WELCOME!
+        </Title>
+
+        <form onSubmit={handleLogin}>
+          <Stack>
+            <TextInput
+              placeholder="Your e-mail/username"
+              label="Email / Username"
+              radius="md"
+              size="md"
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+            />
+
+            <PasswordInput
+              placeholder="Your Password"
+              label="Password"
+              radius="md"
+              size="md"
+              value={password}
+              error={passwordError}
+              onBlur={() => setTouched(true)}
+              onChange={(e) => {
+                setTouched(true);
+                setPassword(e.currentTarget.value);
+              }}
+            />
+          </Stack>
+
+          <Button
+            fullWidth
+            mt="xl"
+            variant="outline"
+            radius="xl"
             size="md"
-            value={email}
-            onChange={(e) => onEmailChange(e.currentTarget.value)}
-          />
-
-          <PasswordInput
-            placeholder="Your Password"
-            label="Password"
-            radius="md"
-            size="md"
-            value={password}
-            error={passwordError}
-            onBlur={() => setTouched(true)}
-            onChange={(e) => {
-              setTouched(true);
-              onPasswordChange(e.currentTarget.value);
-            }}
-          />
-        </Stack>
-
-        <Button
-          fullWidth
-          mt="xl"
-          variant="outline"
-          radius="xl"
-          size="md"
-          type="submit"
-          disabled={!isValid}
-          loading={loading}
-        >
-          Let me In
-        </Button>
-      </form>
-
-      <Center mt="md">
-        <Group gap="xs">
-          <Anchor
-            component="button"
-            size="sm"
-            c="dimmed"
-            onClick={onForgotPassword}
+            type="submit"
+            disabled={!isValid}
+            loading={loading}
           >
-            Forgot password
-          </Anchor>
+            Let me In
+          </Button>
+        </form>
 
-          <Anchor component="button" size="sm" c="dimmed" onClick={onSignUp}>
-            Sign Up
-          </Anchor>
-        </Group>
-      </Center>
-    </>
-  );
-};
+        <Center mt="md">
+          <Group gap="xs">
+            <Anchor
+              component="button"
+              size="sm"
+              c="dimmed"
+              onClick={onForgotPassword}
+            >
+              Forgot password
+            </Anchor>
+
+            <Anchor component="button" size="sm" c="dimmed" onClick={onSignUp}>
+              Sign Up
+            </Anchor>
+          </Group>
+        </Center>
+      </>
+    );
+  }
+);

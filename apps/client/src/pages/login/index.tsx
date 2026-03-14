@@ -1,13 +1,11 @@
 import { Paper, Text, Container, Center, Box, Transition } from "@mantine/core";
 import { useState, useRef, useEffect } from "react";
-import { LoginPanel } from "./LoginPanel";
+import { LoginPanel, type LoginPanelRef } from "./LoginPanel";
 import { SignUpPanel } from "./SignUpPanel";
 
 export const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showSignUp, setShowSignUp] = useState(false);
-
+  const loginPanelRef = useRef<LoginPanelRef>(null);
   const loginRef = useRef<HTMLDivElement>(null);
   const signUpRef = useRef<HTMLDivElement>(null);
   const showSignUpRef = useRef(showSignUp);
@@ -40,8 +38,8 @@ export const Login = () => {
     return () => cancelAnimationFrame(raf);
   }, [showSignUp]);
 
-  const handleSignUpSuccess = (signedUpEmail: string, _password: string) => {
-    setEmail(signedUpEmail);
+  const handleSignUpSuccess = (signedUpEmail: string) => {
+    loginPanelRef.current?.prefillEmail(signedUpEmail);
     setShowSignUp(false);
   };
 
@@ -86,10 +84,7 @@ export const Login = () => {
                   }}
                 >
                   <LoginPanel
-                    email={email}
-                    password={password}
-                    onEmailChange={setEmail}
-                    onPasswordChange={setPassword}
+                    ref={loginPanelRef}
                     onSignUp={() => setShowSignUp(true)}
                   />
                 </Box>

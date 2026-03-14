@@ -12,7 +12,7 @@ export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
     );
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to={ROUTER_PATHS.FORBIDDEN} replace />;
   }
 

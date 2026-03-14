@@ -54,6 +54,8 @@ function isNestValidationError(error: unknown): error is NestValidationError {
 }
 
 export const mapApiErrorToNotification = (error: unknown) => {
+  // TODO add specific error handling based on the errorCode and statusCode
+  // TODO there is shared package in packages/shared/src/errors/error-code that defines them
   if (isServerError(error)) {
     notifyError("Error", error.message);
   } else if (isNestValidationError(error)) {
