@@ -32,6 +32,14 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
   const [loading, setLoading] = useState(false);
   const { login } = useLogin();
 
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+  const passwordError =
+    password.length > 0 && !passwordRegex.test(password)
+      ? "Min 8 chars, upper & lowercase, number, and special character (@$!%*?&)."
+      : undefined;
+
   const passwordsMatch =
     password.length === 0 ||
     passwordConfirm.length === 0 ||
@@ -42,6 +50,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
     firstName &&
     lastName &&
     password &&
+    !passwordError &&
     passwordConfirm &&
     password === passwordConfirm;
 
@@ -120,6 +129,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
             radius="md"
             size="md"
             value={password}
+            error={passwordError}
             onChange={(e) => setPassword(e.currentTarget.value)}
           />
 
