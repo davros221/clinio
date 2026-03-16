@@ -23,7 +23,7 @@ export interface LoginPanelRef {
 
 export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
   ({ onForgotPassword, onSignUp }, ref) => {
-    const { login, loading } = useLogin();
+    const { mutateAsync, isPending } = useLogin();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [touched, setTouched] = useState(false);
@@ -44,7 +44,7 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
 
     const handleLogin = async (event: FormEvent) => {
       event.preventDefault();
-      await login(email, password);
+      await mutateAsync({ email, password });
     };
 
     return (
@@ -87,7 +87,7 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
             size="md"
             type="submit"
             disabled={!isValid}
-            loading={loading}
+            loading={isPending}
           >
             Let me In
           </Button>

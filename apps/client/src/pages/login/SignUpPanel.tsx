@@ -30,7 +30,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useLogin();
+  const { mutateAsync } = useLogin();
 
   const passwordRegex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -78,7 +78,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
         "Account created!",
         "Logging you in automatically, welcome to Clinio!"
       );
-      await login(email, password);
+      await mutateAsync({ email, password });
       onSuccess(email);
     } catch (networkError) {
       mapSystemErrorToNotification(networkError);
