@@ -1,9 +1,9 @@
 import { USER_ROLES } from "../types/user";
 import { useUser } from "../hooks/useUser.ts";
-import { AdminDashboard } from "../pages/dashboards/AdminDashboard";
-import { DoctorDashboard } from "../pages/dashboards/DoctorDashboard.tsx";
-import { NurseDashboard } from "../pages/dashboards/NurseDashboard.tsx";
-import { ClientDashboard } from "../pages/dashboards/ClientDashboard.tsx";
+import { AdminDashboard } from "../pages/dashboard/AdminDashboard.tsx";
+import { DoctorDashboard } from "../pages/dashboard/DoctorDashboard.tsx";
+import { NurseDashboard } from "../pages/dashboard/NurseDashboard.tsx";
+import { ClientDashboard } from "../pages/dashboard/ClientDashboard.tsx";
 import { JSX } from "react";
 import { Navigate } from "react-router";
 import { ROUTER_PATHS } from "../router/routes.ts";
