@@ -17,6 +17,8 @@ export const Login = () => {
   const [containerHeight, setContainerHeight] = useState<number>(0);
 
   // Ensure user is logged out when visiting login page
+  // TODO add logged guard to route user automatically to /dashboard if already logged in
+  // TODO add instead /logout route that will logout() user and redirect to /login, and remove this useEffect
   useEffect(() => {
     logout();
   }, [logout]);

@@ -17,7 +17,10 @@ export const ForbiddenPage = () => {
         <Text c="dimmed" size="sm" mb="xl">
           You do not have permission to access this page.
         </Text>
-        <Button variant="light" onClick={() => navigate(ROUTER_PATHS.HOME)}>
+        <Button
+          variant="light"
+          onClick={() => navigate(ROUTER_PATHS.HOME, { replace: true })}
+        >
           Go back home
         </Button>
       </Paper>
