@@ -1,0 +1,14 @@
+.navLink {
+  border-radius: 4px;
+  color: white !important;
+  background-color: #0f71c8 !important;
+
+  &:hover {
+    background-color: var(--color-hover-btn-light) !important;
+  }
+
+  &[aria-current="page"] {
+    background-color: var(--color-app-blue-dark) !important;
+    color: white !important;
+  }
+}

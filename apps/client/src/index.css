@@ -2,4 +2,18 @@
   /* color variables */
   --color-gradient-primary-light: #86c5f8;
   --color-gradient-primary-dark: #0f71c8;
+  --color-gradient-primary: linear-gradient(
+    160deg,
+    var(--color-gradient-primary-dark) 0%,
+    var(--color-gradient-primary-light) 100%
+  );
+  --color-app-blue: #2562c6;
+  --color-app-blue-dark: #1f54aa;
+  --color-hover-btn-light: #86c5f8;
+
+  /* fonts */
+  --color-primary-text: var(--color-gradient-primary-dark);
+
+  /* layout */
+  --border-radius: 12px;
 }
