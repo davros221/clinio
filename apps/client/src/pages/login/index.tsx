@@ -1,15 +1,25 @@
-import { Paper, Text, Container, Center, Box, Transition } from "@mantine/core";
+import { Paper, Text, Container, Box, Transition } from "@mantine/core";
 import { useState, useRef, useEffect } from "react";
 import { LoginPanel, type LoginPanelRef } from "./LoginPanel";
 import { SignUpPanel } from "./SignUpPanel";
+import { useAuthStore } from "../../stores/authStore.ts";
 
 export const Login = () => {
-  const [showSignUp, setShowSignUp] = useState(false);
   const loginPanelRef = useRef<LoginPanelRef>(null);
   const loginRef = useRef<HTMLDivElement>(null);
+
+  const logout = useAuthStore((store) => store.logout);
+
+  const [showSignUp, setShowSignUp] = useState(false);
   const signUpRef = useRef<HTMLDivElement>(null);
   const showSignUpRef = useRef(showSignUp);
+
   const [containerHeight, setContainerHeight] = useState<number>(0);
+
+  // Ensure user is logged out when visiting login page
+  useEffect(() => {
+    logout();
+  }, [logout]);
 
   useEffect(() => {
     showSignUpRef.current = showSignUp;
@@ -44,81 +54,79 @@ export const Login = () => {
   };
 
   return (
-    <Center h="100dvh">
-      <Container size={420} w="100%">
-        <Paper
-          withBorder
-          shadow="md"
-          p={40}
-          radius="md"
-          style={{ overflow: "hidden" }}
+    <Container size={420} w="100%">
+      <Paper
+        withBorder
+        shadow="md"
+        p={40}
+        radius="md"
+        style={{ overflow: "hidden" }}
+      >
+        <Text size="lg" fw={700} mb="xl" c="blue">
+          ClinIO
+        </Text>
+
+        <Box
+          style={{
+            position: "relative",
+            height: containerHeight || "auto",
+            transition: "height 300ms ease",
+            overflow: "hidden",
+          }}
         >
-          <Text size="lg" fw={700} mb="xl" c="blue">
-            ClinIO
-          </Text>
-
-          <Box
-            style={{
-              position: "relative",
-              height: containerHeight || "auto",
-              transition: "height 300ms ease",
-              overflow: "hidden",
-            }}
+          <Transition
+            mounted={!showSignUp}
+            transition="slide-right"
+            duration={300}
+            timingFunction="ease"
+            keepMounted
           >
-            <Transition
-              mounted={!showSignUp}
-              transition="slide-right"
-              duration={300}
-              timingFunction="ease"
-              keepMounted
-            >
-              {(styles) => (
-                <Box
-                  ref={loginRef}
-                  style={{
-                    ...styles,
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                  }}
-                >
-                  <LoginPanel
-                    ref={loginPanelRef}
-                    onSignUp={() => setShowSignUp(true)}
-                  />
-                </Box>
-              )}
-            </Transition>
+            {(styles) => (
+              <Box
+                ref={loginRef}
+                style={{
+                  ...styles,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <LoginPanel
+                  ref={loginPanelRef}
+                  onSignUp={() => setShowSignUp(true)}
+                />
+              </Box>
+            )}
+          </Transition>
 
-            <Transition
-              mounted={showSignUp}
-              transition="slide-left"
-              duration={300}
-              timingFunction="ease"
-              keepMounted
-            >
-              {(styles) => (
-                <Box
-                  ref={signUpRef}
-                  style={{
-                    ...styles,
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                  }}
-                >
-                  <SignUpPanel
-                    onSuccess={handleSignUpSuccess}
-                    onBack={() => setShowSignUp(false)}
-                  />
-                </Box>
-              )}
-            </Transition>
-          </Box>
-        </Paper>
-      </Container>
-    </Center>
+          <Transition
+            mounted={showSignUp}
+            transition="slide-left"
+            duration={300}
+            timingFunction="ease"
+            keepMounted
+          >
+            {(styles) => (
+              <Box
+                ref={signUpRef}
+                style={{
+                  ...styles,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                }}
+              >
+                <SignUpPanel
+                  onSuccess={handleSignUpSuccess}
+                  onBack={() => setShowSignUp(false)}
+                />
+              </Box>
+            )}
+          </Transition>
+        </Box>
+      </Paper>
+    </Container>
   );
 };
