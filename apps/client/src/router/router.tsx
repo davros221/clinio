@@ -30,6 +30,10 @@ export const routes: RouteObject[] = [
                 path: ROUTER_PATHS.HOME,
                 element: <DashboardSwitch />,
               },
+              {
+                path: ROUTER_PATHS.SETTINGS,
+                element: <div>Settings - placeholder - TBD</div>, // TODO TBD
+              },
             ],
           },
         ],
