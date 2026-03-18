@@ -1,14 +1,14 @@
 .navLink {
-  border-radius: 4px;
+  border-radius: var(--mantine-radius-xs);
   color: white !important;
-  background-color: var(--color-gradient-primary-dark) !important;
+  background-color: var(--mantine-primary-color-9) !important;
 
   &:hover {
-    background-color: var(--color-hover-btn-light) !important;
+    background-color: var(--mantine-primary-color-2) !important;
   }
 
   &[aria-current="page"] {
-    background-color: var(--color-app-blue-dark) !important;
+    background-color: var(--mantine-primary-color-9) !important;
     color: white !important;
   }
 }
