@@ -1,4 +1,5 @@
 import { notifications } from "@mantine/notifications";
+import { isAxiosError } from "axios";
 
 export const notify = (title: string, message: string, color: string) => {
   notifications.show({
@@ -72,4 +73,13 @@ export const mapApiErrorToNotification = (error: unknown) => {
 
 export const mapSystemErrorToNotification = (error: unknown) => {
   notifyError("System Error", String(error));
+};
+
+export const handleError = (error: unknown) => {
+  if (isAxiosError(error)) {
+    if (error.response?.data) mapApiErrorToNotification(error.response.data);
+    else mapSystemErrorToNotification(error);
+  } else if (error && typeof error === "object") {
+    mapApiErrorToNotification(error);
+  } else mapSystemErrorToNotification(error);
 };
