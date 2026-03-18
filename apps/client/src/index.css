@@ -2,4 +2,138 @@
   /* color variables */
   --color-gradient-primary-light: #86c5f8;
   --color-gradient-primary-dark: #0f71c8;
+
+  --cal-slot-height: 60px;
+  --cal-half-slot: 30px;
+  --cal-border: 1px solid #111;
+  --cal-border-outer: 1.5px solid #111;
+}
+
+/* ── WeekCalendar ── */
+
+.week-calendar {
+  width: 100%;
+}
+
+.week-table {
+  border: var(--cal-border-outer);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.week-table__header {
+  display: grid;
+  grid-template-columns: 48px repeat(5, 1fr);
+  border-bottom: var(--cal-border-outer);
+}
+
+.week-table__header-corner {
+  background: var(--color-gradient-primary-light);
+  border-right: var(--cal-border);
+}
+
+.week-table__header-cell {
+  background: var(--color-gradient-primary-light);
+  text-align: center;
+  padding: 7px 4px;
+  border-right: var(--cal-border);
+}
+
+.week-table__header-cell:last-child {
+  border-right: none;
+}
+
+.week-table__body {
+  display: grid;
+  grid-template-columns: 48px repeat(5, 1fr);
+}
+
+.week-table__time-axis {
+  display: flex;
+  flex-direction: column;
+}
+
+.week-table__hour-label {
+  height: var(--cal-slot-height);
+  border-bottom: var(--cal-border);
+  border-right: var(--cal-border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 3px 6px 0 0;
+  background: #fff;
+  font-size: 11px;
+  color: #111;
+}
+
+.week-table__day-col {
+  position: relative;
+  border-right: var(--cal-border);
+}
+
+.week-table__day-col:last-child {
+  border-right: none;
+}
+
+.week-table__hour-row {
+  height: var(--cal-slot-height);
+  border-bottom: var(--cal-border);
+}
+
+.week-table__half-slot {
+  height: var(--cal-half-slot);
+  background: #fff;
+  transition: background 0.1s;
+}
+
+.week-table__half-slot--bottom {
+  border-bottom: 1px solid #111;
+}
+
+.week-table__half-slot--over {
+  background: rgba(134, 197, 248, 0.35);
+}
+
+.week-table__appt {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 11px;
+  font-weight: 500;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 1;
+  transition: opacity 0.15s;
+}
+
+.week-table__appt:hover {
+  opacity: 0.85;
+}
+
+.week-table__appt-room {
+  font-size: 10px;
+  opacity: 0.75;
+}
+
+.week-table__drag-overlay {
+  padding: 2px 5px;
+  font-size: 11px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: grabbing;
+  opacity: 0.95;
+}
+
+.week-table__drag-overlay-room {
+  font-size: 10px;
+  opacity: 0.75;
 }
