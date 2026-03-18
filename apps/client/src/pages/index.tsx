@@ -1,0 +1,20 @@
+import { AppShell } from "@mantine/core";
+import { Outlet } from "react-router";
+import classes from "./index.module.css";
+import { SideMenu } from "../components/SideMenu.tsx";
+
+export const AuthenticatedLayout = () => {
+  return (
+    <div className={classes.card}>
+      <AppShell navbar={{ width: 220, breakpoint: 0 }}>
+        <AppShell.Navbar p="xs">
+          <SideMenu />
+        </AppShell.Navbar>
+
+        <AppShell.Main>
+          <Outlet />
+        </AppShell.Main>
+      </AppShell>
+    </div>
+  );
+};

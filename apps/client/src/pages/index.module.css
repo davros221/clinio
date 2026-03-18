@@ -1,0 +1,32 @@
+.card {
+  position: relative;
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--mantine-color-white);
+}
+
+/* Contain the AppShell navbar relative to the card, not the viewport */
+.card :global(.mantine-AppShell-root) {
+  height: 100%;
+}
+
+.card :global(.mantine-AppShell-navbar) {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--color-app-blue);
+}
+
+.card :global(.mantine-AppShell-main) {
+  min-height: 100%;
+}
+
+@media (min-width: 992px) {
+  .card {
+    width: 80dvw;
+    height: 80dvh;
+    border-radius: var(--mantine-radius-lg);
+    box-shadow: var(--mantine-shadow-xl);
+  }
+}

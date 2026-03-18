@@ -1,14 +1,15 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import { Login } from "../pages/login";
-import { RootLayout } from "../components/RootLayout.tsx";
 import { RequireAuth } from "../components/RequireAuth.tsx";
 import { DashboardSwitch } from "../components/DashboardSwitch.tsx";
+import { AppLayout } from "../components/AppLayout";
+import { AuthenticatedLayout } from "../pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
 
 export const routes: RouteObject[] = [
   {
-    element: <RootLayout />,
+    element: <AppLayout />,
     children: [
       {
         path: ROUTER_PATHS.FORBIDDEN,
@@ -23,8 +24,13 @@ export const routes: RouteObject[] = [
         element: <RequireAuth />,
         children: [
           {
-            path: ROUTER_PATHS.HOME,
-            element: <DashboardSwitch />,
+            element: <AuthenticatedLayout />,
+            children: [
+              {
+                path: ROUTER_PATHS.HOME,
+                element: <DashboardSwitch />,
+              },
+            ],
           },
         ],
       },
