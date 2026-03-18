@@ -5,23 +5,18 @@ import { ROUTER_PATHS } from "../router/routes.ts";
 import { useUser } from "../hooks/useUser.ts";
 import classes from "./SideMenu.module.css";
 
-type NavBtnItem = {
+type NavBtnProps = {
   to: string;
   label: string;
 };
 
-type NavBtnProps = NavBtnItem & {
-  isLast?: boolean;
-};
-
-const NavBtn = ({ to, label, isLast = false }: NavBtnProps) => (
+const NavBtn = ({ to, label }: NavBtnProps) => (
   <Button
     component={RouterNavLink}
     to={to}
     fullWidth
     justify="start"
     className={classes.navLink}
-    mb={isLast ? undefined : "xs"}
   >
     {label}
   </Button>
@@ -41,9 +36,6 @@ const bottomNavItems = [
   mapNavItem(ROUTER_PATHS.LOGIN, "Logout"),
 ];
 
-const isLastNavItem = (index: number, arr: NavBtnItem[]) =>
-  index === arr.length - 1;
-
 export const SideMenu = () => {
   const user = useUser();
   const initials = user
@@ -52,7 +44,7 @@ export const SideMenu = () => {
 
   return (
     <Stack gap="xs" h="100%">
-      <Group gap="sm" mb="xs">
+      <Group gap="xxs">
         <Avatar radius="xl" size="lg" color="white">
           {initials}
         </Avatar>
@@ -70,27 +62,17 @@ export const SideMenu = () => {
       <Divider />
 
       <Stack h="100%" justify="space-between">
-        <div>
+        <Stack gap="xxs">
           {topNavItems.map(({ to, label }, index) => (
-            <NavBtn
-              key={to}
-              to={to}
-              label={label}
-              isLast={isLastNavItem(index, topNavItems)}
-            />
+            <NavBtn key={to} to={to} label={label} />
           ))}
-        </div>
+        </Stack>
 
-        <div>
+        <Stack gap="xxs">
           {bottomNavItems.map(({ to, label }, index) => (
-            <NavBtn
-              key={to}
-              to={to}
-              label={label}
-              isLast={isLastNavItem(index, bottomNavItems)}
-            />
+            <NavBtn key={to} to={to} label={label} />
           ))}
-        </div>
+        </Stack>
       </Stack>
     </Stack>
   );

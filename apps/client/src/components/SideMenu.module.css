@@ -1,6 +1,4 @@
 .navLink {
-  border-radius: var(--mantine-radius-xs);
-  color: white !important;
   background-color: var(--mantine-primary-color-4) !important;
 
   &:hover {
