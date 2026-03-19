@@ -1,4 +1,8 @@
 :root {
-  --color-primary-light: var(--mantine-color-blue-3);
-  --color-primary-dark: var(--mantine-color-blue-7);
+  /* color variables */
+  --color-gradient-primary: linear-gradient(
+    160deg,
+    var(--mantine-primary-color-9) 0%,
+    var(--mantine-primary-color-2) 100%
+  );
 }
