@@ -1,8 +1,4 @@
-.root-main {
-  background: linear-gradient(
-    160deg,
-    var(--color-gradient-primary-dark) 0%,
-    var(--color-gradient-primary-light) 100%
-  );
-  min-height: 100vh;
+.title {
+  font-weight: bolder;
+  color: var(--mantine-primary-color-9);
 }
