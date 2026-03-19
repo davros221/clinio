@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button, Text, Group, Stack, Paper } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import {
   DndContext,
   DragEndEvent,
@@ -8,62 +9,57 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  useDroppable,
 } from "@dnd-kit/core";
-import { mockAppointments } from "../../mocks/mockAppointments";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentModal } from "./AppointmentModal";
-import { CalendarHeader } from "./CalendarHeader.tsx";
-import { CalendarLegend } from "./CalendarLegend.tsx";
+import { CalendarHeader } from "./CalendarHeader";
+import { CalendarLegend } from "./CalendarLegend";
+import { DroppableSlot } from "./DroppableSlot";
 import {
   Appointment,
   DAYS,
   HOURS,
   SLOT_HEIGHT,
   ROOM_COLORS,
-  getWeekStart,
+} from "../utils/types";
+import {
   timeToMinutes,
   minutesToTime,
   fmt,
-} from "./types.ts";
+  getWeekStart,
+} from "../utils/dateUtils";
+import "./calendar.css";
 
-// Droppable slot po půlhodinkách ────────────────────────────────────────────────
-
-const DroppableSlot = ({
-  dayIdx,
-  hour,
-  minute,
-}: {
-  dayIdx: number;
-  hour: number;
-  minute: 0 | 30;
-}) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id: `${dayIdx}-${hour}-${minute}`,
-  });
-  return (
-    <div
-      ref={setNodeRef}
-      className={[
-        "week-table__half-slot",
-        minute === 30 ? "week-table__half-slot--bottom" : "",
-        isOver ? "week-table__half-slot--over" : "",
-      ].join(" ")}
-    />
-  );
+type Props = {
+  appointments: Appointment[];
+  // Callback when moving appointment by d&d — parent will provide API call
+  onAppointmentMove?: (id: string, day: number, start: string) => void;
 };
 
-export const WeekCalendar = () => {
+export const WeekCalendar = ({ appointments, onAppointmentMove }: Props) => {
   const [weekOffset, setWeekOffset] = useState(0);
-  const [appointments, setAppointments] =
-    useState<Appointment[]>(mockAppointments);
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
   const [draggingAppt, setDraggingAppt] = useState<Appointment | null>(null);
+  const [mobileDayIdx, setMobileDayIdx] = useState(0);
 
-  const weekStart = getWeekStart(weekOffset);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 4);
-  const gridStart = HOURS[0] * 60;
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const weekStart = useMemo(() => getWeekStart(weekOffset), [weekOffset]);
+
+  const weekEnd = useMemo(() => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + 4);
+    return d;
+  }, [weekStart]);
+
+  // Recalculated only when isMobile or mobileDayIdx changes
+  const visibleDayIndices = useMemo(
+    () => (isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4]),
+    [isMobile, mobileDayIdx]
+  );
+
+  // Start of grid in minutes — never changes
+  const gridStart = useMemo(() => HOURS[0] * 60, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -78,25 +74,27 @@ export const WeekCalendar = () => {
     const { active, over } = event;
     if (!over) return;
 
-    const [dayIdxStr, hourStr, minuteStr] = String(over.id).split("-");
-    const newDay = parseInt(dayIdxStr) + 1;
-    const newStart = minutesToTime(
-      parseInt(hourStr) * 60 + parseInt(minuteStr)
-    );
+    const parts = String(over.id).split("-");
+    if (parts.length !== 3) return;
 
-    setAppointments((prev) =>
-      prev.map((a) =>
-        a.id === active.id ? { ...a, day: newDay, start: newStart } : a
-      )
-    );
+    const [dayIdx, hour, minute] = parts.map(Number);
 
-    // ── TODO: API volání ──────────────────────────────────────────────────────
-    // await fetch(`/api/appointments/${active.id}`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ day: newDay, start: newStart }),
-    // });
-    // ─────────────────────────────────────────────────────────────────────────
+    if (
+      isNaN(dayIdx) ||
+      isNaN(hour) ||
+      isNaN(minute) ||
+      dayIdx < 0 ||
+      dayIdx > 4 ||
+      hour < 7 ||
+      hour > 17 ||
+      (minute !== 0 && minute !== 30)
+    )
+      return;
+
+    const newDay = dayIdx + 1;
+    const newStart = minutesToTime(hour * 60 + minute);
+
+    onAppointmentMove?.(String(active.id), newDay, newStart);
   };
 
   return (
@@ -105,9 +103,17 @@ export const WeekCalendar = () => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <Stack gap="sm" className="week-calendar">
-        {/* Navigace týdnů */}
-        <Group justify="center" gap="xs">
+      <Stack
+        gap="sm"
+        className="week-calendar"
+        style={
+          {
+            "--cal-col-width": `calc((100% - 48px) / ${visibleDayIndices.length})`,
+          } as React.CSSProperties
+        }
+      >
+        {/* Week Navigation */}
+        <Group justify="center" gap="xs" style={{ position: "relative" }}>
           <Button
             variant="default"
             size="xs"
@@ -125,16 +131,55 @@ export const WeekCalendar = () => {
           >
             →
           </Button>
-          <Button variant="subtle" size="xs" onClick={() => setWeekOffset(0)}>
+          <Button
+            variant="subtle"
+            size="xs"
+            onClick={() => setWeekOffset(0)}
+            style={{ position: "absolute", right: 0 }}
+          >
             Dnes
           </Button>
         </Group>
 
-        {/* Tabulka */}
+        {/* Days Navigation — only on mobile */}
+        {isMobile && (
+          <Group justify="center" gap="xs">
+            <Button
+              variant="default"
+              size="xs"
+              disabled={mobileDayIdx === 0}
+              onClick={() => setMobileDayIdx((d) => Math.max(0, d - 1))}
+            >
+              ←
+            </Button>
+            <Text size="sm" fw={500} w={170} ta="center">
+              {DAYS[mobileDayIdx]}
+            </Text>
+            <Button
+              variant="default"
+              size="xs"
+              disabled={mobileDayIdx === 4}
+              onClick={() => setMobileDayIdx((d) => Math.min(4, d + 1))}
+            >
+              →
+            </Button>
+          </Group>
+        )}
+
+        {/* Table */}
         <div className="week-table">
-          <CalendarHeader weekStart={weekStart} />
-          <div className="week-table__body">
-            {/* Časová osa */}
+          <CalendarHeader
+            weekStart={weekStart}
+            visibleDayIndices={visibleDayIndices}
+          />
+
+          <div
+            className="week-table__body"
+            style={{
+              gridTemplateColumns: `48px repeat(${visibleDayIndices.length}, 1fr)`,
+            }}
+          >
+            {/* Time Axis */}
             <div className="week-table__time-axis">
               {HOURS.map((hour) => (
                 <div key={hour} className="week-table__hour-label">
@@ -143,12 +188,12 @@ export const WeekCalendar = () => {
               ))}
             </div>
 
-            {/* Sloupce dnů */}
-            {DAYS.map((_, dayIdx) => {
+            {/* Days - columns */}
+            {visibleDayIndices.map((dayIdx) => {
               const dayAppts = appointments.filter((a) => a.day === dayIdx + 1);
               return (
                 <div key={dayIdx} className="week-table__day-col">
-                  {/* Půlhodinové droppable sloty */}
+                  {/* Half-hour droppable slots */}
                   {HOURS.map((hour) => (
                     <div key={hour} className="week-table__hour-row">
                       <DroppableSlot dayIdx={dayIdx} hour={hour} minute={0} />
@@ -156,7 +201,7 @@ export const WeekCalendar = () => {
                     </div>
                   ))}
 
-                  {/* Schůzky */}
+                  {/* Appointments */}
                   {dayAppts.map((appt) => {
                     const top =
                       ((timeToMinutes(appt.start) - gridStart) / 60) *
@@ -180,7 +225,7 @@ export const WeekCalendar = () => {
 
         <CalendarLegend />
 
-        {/* DragOverlay — "duch" při přetahování */}
+        {/* DragOverlay */}
         <DragOverlay>
           {draggingAppt &&
             (() => {
@@ -188,7 +233,9 @@ export const WeekCalendar = () => {
                 bg: "#e0e0e0",
                 text: "#333",
               };
-              const roomNumber = draggingAppt.room.match(/\d+/)?.[0] ?? "";
+              <span className="week-table__drag-overlay-room">
+                {draggingAppt.start} · ord. {draggingAppt.roomNumber}
+              </span>;
               const height = (draggingAppt.duration / 60) * SLOT_HEIGHT;
               return (
                 <Paper
@@ -203,14 +250,14 @@ export const WeekCalendar = () => {
                 >
                   <span>{draggingAppt.patientName}</span>
                   <span className="week-table__drag-overlay-room">
-                    {draggingAppt.start} · ord. {roomNumber}
+                    {draggingAppt.start} · ord. {draggingAppt.roomNumber}
                   </span>
                 </Paper>
               );
             })()}
         </DragOverlay>
 
-        {/* Modal — otevřená schůzka */}
+        {/* Modal */}
         <AppointmentModal
           appt={selectedAppt}
           onClose={() => setSelectedAppt(null)}

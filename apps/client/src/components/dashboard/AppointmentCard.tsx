@@ -1,7 +1,7 @@
 import { Tooltip } from "@mantine/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Appointment, ROOM_COLORS } from "./types";
+import { Appointment, ROOM_COLORS } from "../utils/types";
 
 type Props = {
   appt: Appointment;
@@ -17,8 +17,11 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
       data: { appt },
     });
 
-  const colors = ROOM_COLORS[appt.room] ?? { bg: "#e0e0e0", text: "#333" };
-  const roomNumber = appt.room.match(/\d+/)?.[0] ?? "";
+  // TODO předelat pak podle vytvareni ordinací
+  const colors = ROOM_COLORS[appt.room] ?? {
+    bg: "var(--mantine-color-gray-5)",
+    text: "var(--mantine-color-white)",
+  };
 
   return (
     <Tooltip
@@ -31,21 +34,23 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        className="week-table__appt"
-        style={{
-          top,
-          height: height - 2,
-          background: colors.bg,
-          color: colors.text,
-          opacity: isDragging ? 0.3 : 1,
-          transform: CSS.Translate.toString(transform),
-          cursor: isDragging ? "grabbing" : "grab",
-        }}
+        className={`week-table__appt ${
+          isDragging ? "week-table__appt--dragging" : "week-table__appt--idle"
+        }`}
+        style={
+          {
+            "--appt-top": `${top}px`,
+            "--appt-height": `${height - 2}px`,
+            "--appt-bg": colors.bg,
+            "--appt-color": colors.text,
+            transform: CSS.Translate.toString(transform),
+          } as React.CSSProperties
+        }
         onClick={onClick}
       >
         <span>{appt.patientName}</span>
         <span className="week-table__appt-room">
-          {appt.start} · ord. {roomNumber}
+          {appt.start} · ord. {appt.roomNumber}
         </span>
       </div>
     </Tooltip>

@@ -1,11 +1,11 @@
-import { Appointment } from "../components/dashboard/types";
-export type { Appointment };
+import { Appointment } from "../components/utils/types";
 
 export const mockAppointments: Appointment[] = [
   {
     id: "1",
     patientName: "Lucie Havelová",
     room: "Ordinace 1",
+    roomNumber: 1,
     start: "08:00",
     duration: 60,
     day: 1,
@@ -14,6 +14,7 @@ export const mockAppointments: Appointment[] = [
     id: "2",
     patientName: "Petr Dvořák",
     room: "Ordinace 4",
+    roomNumber: 4,
     start: "11:00",
     duration: 45,
     day: 1,
@@ -22,6 +23,7 @@ export const mockAppointments: Appointment[] = [
     id: "3",
     patientName: "Jan Novák",
     room: "Ordinace 2",
+    roomNumber: 2,
     start: "09:00",
     duration: 30,
     day: 3,
@@ -30,6 +32,7 @@ export const mockAppointments: Appointment[] = [
     id: "4",
     patientName: "David Marek",
     room: "Ordinace 3",
+    roomNumber: 3,
     start: "11:00",
     duration: 60,
     day: 3,
@@ -38,6 +41,7 @@ export const mockAppointments: Appointment[] = [
     id: "5",
     patientName: "Petr Kraus",
     room: "Ordinace 1",
+    roomNumber: 1,
     start: "13:30",
     duration: 45,
     day: 2,
@@ -46,6 +50,7 @@ export const mockAppointments: Appointment[] = [
     id: "6",
     patientName: "Eva Horáková",
     room: "Ordinace 2",
+    roomNumber: 2,
     start: "14:00",
     duration: 90,
     day: 4,
@@ -54,6 +59,7 @@ export const mockAppointments: Appointment[] = [
     id: "7",
     patientName: "Tomáš Blaha",
     room: "Ordinace 1",
+    roomNumber: 1,
     start: "08:00",
     duration: 30,
     day: 5,

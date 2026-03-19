@@ -1,5 +1,5 @@
 import { Group, Badge } from "@mantine/core";
-import { ROOM_COLORS } from "./types";
+import { ROOM_COLORS } from "../utils/types";
 
 export const CalendarLegend = () => (
   <Group gap="xs">
