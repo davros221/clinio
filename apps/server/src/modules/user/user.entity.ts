@@ -1,5 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
 import { UserRole } from "@clinio/shared";
+import { OfficeEntity } from "../office/office.entity";
 
 @Entity("users")
 @Unique(["email"])
@@ -21,4 +28,10 @@ export class UserEntity {
 
   @Column({ type: "enum", enum: Object.values(UserRole) })
   role!: UserRole;
+
+  @OneToMany(() => OfficeEntity, (office) => office.doctorId)
+  doctorOffices?: OfficeEntity[];
+
+  @OneToMany(() => OfficeEntity, (office) => office.nurseId)
+  nurseOffices?: OfficeEntity[];
 }
