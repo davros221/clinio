@@ -30,4 +30,4 @@ jobs:
           allowed_bots: "claude"
           prompt: |
             This PR contains backend changes. Update the changelog and bump the version
-            for the server app following the instructions in apps/server/CLAUDE.md.
+            for the server app following the instructions in apps/server/.claude/skills/update-changelog/SKILL.md.
