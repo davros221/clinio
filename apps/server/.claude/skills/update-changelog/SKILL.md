@@ -1,8 +1,8 @@
-# Server (Backend) Guidelines
+# Update Changelog
 
-## Changelog & Versioning
+Update the changelog and bump the version for the server app.
 
-When asked to update the changelog for this app:
+## Instructions
 
 1. Analyze changes in `apps/server/` using `git diff origin/master...HEAD -- apps/server/`.
 2. Read the current `apps/server/CHANGELOG.md` and `apps/server/package.json`.
@@ -18,7 +18,7 @@ When asked to update the changelog for this app:
 8. Do NOT modify anything outside of `apps/server/`.
 9. Commit with message: `chore(server): update changelog and bump version to <new_version>`
 
-### Example changelog entry
+## Example changelog entry
 
 ```markdown
 ## [0.2.0] - 2026-03-19
