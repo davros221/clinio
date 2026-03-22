@@ -21,8 +21,8 @@
 - run database locally
   - `cd infra`
   - `docker-compose up -d`
-- Run backend server `pnpm dev:server`
-- Run frontend server `pnpm dev:client`
+- Run backend server `pnpm server:dev`
+- Run frontend server `pnpm client:dev`
 
 ## Formatting and linting
 
