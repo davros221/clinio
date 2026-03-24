@@ -1,9 +1,11 @@
 import { Center, Paper, Title, Text, Button } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { ROUTER_PATHS } from "../router/routes.ts";
+import { useT } from "../hooks/useT";
 
 export const ForbiddenPage = () => {
   const navigate = useNavigate();
+  const t = useT();
 
   return (
     <Center h="100dvh">
@@ -12,16 +14,16 @@ export const ForbiddenPage = () => {
           403
         </Title>
         <Text fw={600} mb="xs">
-          Access Forbidden
+          {t("common.forbidden")}
         </Text>
         <Text c="dimmed" size="sm" mb="xl">
-          You do not have permission to access this page.
+          {t("common.forbiddenMessage")}
         </Text>
         <Button
           variant="light"
           onClick={() => navigate(ROUTER_PATHS.HOME, { replace: true })}
         >
-          Go back home
+          {t("common.returnHome")}
         </Button>
       </Paper>
     </Center>

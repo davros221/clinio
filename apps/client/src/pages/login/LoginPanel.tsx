@@ -9,6 +9,7 @@ import {
   Group,
 } from "@mantine/core";
 import { FormEvent, forwardRef, useImperativeHandle, useState } from "react";
+import { useT } from "../../hooks/useT.ts";
 import { loginSchema } from "@clinio/shared";
 import { useLogin } from "../../hooks/useLogin.ts";
 
@@ -23,6 +24,7 @@ export interface LoginPanelRef {
 
 export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
   ({ onForgotPassword, onSignUp }, ref) => {
+    const t = useT();
     const { mutateAsync, isPending } = useLogin();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -50,14 +52,14 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
     return (
       <>
         <Title ta="center" c="blue" order={1} mb="xl">
-          WELCOME!
+          {t("login.welcome")}
         </Title>
 
         <form onSubmit={handleLogin}>
           <Stack>
             <TextInput
-              placeholder="Your e-mail/username"
-              label="Email / Username"
+              placeholder={t("login.emailPlaceholder")}
+              label={t("login.emailLabel")}
               radius="md"
               size="md"
               value={email}
@@ -65,8 +67,8 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
             />
 
             <PasswordInput
-              placeholder="Your Password"
-              label="Password"
+              placeholder={t("login.passwordPlaceholder")}
+              label={t("login.passwordLabel")}
               radius="md"
               size="md"
               value={password}
@@ -89,7 +91,7 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
             disabled={!isValid}
             loading={isPending}
           >
-            Let me In
+            {t("login.submitButton")}
           </Button>
         </form>
 
@@ -101,11 +103,11 @@ export const LoginPanel = forwardRef<LoginPanelRef, LoginPanelProps>(
               c="dimmed"
               onClick={onForgotPassword}
             >
-              Forgot password
+              {t("login.forgotPassword")}
             </Anchor>
 
             <Anchor component="button" size="sm" c="dimmed" onClick={onSignUp}>
-              Sign Up
+              {t("login.signUp")}
             </Anchor>
           </Group>
         </Center>
