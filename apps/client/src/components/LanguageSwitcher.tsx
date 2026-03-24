@@ -1,5 +1,4 @@
 import { SegmentedControl } from "@mantine/core";
-import i18n from "../i18n";
 import { useTranslation } from "react-i18next";
 
 const LANGUAGES = [
@@ -14,8 +13,9 @@ export const LanguageSwitcher = () => {
     <SegmentedControl
       size="xs"
       value={instance.language}
-      onChange={(lang) => i18n.changeLanguage(lang)}
+      onChange={(lang) => instance.changeLanguage(lang)}
       data={[...LANGUAGES]}
+      aria-label="Language"
     />
   );
 };

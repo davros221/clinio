@@ -1,7 +1,7 @@
 const en = {
   common: {
     appName: "ClinIO",
-    forbidden: "403 Forbidden",
+    forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
     returnHome: "Go Back Home",
   },
