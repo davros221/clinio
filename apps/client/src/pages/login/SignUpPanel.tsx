@@ -9,6 +9,7 @@ import {
   Group,
 } from "@mantine/core";
 import { FormEvent, useState } from "react";
+import { useT } from "../../hooks/useT.ts";
 import { UserService } from "@clinio/api";
 import {
   mapApiErrorToNotification,
@@ -24,6 +25,7 @@ interface SignUpPanelProps {
 }
 
 export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -37,7 +39,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
 
   const passwordError =
     password.length > 0 && !passwordRegex.test(password)
-      ? "Min 8 chars, upper & lowercase, number, and special character (@$!%*?&)."
+      ? t("signUp.passwordError")
       : undefined;
 
   const passwordsMatch =
@@ -74,10 +76,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
         return;
       }
 
-      notifySuccess(
-        "Account created!",
-        "Logging you in automatically, welcome to Clinio!"
-      );
+      notifySuccess(t("signUp.successTitle"), t("signUp.successMessage"));
       await mutateAsync({ email, password });
       onSuccess(email);
     } catch (networkError) {
@@ -90,14 +89,14 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
   return (
     <>
       <Title ta="center" c="blue" order={1} mb="xl">
-        CREATE ACCOUNT
+        {t("signUp.title")}
       </Title>
 
       <form onSubmit={handleSignUp}>
         <Stack>
           <TextInput
-            placeholder="Your e-mail"
-            label="Email"
+            placeholder={t("signUp.emailPlaceholder")}
+            label={t("signUp.emailLabel")}
             radius="md"
             size="md"
             value={email}
@@ -106,16 +105,16 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
 
           <Group grow>
             <TextInput
-              placeholder="First name"
-              label="First Name"
+              placeholder={t("signUp.firstNamePlaceholder")}
+              label={t("signUp.firstNameLabel")}
               radius="md"
               size="md"
               value={firstName}
               onChange={(e) => setFirstName(e.currentTarget.value)}
             />
             <TextInput
-              placeholder="Last name"
-              label="Last Name"
+              placeholder={t("signUp.lastNamePlaceholder")}
+              label={t("signUp.lastNameLabel")}
               radius="md"
               size="md"
               value={lastName}
@@ -124,8 +123,8 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
           </Group>
 
           <PasswordInput
-            placeholder="Password"
-            label="Password"
+            placeholder={t("signUp.passwordPlaceholder")}
+            label={t("signUp.passwordLabel")}
             radius="md"
             size="md"
             value={password}
@@ -134,12 +133,12 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
           />
 
           <PasswordInput
-            placeholder="Confirm password"
-            label="Confirm Password"
+            placeholder={t("signUp.confirmPasswordPlaceholder")}
+            label={t("signUp.confirmPasswordLabel")}
             radius="md"
             size="md"
             value={passwordConfirm}
-            error={!passwordsMatch ? "Passwords do not match" : undefined}
+            error={!passwordsMatch ? t("signUp.passwordsMismatch") : undefined}
             onChange={(e) => setPasswordConfirm(e.currentTarget.value)}
           />
         </Stack>
@@ -154,13 +153,13 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
           disabled={!isValid}
           loading={loading}
         >
-          Create Account
+          {t("signUp.submitButton")}
         </Button>
       </form>
 
       <Center mt="md">
         <Anchor component="button" size="sm" c="dimmed" onClick={onBack}>
-          Back to Login
+          {t("signUp.backToLogin")}
         </Anchor>
       </Center>
     </>
