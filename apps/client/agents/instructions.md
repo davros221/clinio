@@ -75,8 +75,9 @@
 ## Testing and Quality
 
 - Add or update tests when behavior changes.
+- Keep components and hooks easy to test (e.g., clear inputs/outputs, minimal hidden state).
 - Prefer tests that cover user-visible behavior and important logic.
-- Keep components and hooks easy to test.
+- When adding tests for this app, use the repo’s agreed tooling (Vitest).
 
 ## Before Finishing
 
