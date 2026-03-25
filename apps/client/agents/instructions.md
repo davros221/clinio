@@ -9,8 +9,7 @@
 
 ## General Frontend Principles
 
-- These rules override generic repo guidance for frontend work.
-- The agent should always consult it before making client changes.
+- The agent should always consult this instructions document before making client changes.
 - Keep UI code simple, readable, and component-driven.
 - Prefer functional components and hooks.
 - Make the smallest change that solves the task.
