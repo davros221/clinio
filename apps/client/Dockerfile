@@ -23,6 +23,7 @@ COPY packages/api/ packages/api/
 COPY apps/client/ apps/client/
 
 # 3) Build
+RUN VITE_API_URL=${VITE_API_URL} pnpm nx sync
 RUN VITE_API_URL=${VITE_API_URL} pnpm nx build client
 
 # ── Runner ───────────────────────────────────────────────

@@ -18,6 +18,7 @@ COPY packages/shared/ packages/shared/
 COPY apps/server/ apps/server/
 
 # 3) Build
+RUN pnpm nx sync
 RUN pnpm nx build server
 
 # ── Runner ───────────────────────────────────────────────
