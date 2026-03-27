@@ -33,7 +33,7 @@ COPY apps/server/package.json apps/server/
 COPY packages/shared/package.json packages/shared/
 
 ENV HUSKY=0
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
 
 # Copy built output
 COPY --from=builder /app/apps/server/dist apps/server/dist
