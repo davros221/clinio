@@ -1,5 +1,16 @@
 import { OfficeMapper } from "../mapper/OfficeMapper";
 import { OfficeEntity } from "../office.entity";
+import { UserEntity } from "../../user/user.entity";
+import { UserRole } from "@clinio/shared";
+
+const mockStaff: UserEntity = {
+  id: "staff-1",
+  email: "doc@example.com",
+  password: "hashed",
+  firstName: "Doc",
+  lastName: "Tor",
+  role: UserRole.DOCTOR,
+};
 
 const mockEntity: OfficeEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -15,8 +26,7 @@ const mockEntity: OfficeEntity = {
     saturday: [],
     sunday: [],
   },
-  doctors: [],
-  nurses: [],
+  staff: [mockStaff],
 };
 
 describe("OfficeMapper", () => {
@@ -30,19 +40,21 @@ describe("OfficeMapper", () => {
         specialization: mockEntity.specialization,
         address: mockEntity.address,
         officeHoursTemplate: mockEntity.officeHoursTemplate,
+        staffIds: ["staff-1"],
       });
     });
 
-    it("should NOT include doctors in DTO", () => {
+    it("should NOT include full staff objects in DTO", () => {
       const dto = OfficeMapper.toDto(mockEntity);
 
-      expect(dto).not.toHaveProperty("doctors");
+      expect(dto).not.toHaveProperty("staff");
     });
 
-    it("should NOT include nurses in DTO", () => {
-      const dto = OfficeMapper.toDto(mockEntity);
+    it("should return empty array when no staff assigned", () => {
+      const empty: OfficeEntity = { ...mockEntity, staff: [] };
+      const dto = OfficeMapper.toDto(empty);
 
-      expect(dto).not.toHaveProperty("nurses");
+      expect(dto.staffIds).toEqual([]);
     });
   });
 

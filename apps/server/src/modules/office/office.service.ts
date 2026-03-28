@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { ErrorCode } from "@clinio/shared";
 import { OfficeEntity } from "./office.entity";
+import { UserEntity } from "../user/user.entity";
 import { CreateOfficeDto } from "./dto/create-office.dto";
 import { internalError, notFound } from "../../common/error-messages";
 
@@ -10,18 +11,23 @@ import { internalError, notFound } from "../../common/error-messages";
 export class OfficeService {
   constructor(
     @InjectRepository(OfficeEntity)
-    private officeRepository: Repository<OfficeEntity>
+    private officeRepository: Repository<OfficeEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>
   ) {}
 
   findAll(): Promise<OfficeEntity[]> {
-    return this.officeRepository.find();
+    return this.officeRepository.find({ relations: ["staff"] });
   }
 
   async findById(id: string): Promise<OfficeEntity> {
     let office: OfficeEntity | null;
 
     try {
-      office = await this.officeRepository.findOneBy({ id });
+      office = await this.officeRepository.findOne({
+        where: { id },
+        relations: ["staff"],
+      });
     } catch {
       throw internalError();
     }
@@ -34,7 +40,14 @@ export class OfficeService {
   }
 
   async create(dto: CreateOfficeDto): Promise<OfficeEntity> {
-    const entity = this.officeRepository.create(dto);
+    const { staffIds, ...rest } = dto;
+
+    const staff = staffIds.length
+      ? await this.userRepository.findBy({ id: In(staffIds) })
+      : [];
+
+    const entity = this.officeRepository.create({ ...rest, staff });
+
     return this.officeRepository.save(entity);
   }
 

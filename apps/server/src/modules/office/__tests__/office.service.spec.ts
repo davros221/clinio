@@ -7,8 +7,18 @@ import {
 import { Repository } from "typeorm";
 import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
-import { ErrorCode } from "@clinio/shared";
+import { UserEntity } from "../../user/user.entity";
+import { ErrorCode, UserRole } from "@clinio/shared";
 import { CreateOfficeDto } from "../dto/create-office.dto";
+
+const mockStaff: UserEntity = {
+  id: "staff-1",
+  email: "doc@example.com",
+  password: "hashed",
+  firstName: "Doc",
+  lastName: "Tor",
+  role: UserRole.DOCTOR,
+};
 
 const mockOffice: OfficeEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -24,26 +34,30 @@ const mockOffice: OfficeEntity = {
     saturday: [],
     sunday: [],
   },
-  doctors: [],
-  nurses: [],
+  staff: [],
 };
 
-const mockRepository = () => ({
+const mockOfficeRepository = () => ({
   find: jest.fn(),
-  findOneBy: jest.fn(),
+  findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
 });
 
+const mockUserRepository = () => ({
+  findBy: jest.fn(),
+});
+
 describe("OfficeService", () => {
   let service: OfficeService;
-  let repository: jest.Mocked<
+  let officeRepository: jest.Mocked<
     Pick<
       Repository<OfficeEntity>,
-      "find" | "findOneBy" | "create" | "save" | "delete"
+      "find" | "findOne" | "create" | "save" | "delete"
     >
   >;
+  let userRepository: jest.Mocked<Pick<Repository<UserEntity>, "findBy">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,38 +65,48 @@ describe("OfficeService", () => {
         OfficeService,
         {
           provide: getRepositoryToken(OfficeEntity),
-          useFactory: mockRepository,
+          useFactory: mockOfficeRepository,
+        },
+        {
+          provide: getRepositoryToken(UserEntity),
+          useFactory: mockUserRepository,
         },
       ],
     }).compile();
 
     service = module.get<OfficeService>(OfficeService);
-    repository = module.get(getRepositoryToken(OfficeEntity));
+    officeRepository = module.get(getRepositoryToken(OfficeEntity));
+    userRepository = module.get(getRepositoryToken(UserEntity));
   });
 
   describe("findAll", () => {
-    it("should return all offices", async () => {
-      repository.find.mockResolvedValue([mockOffice]);
+    it("should return all offices with staff relation", async () => {
+      officeRepository.find.mockResolvedValue([mockOffice]);
 
       const result = await service.findAll();
 
       expect(result).toEqual([mockOffice]);
-      expect(repository.find).toHaveBeenCalledTimes(1);
+      expect(officeRepository.find).toHaveBeenCalledWith({
+        relations: ["staff"],
+      });
     });
   });
 
   describe("findById", () => {
     it("should return office when found", async () => {
-      repository.findOneBy.mockResolvedValue(mockOffice);
+      officeRepository.findOne.mockResolvedValue(mockOffice);
 
       const result = await service.findById(mockOffice.id);
 
       expect(result).toEqual(mockOffice);
-      expect(repository.findOneBy).toHaveBeenCalledWith({ id: mockOffice.id });
+      expect(officeRepository.findOne).toHaveBeenCalledWith({
+        where: { id: mockOffice.id },
+        relations: ["staff"],
+      });
     });
 
     it("should throw NotFoundException when office not found", async () => {
-      repository.findOneBy.mockResolvedValue(null);
+      officeRepository.findOne.mockResolvedValue(null);
 
       await expect(service.findById("non-existent-id")).rejects.toThrow(
         NotFoundException
@@ -90,7 +114,7 @@ describe("OfficeService", () => {
     });
 
     it("should throw NotFoundException with OFFICE_NOT_FOUND error code", async () => {
-      repository.findOneBy.mockResolvedValue(null);
+      officeRepository.findOne.mockResolvedValue(null);
 
       try {
         await service.findById("non-existent-id");
@@ -104,7 +128,7 @@ describe("OfficeService", () => {
     });
 
     it("should throw InternalServerErrorException when repository throws", async () => {
-      repository.findOneBy.mockRejectedValue(new Error("DB error"));
+      officeRepository.findOne.mockRejectedValue(new Error("DB error"));
 
       try {
         await service.findById(mockOffice.id);
@@ -125,31 +149,65 @@ describe("OfficeService", () => {
       name: "New Office",
       specialization: "Dermatology",
       address: "456 Oak Ave",
+      staffIds: ["staff-1"],
+      officeHoursTemplate: null,
     };
 
-    it("should create and return the saved entity", async () => {
+    it("should resolve staff IDs and create office with relation", async () => {
+      userRepository.findBy.mockResolvedValue([mockStaff]);
+
       const saved = {
         ...mockOffice,
-        ...createDto,
+        name: createDto.name,
+        specialization: createDto.specialization,
+        address: createDto.address,
+        staff: [mockStaff],
       } as OfficeEntity;
-      repository.create.mockReturnValue(saved);
-      repository.save.mockResolvedValue(saved);
+      officeRepository.create.mockReturnValue(saved);
+      officeRepository.save.mockResolvedValue(saved);
 
       const result = await service.create(createDto);
 
       expect(result).toEqual(saved);
-      expect(repository.create).toHaveBeenCalledWith(createDto);
-      expect(repository.save).toHaveBeenCalledWith(saved);
+      expect(officeRepository.create).toHaveBeenCalledWith({
+        name: createDto.name,
+        specialization: createDto.specialization,
+        address: createDto.address,
+        staff: [mockStaff],
+      });
+    });
+
+    it("should create office with empty staff when no IDs provided", async () => {
+      const dtoNoStaff: CreateOfficeDto = {
+        name: "Empty Office",
+        specialization: "General",
+        address: "789 Elm St",
+        staffIds: [],
+        officeHoursTemplate: null,
+      };
+
+      officeRepository.create.mockReturnValue(mockOffice);
+      officeRepository.save.mockResolvedValue(mockOffice);
+
+      await service.create(dtoNoStaff);
+
+      expect(userRepository.findBy).not.toHaveBeenCalled();
+      expect(officeRepository.create).toHaveBeenCalledWith({
+        name: dtoNoStaff.name,
+        specialization: dtoNoStaff.specialization,
+        address: dtoNoStaff.address,
+        staff: [],
+      });
     });
   });
 
   describe("remove", () => {
     it("should call repository.delete with the id", async () => {
-      repository.delete.mockResolvedValue({ affected: 1, raw: [] });
+      officeRepository.delete.mockResolvedValue({ affected: 1, raw: [] });
 
       await service.remove(mockOffice.id);
 
-      expect(repository.delete).toHaveBeenCalledWith(mockOffice.id);
+      expect(officeRepository.delete).toHaveBeenCalledWith(mockOffice.id);
     });
   });
 });

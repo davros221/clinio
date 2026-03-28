@@ -9,6 +9,7 @@ export class OfficeMapper {
       specialization: entity.specialization,
       address: entity.address,
       officeHoursTemplate: entity.officeHoursTemplate,
+      staffIds: (entity.staff ?? []).map((u) => u.id),
     };
   }
 

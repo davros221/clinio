@@ -16,4 +16,7 @@ export class Office {
 
   @ApiPropertyOptional({ type: Object, nullable: true })
   officeHoursTemplate!: OfficeHoursTemplate | null;
+
+  @ApiProperty({ type: [String] })
+  staffIds!: string[];
 }
