@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { UserRole } from "@clinio/shared";
 
 export class User {
   @ApiProperty()
@@ -12,4 +13,7 @@ export class User {
 
   @ApiProperty()
   lastName!: string;
+
+  @ApiProperty({ enum: UserRole })
+  role!: UserRole;
 }

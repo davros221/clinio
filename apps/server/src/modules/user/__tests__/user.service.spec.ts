@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import {
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
@@ -10,6 +11,7 @@ import { UserService } from "../user.service";
 import { UserEntity } from "../user.entity";
 import { UserRole, ErrorCode } from "@clinio/shared";
 import { CreateUserDto } from "../dto/create-user.dto";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
 
 const mockUser: UserEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -53,13 +55,90 @@ describe("UserService", () => {
   });
 
   describe("findAll", () => {
-    it("should return all users", async () => {
+    const adminUser: AuthUser = {
+      id: "admin-id",
+      email: "admin@example.com",
+      role: UserRole.ADMIN,
+    };
+    const doctorUser: AuthUser = {
+      id: "doctor-id",
+      email: "doctor@example.com",
+      role: UserRole.DOCTOR,
+    };
+    const nurseUser: AuthUser = {
+      id: "nurse-id",
+      email: "nurse@example.com",
+      role: UserRole.NURSE,
+    };
+    const clientUser: AuthUser = {
+      id: "client-id",
+      email: "client@example.com",
+      role: UserRole.CLIENT,
+    };
+
+    it("should return users filtered by role", async () => {
       repository.find.mockResolvedValue([mockUser]);
 
-      const result = await service.findAll();
+      const result = await service.findAll(adminUser, [UserRole.DOCTOR]);
 
       expect(result).toEqual([mockUser]);
-      expect(repository.find).toHaveBeenCalledTimes(1);
+      expect(repository.find).toHaveBeenCalledWith({
+        where: { role: expect.anything() },
+      });
+    });
+
+    it("should allow admin to request ADMIN, DOCTOR, NURSE roles", async () => {
+      repository.find.mockResolvedValue([]);
+
+      await expect(
+        service.findAll(adminUser, [UserRole.ADMIN])
+      ).resolves.toBeDefined();
+      await expect(
+        service.findAll(adminUser, [UserRole.DOCTOR])
+      ).resolves.toBeDefined();
+      await expect(
+        service.findAll(adminUser, [UserRole.NURSE])
+      ).resolves.toBeDefined();
+    });
+
+    it("should forbid non-admin from requesting ADMIN role", async () => {
+      await expect(
+        service.findAll(doctorUser, [UserRole.ADMIN])
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should forbid non-admin from requesting DOCTOR role", async () => {
+      await expect(
+        service.findAll(nurseUser, [UserRole.DOCTOR])
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should forbid admin from requesting CLIENT role", async () => {
+      await expect(
+        service.findAll(adminUser, [UserRole.CLIENT])
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should allow doctor to request CLIENT role", async () => {
+      repository.find.mockResolvedValue([]);
+
+      await expect(
+        service.findAll(doctorUser, [UserRole.CLIENT])
+      ).resolves.toBeDefined();
+    });
+
+    it("should allow nurse to request CLIENT role", async () => {
+      repository.find.mockResolvedValue([]);
+
+      await expect(
+        service.findAll(nurseUser, [UserRole.CLIENT])
+      ).resolves.toBeDefined();
+    });
+
+    it("should forbid client from requesting CLIENT role", async () => {
+      await expect(
+        service.findAll(clientUser, [UserRole.CLIENT])
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
