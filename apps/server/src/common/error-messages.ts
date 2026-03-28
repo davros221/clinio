@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   InternalServerErrorException,
@@ -39,6 +40,13 @@ export function emailAlreadyExists(): ConflictException {
   return new ConflictException({
     errorCode: ErrorCode.EMAIL_ALREADY_EXISTS,
     message: "Email already exists",
+  });
+}
+
+export function badRequest(message: string): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.BAD_REQUEST,
+    message,
   });
 }
 

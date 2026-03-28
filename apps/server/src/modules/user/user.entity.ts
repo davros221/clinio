@@ -1,7 +1,7 @@
 import {
   Column,
   Entity,
-  OneToMany,
+  ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from "typeorm";
@@ -29,9 +29,9 @@ export class UserEntity {
   @Column({ type: "enum", enum: Object.values(UserRole) })
   role!: UserRole;
 
-  @OneToMany(() => OfficeEntity, (office) => office.doctorId)
+  @ManyToMany(() => OfficeEntity, (office) => office.doctors)
   doctorOffices?: OfficeEntity[];
 
-  @OneToMany(() => OfficeEntity, (office) => office.nurseId)
+  @ManyToMany(() => OfficeEntity, (office) => office.nurses)
   nurseOffices?: OfficeEntity[];
 }

@@ -15,8 +15,8 @@ const mockEntity: OfficeEntity = {
     saturday: [],
     sunday: [],
   },
-  doctorId: null,
-  nurseId: null,
+  doctors: [],
+  nurses: [],
 };
 
 describe("OfficeMapper", () => {
@@ -33,16 +33,16 @@ describe("OfficeMapper", () => {
       });
     });
 
-    it("should NOT include doctorId in DTO", () => {
+    it("should NOT include doctors in DTO", () => {
       const dto = OfficeMapper.toDto(mockEntity);
 
-      expect(dto).not.toHaveProperty("doctorId");
+      expect(dto).not.toHaveProperty("doctors");
     });
 
-    it("should NOT include nurseId in DTO", () => {
+    it("should NOT include nurses in DTO", () => {
       const dto = OfficeMapper.toDto(mockEntity);
 
-      expect(dto).not.toHaveProperty("nurseId");
+      expect(dto).not.toHaveProperty("nurses");
     });
   });
 
