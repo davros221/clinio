@@ -29,9 +29,6 @@ export class UserEntity {
   @Column({ type: "enum", enum: Object.values(UserRole) })
   role!: UserRole;
 
-  @ManyToMany(() => OfficeEntity, (office) => office.doctors)
-  doctorOffices?: OfficeEntity[];
-
-  @ManyToMany(() => OfficeEntity, (office) => office.nurses)
-  nurseOffices?: OfficeEntity[];
+  @ManyToMany(() => OfficeEntity, (office) => office.staff)
+  offices?: OfficeEntity[];
 }
