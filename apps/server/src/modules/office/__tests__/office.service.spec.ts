@@ -173,6 +173,7 @@ describe("OfficeService", () => {
         name: createDto.name,
         specialization: createDto.specialization,
         address: createDto.address,
+        officeHoursTemplate: createDto.officeHoursTemplate,
         staff: [mockStaff],
       });
     });
@@ -196,6 +197,7 @@ describe("OfficeService", () => {
         name: dtoNoStaff.name,
         specialization: dtoNoStaff.specialization,
         address: dtoNoStaff.address,
+        officeHoursTemplate: dtoNoStaff.officeHoursTemplate,
         staff: [],
       });
     });
