@@ -28,7 +28,8 @@ import {
   fmt,
   getWeekStart,
 } from "../utils/dateUtils";
-import "./calendar.css";
+import classes from "./Calendar.module.css";
+import { useT } from "../../hooks/useT";
 
 type Props = {
   appointments: Appointment[];
@@ -36,7 +37,8 @@ type Props = {
   onAppointmentMove?: (id: string, day: number, start: string) => void;
 };
 
-export const WeekCalendar = ({ appointments, onAppointmentMove }: Props) => {
+export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
+  const t = useT();
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
   const [draggingAppt, setDraggingAppt] = useState<Appointment | null>(null);
@@ -105,7 +107,7 @@ export const WeekCalendar = ({ appointments, onAppointmentMove }: Props) => {
     >
       <Stack
         gap="sm"
-        className="week-calendar"
+        className="calendar"
         style={
           {
             "--cal-col-width": `calc((100% - 48px) / ${visibleDayIndices.length})`,
@@ -113,7 +115,7 @@ export const WeekCalendar = ({ appointments, onAppointmentMove }: Props) => {
         }
       >
         {/* Week Navigation */}
-        <Group justify="center" gap="xs" style={{ position: "relative" }}>
+        <Group justify="center" gap="xs" className={classes.weekNav}>
           <Button
             variant="default"
             size="xs"
@@ -135,9 +137,9 @@ export const WeekCalendar = ({ appointments, onAppointmentMove }: Props) => {
             variant="subtle"
             size="xs"
             onClick={() => setWeekOffset(0)}
-            style={{ position: "absolute", right: 0 }}
+            className={classes.todayBtn}
           >
-            Dnes
+            {t("calendar.today")}
           </Button>
         </Group>
 
