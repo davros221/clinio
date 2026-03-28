@@ -25,13 +25,9 @@ export class OfficeEntity {
   @Column({ type: "jsonb", nullable: true })
   officeHoursTemplate!: OfficeHoursTemplate | null;
 
-  @ManyToMany(() => UserEntity, (user) => user.doctorOffices)
-  @JoinTable({ name: "office_doctors" })
-  doctors!: UserEntity[];
-
-  @ManyToMany(() => UserEntity, (user) => user.nurseOffices)
-  @JoinTable({ name: "office_nurses" })
-  nurses!: UserEntity[];
+  @ManyToMany(() => UserEntity, (user) => user.offices)
+  @JoinTable({ name: "office_staff" })
+  staff!: UserEntity[];
 
   // @OneToMany(() => AppointmentEntity, (appointment) => appointment.officeId)
   // appointments?: AppointmentEntity[];

@@ -4,6 +4,17 @@ import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
 import { OfficeMapper } from "../mapper/OfficeMapper";
 import { CreateOfficeDto } from "../dto/create-office.dto";
+import { UserRole } from "@clinio/shared";
+import { UserEntity } from "../../user/user.entity";
+
+const mockStaff: UserEntity = {
+  id: "staff-1",
+  email: "doc@example.com",
+  password: "hashed",
+  firstName: "Doc",
+  lastName: "Tor",
+  role: UserRole.DOCTOR,
+};
 
 const mockOffice: OfficeEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -19,8 +30,7 @@ const mockOffice: OfficeEntity = {
     saturday: [],
     sunday: [],
   },
-  doctors: [],
-  nurses: [],
+  staff: [mockStaff],
 };
 
 const mockOfficeDto = OfficeMapper.toDto(mockOffice);
@@ -89,12 +99,15 @@ describe("OfficeController", () => {
       specialization: "Dermatology",
       address: "456 Oak Ave",
       officeHoursTemplate: null,
+      staffIds: ["staff-1"],
     };
 
     it("should create office and return mapped DTO", async () => {
       const created: OfficeEntity = {
         ...mockOffice,
-        ...createDto,
+        name: createDto.name,
+        specialization: createDto.specialization,
+        address: createDto.address,
       };
       service.create.mockResolvedValue(created);
 
