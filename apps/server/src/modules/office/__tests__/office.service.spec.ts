@@ -24,8 +24,8 @@ const mockOffice: OfficeEntity = {
     saturday: [],
     sunday: [],
   },
-  doctorId: null,
-  nurseId: null,
+  doctors: [],
+  nurses: [],
 };
 
 const mockRepository = () => ({

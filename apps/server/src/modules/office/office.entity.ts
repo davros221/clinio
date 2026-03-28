@@ -1,8 +1,8 @@
 import {
   Column,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { OfficeHoursTemplate } from "@clinio/shared";
@@ -25,13 +25,13 @@ export class OfficeEntity {
   @Column({ type: "jsonb", nullable: true })
   officeHoursTemplate!: OfficeHoursTemplate | null;
 
-  @ManyToOne(() => UserEntity, { nullable: true, onDelete: "SET NULL" })
-  @JoinColumn({ name: "doctorId" })
-  doctorId!: string | null;
+  @ManyToMany(() => UserEntity, (user) => user.doctorOffices)
+  @JoinTable({ name: "office_doctors" })
+  doctors!: UserEntity[];
 
-  @ManyToOne(() => UserEntity, { nullable: true, onDelete: "SET NULL" })
-  @JoinColumn({ name: "nurseId" })
-  nurseId!: string | null;
+  @ManyToMany(() => UserEntity, (user) => user.nurseOffices)
+  @JoinTable({ name: "office_nurses" })
+  nurses!: UserEntity[];
 
   // @OneToMany(() => AppointmentEntity, (appointment) => appointment.officeId)
   // appointments?: AppointmentEntity[];

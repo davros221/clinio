@@ -7,4 +7,10 @@ export enum ErrorCode {
   USER_NOT_FOUND = "USER_NOT_FOUND",
   EMAIL_ALREADY_EXISTS = "EMAIL_ALREADY_EXISTS",
   OFFICE_NOT_FOUND = "OFFICE_NOT_FOUND",
+  BAD_REQUEST = "BAD_REQUEST",
+}
+
+export interface ApiError {
+  errorCode: ErrorCode;
+  message: string;
 }

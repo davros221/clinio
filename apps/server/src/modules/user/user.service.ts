@@ -1,15 +1,23 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ErrorCode } from "@clinio/shared";
+import { ErrorCode, UserRole } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
   emailAlreadyExists,
+  forbidden,
   internalError,
   notFound,
 } from "../../common/error-messages";
+import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import * as bcrypt from "bcryptjs";
+
+const ADMIN_ONLY_ROLES: UserRole[] = [
+  UserRole.ADMIN,
+  UserRole.DOCTOR,
+  UserRole.NURSE,
+];
 
 @Injectable()
 export class UserService {
@@ -17,8 +25,31 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
   ) {}
 
-  findAll(): Promise<UserEntity[]> {
-    return this.userRepository.find();
+  async findAll(
+    currentUser: AuthUser,
+    roles: UserRole[]
+  ): Promise<UserEntity[]> {
+    const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
+    const requestingPatients = roles.includes(UserRole.CLIENT);
+
+    if (requestingStaff && currentUser.role !== UserRole.ADMIN) {
+      throw forbidden();
+    }
+
+    if (requestingPatients && currentUser.role === UserRole.ADMIN) {
+      throw forbidden();
+    }
+
+    if (
+      requestingPatients &&
+      currentUser.role !== UserRole.DOCTOR &&
+      currentUser.role !== UserRole.NURSE
+    ) {
+      throw forbidden();
+    }
+
+    // TODO: DOCTOR and NURSE should only see their own patients (via office relation)
+    return this.userRepository.find({ where: { role: In(roles) } });
   }
 
   async findById(id: string): Promise<UserEntity> {
