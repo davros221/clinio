@@ -35,6 +35,77 @@ const en = {
     successTitle: "Account created!",
     successMessage: "Logging you in automatically, welcome to Clinio!",
   },
+  dataTable: {
+    actionsColumn: "Actions",
+    emptyFallback: "No records",
+    errorFallback: "Failed to load data",
+    errors: {
+      INTERNAL_SERVER_ERROR: "A server error occurred",
+      UNAUTHORIZED: "You are not authorized to view this data",
+      FORBIDDEN: "You do not have permission to view this data",
+      NOT_FOUND: "The requested data was not found",
+      USER_NOT_FOUND: "User not found",
+      OFFICE_NOT_FOUND: "Office not found",
+      EMAIL_ALREADY_EXISTS: "Email already exists",
+      INVALID_CREDENTIALS: "Invalid credentials",
+      BAD_REQUEST: "Invalid request",
+    },
+  },
+  quickActions: {
+    offices: "Offices",
+    officesDescription: "Office list",
+    patients: "Patients",
+    patientsDescription: "Patient list",
+    newAppointment: "+ New Appointment",
+    newAppointmentDescription: "Add record",
+    show: "Show",
+    add: "Add",
+  },
+  calendar: {
+    today: "Today",
+  },
+  nurseDashboard: {
+    title: "Welcome back!",
+    errorLoadingAppointments: "Failed to load appointments",
+  },
+  offices: {
+    title: "Office List",
+    emptyMessage: "No offices to display",
+    days: {
+      monday: "Mon",
+      tuesday: "Tue",
+      wednesday: "Wed",
+      thursday: "Thu",
+      friday: "Fri",
+      saturday: "Sat",
+      sunday: "Sun",
+    },
+    columns: {
+      name: "Name",
+      specialization: "Specialization",
+      address: "Address",
+      officeHoursTemplate: "Office Hours",
+    },
+    actions: {
+      detail: "Detail",
+    },
+  },
+  patients: {
+    title: "Patient List",
+    emptyMessage: "No patients to display",
+    columns: {
+      lastName: "Last Name",
+      firstName: "First Name",
+      birthNumber: "Birth Number",
+      birthDate: "Date of Birth",
+      phone: "Phone",
+      email: "Email",
+    },
+    actions: {
+      detail: "Detail",
+      book: "Book",
+    },
+  },
 } as const;
 
 export default en;

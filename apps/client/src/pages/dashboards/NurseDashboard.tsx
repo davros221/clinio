@@ -3,8 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MdErrorOutline } from "react-icons/md";
 import { CalendarService, CalendarDay } from "@clinio/api";
 import { QuickActions } from "../../components/dashboard/QuickActions";
-import { WeekCalendar } from "../../components/dashboard/WeekCalendar";
+import { Calendar } from "../../components/dashboard/Calendar";
 import { Appointment } from "../../components/utils/types";
+import { useT } from "../../hooks/useT";
+import { extractErrorCode } from "../../utils/error";
 
 function calendarToAppointments(days: CalendarDay[]): Appointment[] {
   return days.flatMap((day) =>
@@ -25,12 +27,14 @@ function calendarToAppointments(days: CalendarDay[]): Appointment[] {
 }
 
 export const NurseDashboard = () => {
+  const t = useT();
   const queryClient = useQueryClient();
 
   const {
     data: appointments,
     isLoading,
     isError,
+    error,
   } = useQuery<Appointment[]>({
     queryKey: ["appointments"],
     queryFn: async () => {
@@ -58,7 +62,6 @@ export const NurseDashboard = () => {
       return { previous };
     },
 
-    // Pokud API selže, vrátíme data do původního stavu
     onError: (_err, _vars, context) => {
       if (context?.previous) {
         queryClient.setQueryData(["appointments"], context.previous);
@@ -71,18 +74,24 @@ export const NurseDashboard = () => {
 
   if (isLoading) return <Loader />;
 
-  if (isError)
+  if (isError) {
+    const errorCode = extractErrorCode(error);
+    const errorMessage = errorCode
+      ? t(`dataTable.errors.${errorCode}`)
+      : t("nurseDashboard.errorLoadingAppointments");
+
     return (
       <Alert icon={<MdErrorOutline size={16} />} color="red">
-        Nepodařilo se načíst schůzky
+        {errorMessage}
       </Alert>
     );
+  }
 
   return (
     <Stack>
-      <Title>Vítejte zpět!</Title>
+      <Title>{t("nurseDashboard.title")}</Title>
       <QuickActions />
-      <WeekCalendar
+      <Calendar
         appointments={appointments ?? []}
         onAppointmentMove={(id, day, start) =>
           moveMutation.mutate({ id, day, start })

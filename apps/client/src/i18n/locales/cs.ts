@@ -35,6 +35,77 @@ const cs = {
     successTitle: "Účet vytvořen!",
     successMessage: "Přihlašujeme vás automaticky, vítejte v Clinio!",
   },
+  dataTable: {
+    actionsColumn: "Akce",
+    emptyFallback: "Žádné záznamy",
+    errorFallback: "Nepodařilo se načíst data",
+    errors: {
+      INTERNAL_SERVER_ERROR: "Došlo k chybě serveru",
+      UNAUTHORIZED: "Nejste přihlášeni",
+      FORBIDDEN: "Nemáte oprávnění zobrazit tato data",
+      NOT_FOUND: "Požadovaná data nebyla nalezena",
+      USER_NOT_FOUND: "Uživatel nebyl nalezen",
+      OFFICE_NOT_FOUND: "Ordinace nebyla nalezena",
+      EMAIL_ALREADY_EXISTS: "E-mail již existuje",
+      INVALID_CREDENTIALS: "Neplatné přihlašovací údaje",
+      BAD_REQUEST: "Neplatný požadavek",
+    },
+  },
+  quickActions: {
+    offices: "Ordinace",
+    officesDescription: "Seznam ordinací",
+    patients: "Pacienti",
+    patientsDescription: "Seznam pacientů",
+    newAppointment: "+ Nová schůzka",
+    newAppointmentDescription: "Přidat záznam",
+    show: "Zobrazit",
+    add: "Přidat",
+  },
+  calendar: {
+    today: "Dnes",
+  },
+  nurseDashboard: {
+    title: "Vítejte zpět!",
+    errorLoadingAppointments: "Nepodařilo se načíst schůzky",
+  },
+  offices: {
+    title: "Seznam ordinací",
+    emptyMessage: "Žádné ordinace k zobrazení",
+    days: {
+      monday: "Po",
+      tuesday: "Út",
+      wednesday: "St",
+      thursday: "Čt",
+      friday: "Pá",
+      saturday: "So",
+      sunday: "Ne",
+    },
+    columns: {
+      name: "Název",
+      specialization: "Specializace",
+      address: "Adresa",
+      officeHoursTemplate: "Ordinační hodiny",
+    },
+    actions: {
+      detail: "Detail",
+    },
+  },
+  patients: {
+    title: "Seznam pacientů",
+    emptyMessage: "Žádní pacienti k zobrazení",
+    columns: {
+      lastName: "Příjmení",
+      firstName: "Jméno",
+      birthNumber: "Rodné číslo",
+      birthDate: "Datum narození",
+      phone: "Telefon",
+      email: "Email",
+    },
+    actions: {
+      detail: "Detail",
+      book: "Objednat",
+    },
+  },
 } as const;
 
 export default cs;

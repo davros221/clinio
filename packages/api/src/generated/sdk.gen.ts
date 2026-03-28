@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateData, CreateErrors, CreateResponses, DeleteData, DeleteErrors, DeleteResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarResponses, GetData, GetErrors, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses } from './types.gen.js';
+import type { CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -19,8 +19,8 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 export class UserService {
-    public static get<ThrowOnError extends boolean = false>(options?: Options<GetData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetResponses, GetErrors, ThrowOnError>({
+    public static get<ThrowOnError extends boolean = false>(options: Options<GetData, ThrowOnError>) {
+        return (options.client ?? client).get<GetResponses, GetErrors, ThrowOnError>({
             responseType: 'json',
             url: '/api/users',
             ...options
@@ -80,6 +80,40 @@ export class CalendarService {
         return (options?.client ?? client).get<GetCalendarResponses, unknown, ThrowOnError>({
             responseType: 'json',
             url: '/api/calendar',
+            ...options
+        });
+    }
+}
+
+export class OfficeService {
+    public static getOffices<ThrowOnError extends boolean = false>(options?: Options<GetOfficesData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetOfficesResponses, GetOfficesErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/offices',
+            ...options
+        });
+    }
+    
+    public static createOffice<ThrowOnError extends boolean = false>(options: Options<CreateOfficeData, ThrowOnError>) {
+        return (options.client ?? client).post<CreateOfficeResponses, CreateOfficeErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/offices',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static deleteOffice<ThrowOnError extends boolean = false>(options: Options<DeleteOfficeData, ThrowOnError>) {
+        return (options.client ?? client).delete<DeleteOfficeResponses, DeleteOfficeErrors, ThrowOnError>({ url: '/api/offices/{id}', ...options });
+    }
+    
+    public static getOfficeById<ThrowOnError extends boolean = false>(options: Options<GetOfficeByIdData, ThrowOnError>) {
+        return (options.client ?? client).get<GetOfficeByIdResponses, GetOfficeByIdErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/offices/{id}',
             ...options
         });
     }
