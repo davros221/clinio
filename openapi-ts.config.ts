@@ -1,6 +1,7 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
-// note: run codegen:remote for the openapi to attach via VITE_API_URL to remote
+// apiUrl is taken from VITE_API_URL (e.g. when running codegen:local or codegen:remote)
+// falling back to localhost
 const apiUrl = process.env.VITE_API_URL ?? "http://localhost:8000";
 
 export default defineConfig({

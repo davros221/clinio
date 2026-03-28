@@ -12,8 +12,8 @@
     "prettier:fix": "prettier --write .",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "eslint:fix": "eslint . --ext .ts,.tsx --fix",
-    "codegen:local": "npx openapi-ts",
-    "codegen:remote": "VITE_API_URL=http://46.36.35.142 npx openapi-ts",
+    "codegen:api": "npx openapi-ts",
+    "codegen:remote": "cross-env VITE_API_URL=http://46.36.35.142 npx openapi-ts",
     "prepare": "husky"
   },
   "private": true,
@@ -44,6 +44,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^4.0.0",
+    "cross-env": "^10.1.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-import": "2.31.0",
