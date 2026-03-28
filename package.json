@@ -12,7 +12,8 @@
     "prettier:fix": "prettier --write .",
     "eslint:check": "eslint . --ext .ts,.tsx",
     "eslint:fix": "eslint . --ext .ts,.tsx --fix",
-    "codegen:api": "npx openapi-ts",
+    "codegen:local": "npx openapi-ts",
+    "codegen:remote": "VITE_API_URL=http://46.36.35.142 npx openapi-ts",
     "prepare": "husky"
   },
   "private": true,

@@ -1,7 +1,10 @@
 import { defineConfig } from "@hey-api/openapi-ts";
 
+// note: run codegen:remote for the openapi to attach via VITE_API_URL to remote
+const apiUrl = process.env.VITE_API_URL ?? "http://localhost:8000";
+
 export default defineConfig({
-  input: "http://localhost:8000/api-json",
+  input: `${apiUrl}/api-json`,
   output: "packages/api/src/generated",
   plugins: [
     "@hey-api/client-axios",
