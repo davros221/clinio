@@ -1,4 +1,4 @@
-import { AppShell } from "@mantine/core";
+import { AppShell, Box } from "@mantine/core";
 import { Outlet } from "react-router";
 import classes from "./index.module.css";
 import { SideMenu } from "../components/SideMenu.tsx";
@@ -12,7 +12,9 @@ export const AuthenticatedLayout = () => {
         </AppShell.Navbar>
 
         <AppShell.Main>
-          <Outlet />
+          <Box p="md">
+            <Outlet />
+          </Box>
         </AppShell.Main>
       </AppShell>
     </div>

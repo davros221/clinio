@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateData, CreateErrors, CreateResponses, DeleteData, DeleteErrors, DeleteResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetData, GetErrors, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses } from './types.gen.js';
+import type { CreateData, CreateErrors, CreateResponses, DeleteData, DeleteErrors, DeleteResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarResponses, GetData, GetErrors, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -70,6 +70,16 @@ export class AuthService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/auth/me',
+            ...options
+        });
+    }
+}
+
+export class CalendarService {
+    public static getCalendar<ThrowOnError extends boolean = false>(options?: Options<GetCalendarData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetCalendarResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/calendar',
             ...options
         });
     }

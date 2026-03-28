@@ -57,6 +57,9 @@ importers:
       '@eslint/js':
         specifier: ^9.8.0
         version: 9.39.4
+      '@faker-js/faker':
+        specifier: ^10.3.0
+        version: 10.3.0
       '@hey-api/openapi-ts':
         specifier: ^0.94.0
         version: 0.94.0(typescript@5.9.3)

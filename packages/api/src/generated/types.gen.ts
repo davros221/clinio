@@ -40,6 +40,49 @@ export type MeResponse = {
     authData: AuthData | null;
 };
 
+export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
+
+export type AppointmentType = 'CHECKUP' | 'CONSULTATION' | 'URGENT' | 'FIRST_VISIT';
+
+export type AppointmentStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'NO_SHOW';
+
+export type CalendarAppointmentPatient = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    insuranceCode: string;
+};
+
+export type CalendarAppointmentDoctor = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    specialization: string;
+};
+
+export type CalendarAppointment = {
+    id: string;
+    isOwned: boolean;
+    type: AppointmentType;
+    status: AppointmentStatus;
+    note?: string;
+    patient: CalendarAppointmentPatient;
+    doctor: CalendarAppointmentDoctor;
+};
+
+export type CalendarHour = {
+    hour: number;
+    state: CalendarHourState;
+    appointment?: CalendarAppointment;
+};
+
+export type CalendarDay = {
+    date: string;
+    day: number;
+    hours: Array<CalendarHour>;
+};
+
 export type GetData = {
     body?: never;
     path?: never;
@@ -169,3 +212,16 @@ export type MeResponses = {
 };
 
 export type MeResponse2 = MeResponses[keyof MeResponses];
+
+export type GetCalendarData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/calendar';
+};
+
+export type GetCalendarResponses = {
+    200: Array<CalendarDay>;
+};
+
+export type GetCalendarResponse = GetCalendarResponses[keyof GetCalendarResponses];

@@ -1,16 +1,32 @@
 import { Title, Stack, Loader, Alert } from "@mantine/core";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MdErrorOutline } from "react-icons/md";
+import { CalendarService, CalendarDay } from "@clinio/api";
 import { QuickActions } from "../../components/dashboard/QuickActions";
 import { WeekCalendar } from "../../components/dashboard/WeekCalendar";
 import { Appointment } from "../../components/utils/types";
-import { mockAppointments } from "../../mocks/mockAppointments";
+
+function calendarToAppointments(days: CalendarDay[]): Appointment[] {
+  return days.flatMap((day) =>
+    day.hours
+      .filter((h) => h.state === "BOOKED" && h.appointment)
+      .map((h) => ({
+        id: h.appointment!.id,
+        patientName: `${h.appointment!.patient.firstName} ${
+          h.appointment!.patient.lastName
+        }`,
+        room: h.appointment!.doctor.specialization,
+        roomNumber: 1,
+        start: `${String(h.hour).padStart(2, "0")}:00`,
+        duration: 60,
+        day: day.day,
+      }))
+  );
+}
 
 export const NurseDashboard = () => {
   const queryClient = useQueryClient();
 
-  // Až bude backend, nahradit mockAppointments, TODOčka mi tu pripravilo neco AI jako bloker
-  // tak uvidime jak bude vypadat BE
   const {
     data: appointments,
     isLoading,
@@ -18,38 +34,18 @@ export const NurseDashboard = () => {
   } = useQuery<Appointment[]>({
     queryKey: ["appointments"],
     queryFn: async () => {
-      // ── TODO: nahradit za skutečné API volání ────────────────────────
-      // const res = await fetch("/api/appointments");
-      // if (!res.ok) throw new Error("Nepodařilo se načíst schůzky");
-      // return res.json();
-      // ────────────────────────────────────────────────────────────────
-      return mockAppointments;
+      const { data } = await CalendarService.getCalendar({
+        throwOnError: true,
+      });
+      return calendarToAppointments(data ?? []);
     },
   });
 
   const moveMutation = useMutation({
-    mutationFn: async ({
-      id,
-      day,
-      start,
-    }: {
-      id: string;
-      day: number;
-      start: string;
-    }) => {
-      // ── TODO: nahradit za skutečné API volání ────────────────────────
-      // const res = await fetch(`/api/appointments/${id}`, {
-      //   method: "PATCH",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ day, start }),
-      // });
-      // if (!res.ok) throw new Error("Nepodařilo se přesunout schůzku");
-      // return res.json();
-      // ────────────────────────────────────────────────────────────────
-      console.log("Přesun schůzky:", { id, day, start });
+    mutationFn: async (_vars: { id: string; day: number; start: string }) => {
+      // Backend zatím nemá PATCH /api/appointments — přidat až bude endpoint
     },
 
-    // TODO — zatím jen změna dat lokálně hned bez čekání na API
     onMutate: async ({ id, day, start }) => {
       await queryClient.cancelQueries({ queryKey: ["appointments"] });
       const previous = queryClient.getQueryData<Appointment[]>([
@@ -69,9 +65,8 @@ export const NurseDashboard = () => {
       }
     },
 
-    // onSettled zatím odstraněno — invalidateQueries se přepisovalo zpět na mockdata, nšly posouvat schuzky
-    // Přidat zpět až bude backend:
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ["appointments"] }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["appointments"] }),
   });
 
   if (isLoading) return <Loader />;
