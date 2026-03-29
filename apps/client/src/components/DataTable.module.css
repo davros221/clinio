@@ -1,0 +1,32 @@
+.table {
+  font-size: var(--mantine-font-size-sm);
+}
+
+.thead {
+  background: var(--mantine-color-gray-1);
+}
+
+[data-mantine-color-scheme="dark"] .thead {
+  background: var(--mantine-color-dark-6);
+}
+
+.th {
+  font-weight: 600;
+  white-space: nowrap;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+}
+
+.td {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  vertical-align: middle;
+}
+
+.emptyRow {
+  padding: var(--mantine-spacing-xl) 0;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: var(--mantine-spacing-xl);
+}
