@@ -1,52 +1,56 @@
 import { Modal, Stack, Badge, Group, Text } from "@mantine/core";
-import { Appointment, DAYS, ROOM_COLORS } from "../utils/types";
+import { Appointment, DAYS, getRoomColor } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
+import { useT } from "../../hooks/useT";
 
 type Props = {
   appt: Appointment | null;
   onClose: () => void;
 };
 
-export const AppointmentModal = ({ appt, onClose }: Props) => (
-  <Modal
-    opened={appt !== null}
-    onClose={onClose}
-    title={
-      <Text fw={600} size="md">
-        {appt?.patientName}
-      </Text>
-    }
-    centered
-    size="sm"
-  >
-    {appt && (
-      <Stack gap="sm">
-        <Badge
-          size="md"
-          radius="sm"
-          style={{
-            //fallback colors if room is not defined in ROOM_COLORS
-            background:
-              ROOM_COLORS[appt.room]?.bg ?? "var(--mantine-color-gray-5)",
-            color: ROOM_COLORS[appt.room]?.text ?? "var(--mantine-color-white)",
-          }}
-        >
-          {appt.room}
-        </Badge>
+export const AppointmentModal = ({ appt, onClose }: Props) => {
+  const t = useT();
+  return (
+    <Modal
+      opened={appt !== null}
+      onClose={onClose}
+      title={
+        <Text fw={600} size="md">
+          {appt?.patientName}
+        </Text>
+      }
+      centered
+      size="sm"
+    >
+      {appt && (
+        <Stack gap="sm">
+          <Badge
+            size="md"
+            radius="sm"
+            style={{
+              background: getRoomColor(appt.roomNumber).bg,
+              color: getRoomColor(appt.roomNumber).text,
+            }}
+          >
+            {appt.room}
+          </Badge>
 
-        <Group gap="xs">
-          <IoCalendarNumberOutline />
-          <Text size="sm">{DAYS[appt.day - 1]}</Text>
-        </Group>
+          <Group gap="xs">
+            <IoCalendarNumberOutline />
+            <Text size="sm">{DAYS[appt.day - 1]}</Text>
+          </Group>
 
-        <Group gap="xs">
-          <IoMdTime />
-          <Text size="sm">
-            {appt.start} — délka: {appt.duration} min
-          </Text>
-        </Group>
-      </Stack>
-    )}
-  </Modal>
-);
+          <Group gap="xs">
+            <IoMdTime />
+            <Text size="sm">
+              {t("appointments.start")}: {appt.start} ·{" "}
+              {t("appointments.duration")}: {appt.duration}{" "}
+              {t("appointments.minutes")}
+            </Text>
+          </Group>
+        </Stack>
+      )}
+    </Modal>
+  );
+};

@@ -57,6 +57,7 @@ const en = {
     title: "Welcome back!",
   },
   offices: {
+    label: "Office",
     title: "Office List",
     emptyMessage: "No offices to display",
     days: {
@@ -96,6 +97,9 @@ const en = {
   },
   appointments: {
     errorLoadingAppointments: "Failed to load appointments",
+    start: "Start",
+    duration: "Duration",
+    minutes: "min",
   },
 } as const;
 

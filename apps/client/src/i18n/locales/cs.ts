@@ -57,6 +57,7 @@ const cs = {
     title: "Vítejte zpět!",
   },
   offices: {
+    label: "Ordinace",
     title: "Seznam ordinací",
     emptyMessage: "Žádné ordinace k zobrazení",
     days: {
@@ -96,6 +97,9 @@ const cs = {
   },
   appointments: {
     errorLoadingAppointments: "Nepodařilo se načíst schůzky",
+    start: "Začátek",
+    duration: "Trvání",
+    minutes: "min",
   },
 } as const;
 

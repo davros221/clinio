@@ -1,6 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Appointment, ROOM_COLORS } from "../utils/types";
+import { Appointment, getRoomColor } from "../utils/types";
+import { useT } from "../../hooks/useT";
 
 type Props = {
   appt: Appointment;
@@ -10,17 +11,14 @@ type Props = {
 };
 
 export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
+  const t = useT();
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: appt.id,
       data: { appt },
     });
 
-  // TODO předelat pak podle vytvareni ordinací
-  const colors = ROOM_COLORS[appt.room] ?? {
-    bg: "var(--mantine-color-gray-5)",
-    text: "var(--mantine-color-white)",
-  };
+  const colors = getRoomColor(appt.roomNumber);
 
   return (
     <div
@@ -43,7 +41,7 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
     >
       <span>{appt.patientName}</span>
       <span className="week-table__appt-room">
-        {appt.start} · ord. {appt.roomNumber}
+        {appt.start} · {t("offices.label")} {appt.roomNumber}
       </span>
     </div>
   );

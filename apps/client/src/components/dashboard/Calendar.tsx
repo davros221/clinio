@@ -20,7 +20,7 @@ import {
   DAYS,
   HOURS,
   SLOT_HEIGHT,
-  ROOM_COLORS,
+  getRoomColor,
 } from "../utils/types";
 import {
   timeToMinutes,
@@ -231,10 +231,7 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
         <DragOverlay>
           {draggingAppt &&
             (() => {
-              const colors = ROOM_COLORS[draggingAppt.room] ?? {
-                bg: "#e0e0e0",
-                text: "#333",
-              };
+              const colors = getRoomColor(draggingAppt.roomNumber);
               <span className="week-table__drag-overlay-room">
                 {draggingAppt.start} · ord. {draggingAppt.roomNumber}
               </span>;
