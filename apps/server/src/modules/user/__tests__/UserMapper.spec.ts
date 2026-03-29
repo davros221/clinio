@@ -21,6 +21,7 @@ describe("UserMapper", () => {
         email: mockEntity.email,
         firstName: mockEntity.firstName,
         lastName: mockEntity.lastName,
+        role: mockEntity.role,
       });
     });
 
@@ -30,10 +31,10 @@ describe("UserMapper", () => {
       expect(dto).not.toHaveProperty("password");
     });
 
-    it("should NOT include role in DTO", () => {
+    it("should include role in DTO", () => {
       const dto = UserMapper.toDto(mockEntity);
 
-      expect(dto).not.toHaveProperty("role");
+      expect(dto).toHaveProperty("role", mockEntity.role);
     });
   });
 

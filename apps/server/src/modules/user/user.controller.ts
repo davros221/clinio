@@ -6,24 +6,31 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UsePipes,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { Public } from "../../common/decorators/public.decorator";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
+import { UserRole } from "@clinio/shared";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ZodValidationPipe } from "nestjs-zod";
 import { UserService } from "./user.service";
 import { createUserSchema } from "@clinio/shared";
 import { UserMapper } from "./mapper/UserMapper";
 import { User } from "./dto/user.dto";
+import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 
 @Controller("users")
 @ApiTags("User")
@@ -32,10 +39,21 @@ export class UserController {
 
   @Get()
   @ApiOperation({ operationId: "get" })
+  @ApiQuery({
+    name: "role",
+    enum: UserRole,
+    isArray: true,
+    required: true,
+  })
   @ApiOkResponse({ type: [User] })
+  @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
-  async getAll() {
-    const entities = await this.userService.findAll();
+  async getAll(
+    @CurrentUser() currentUser: AuthUser,
+    @Query("role") roles: UserRole | UserRole[] | undefined
+  ) {
+    const parsed = new ParseEnumArrayPipe(UserRole).transform(roles);
+    const entities = await this.userService.findAll(currentUser, parsed);
     return UserMapper.toDtoList(entities);
   }
 

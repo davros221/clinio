@@ -1,8 +1,17 @@
-import { Paper, Text, Container, Box, Transition } from "@mantine/core";
+import {
+  Paper,
+  Text,
+  Container,
+  Box,
+  Transition,
+  Stack,
+  Group,
+} from "@mantine/core";
 import { useState, useRef, useEffect } from "react";
 import { LoginPanel, type LoginPanelRef } from "./LoginPanel";
 import { SignUpPanel } from "./SignUpPanel";
 import { useAuthStore } from "../../stores/authStore.ts";
+import { LanguageSwitcher } from "../../components/LanguageSwitcher.tsx";
 
 export const Login = () => {
   const loginPanelRef = useRef<LoginPanelRef>(null);
@@ -64,9 +73,15 @@ export const Login = () => {
         radius="md"
         style={{ overflow: "hidden" }}
       >
-        <Text size="lg" fw={700} mb="xl" c="blue">
-          ClinIO
-        </Text>
+        <Stack>
+          <Group justify="space-between" align="start">
+            <Text size="lg" fw={700} mb="xl" c="blue">
+              ClinIO
+            </Text>
+
+            <LanguageSwitcher />
+          </Group>
+        </Stack>
 
         <Box
           style={{
