@@ -7,15 +7,11 @@
     "noEmit": true,
     "composite": true,
     "allowImportingTsExtensions": true,
-
-    // Vite/React specific overrides (Root is nodenext)
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "ES2022",
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-
-    // Path Aliases
     "baseUrl": ".",
     "paths": {
       "@api": ["./src/api/index.ts"],
@@ -29,7 +25,6 @@
       "@router": ["./src/router/index.ts"],
       "@utils": ["./src/utils/index.ts"]
     },
-
     "types": [
       "@nx/react/typings/cssmodule.d.ts",
       "@nx/react/typings/image.d.ts",
@@ -38,8 +33,12 @@
     ]
   },
   "references": [
-    { "path": "../../packages/api/tsconfig.lib.json" },
-    { "path": "../../packages/shared/tsconfig.lib.json" }
+    {
+      "path": "../../packages/api/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/shared/tsconfig.lib.json"
+    }
   ],
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "exclude": [
@@ -55,6 +54,10 @@
     "src/**/*.test.jsx",
     "eslint.config.js",
     "eslint.config.cjs",
-    "eslint.config.mjs"
+    "eslint.config.mjs",
+    "**/*.stories.ts",
+    "**/*.stories.js",
+    "**/*.stories.jsx",
+    "**/*.stories.tsx"
   ]
 }
