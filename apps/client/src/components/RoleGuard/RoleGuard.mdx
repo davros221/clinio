@@ -1,0 +1,60 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="RoleGuard" />
+
+# RoleGuard
+
+Wrapper component that conditionally renders its children based on the current user's role.
+It does not render any UI of its own.
+
+## Props
+
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`roles`</td>
+      <td>`UserRole[]`</td>
+      <td>yes</td>
+      <td>Roles that are allowed to see the children</td>
+    </tr>
+    <tr>
+      <td>`children`</td>
+      <td>`ReactNode`</td>
+      <td>yes</td>
+      <td>Content to render when the user has access</td>
+    </tr>
+    <tr>
+      <td>`fallback`</td>
+      <td>`ReactNode`</td>
+      <td>no</td>
+      <td>
+        Content to render when the user does not have access (defaults to
+        `null`)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Available roles
+
+`ADMIN`, `NURSE`, `DOCTOR`, `CLIENT`
+
+## Usage
+
+```tsx
+<RoleGuard roles={["ADMIN", "DOCTOR"]}>
+  <SensitiveContent />
+</RoleGuard>
+
+<RoleGuard roles={["ADMIN"]} fallback={<p>Access denied</p>}>
+  <AdminPanel />
+</RoleGuard>
+```

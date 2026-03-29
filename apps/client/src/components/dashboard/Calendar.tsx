@@ -32,6 +32,10 @@ type Props = {
   onAppointmentMove?: (id: string, day: number, start: string) => void;
 };
 
+/**
+ * Responsive week-view calendar for scheduling appointments.
+ * Supports drag-and-drop rescheduling, room color coding, and mobile single-day navigation.
+ */
 export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
   const t = useT();
   const [weekOffset, setWeekOffset] = useState(0);

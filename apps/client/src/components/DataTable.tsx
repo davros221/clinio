@@ -32,6 +32,10 @@ type Props<T> = {
   highlightOnHover?: boolean;
 };
 
+/**
+ * Generic data table component built on top of Mantine Table.
+ * Supports loading/error states, empty message, row actions, and custom column renderers.
+ */
 export const DataTable = <T,>({
   data,
   columns,

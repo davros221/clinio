@@ -6,9 +6,9 @@ export type AuthFooterProps = {
 };
 
 /**
- * Component rendering footer with links on various Auth Pages
- * @param props
- * @constructor
+ * Footer usually placed on the bottom of auth pages, e.g. LoginPage, or SignUp page.
+ * Component has a pre-defined set of possible links, it's extendable by passing new links and actions into useAuthFooter
+ * hook
  */
 export const AuthFooter = (props: AuthFooterProps) => {
   const { links } = useAuthFooter(props);
