@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import "./api/client";
+import "./i18n"; // initialize i18next before rendering
 import "./index.css";
 import App from "./App.tsx";
 import "@mantine/core/styles.css";
