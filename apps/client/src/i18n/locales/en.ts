@@ -39,24 +39,13 @@ const en = {
     actionsColumn: "Actions",
     emptyFallback: "No records",
     errorFallback: "Failed to load data",
-    errors: {
-      INTERNAL_SERVER_ERROR: "A server error occurred",
-      UNAUTHORIZED: "You are not authorized to view this data",
-      FORBIDDEN: "You do not have permission to view this data",
-      NOT_FOUND: "The requested data was not found",
-      USER_NOT_FOUND: "User not found",
-      OFFICE_NOT_FOUND: "Office not found",
-      EMAIL_ALREADY_EXISTS: "Email already exists",
-      INVALID_CREDENTIALS: "Invalid credentials",
-      BAD_REQUEST: "Invalid request",
-    },
   },
   quickActions: {
     offices: "Offices",
     officesDescription: "Office list",
     patients: "Patients",
     patientsDescription: "Patient list",
-    newAppointment: "+ New Appointment",
+    newAppointment: "New Appointment",
     newAppointmentDescription: "Add record",
     show: "Show",
     add: "Add",
@@ -66,7 +55,6 @@ const en = {
   },
   nurseDashboard: {
     title: "Welcome back!",
-    errorLoadingAppointments: "Failed to load appointments",
   },
   offices: {
     title: "Office List",
@@ -105,6 +93,9 @@ const en = {
       detail: "Detail",
       book: "Book",
     },
+  },
+  appointments: {
+    errorLoadingAppointments: "Failed to load appointments",
   },
 } as const;
 

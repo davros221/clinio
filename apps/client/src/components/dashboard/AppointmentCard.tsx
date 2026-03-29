@@ -1,4 +1,3 @@
-import { Tooltip } from "@mantine/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { Appointment, ROOM_COLORS } from "../utils/types";
@@ -24,35 +23,28 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
   };
 
   return (
-    <Tooltip
-      label={`${appt.patientName} · ${appt.start} · ${appt.room} · ${appt.duration} min`}
-      position="top"
-      withArrow
-      openDelay={400}
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`week-table__appt ${
+        isDragging ? "week-table__appt--dragging" : "week-table__appt--idle"
+      }`}
+      style={
+        {
+          "--appt-top": `${top}px`,
+          "--appt-height": `${height - 2}px`,
+          "--appt-bg": colors.bg,
+          "--appt-color": colors.text,
+          transform: CSS.Translate.toString(transform),
+        } as React.CSSProperties
+      }
+      onClick={onClick}
     >
-      <div
-        ref={setNodeRef}
-        {...listeners}
-        {...attributes}
-        className={`week-table__appt ${
-          isDragging ? "week-table__appt--dragging" : "week-table__appt--idle"
-        }`}
-        style={
-          {
-            "--appt-top": `${top}px`,
-            "--appt-height": `${height - 2}px`,
-            "--appt-bg": colors.bg,
-            "--appt-color": colors.text,
-            transform: CSS.Translate.toString(transform),
-          } as React.CSSProperties
-        }
-        onClick={onClick}
-      >
-        <span>{appt.patientName}</span>
-        <span className="week-table__appt-room">
-          {appt.start} · ord. {appt.roomNumber}
-        </span>
-      </div>
-    </Tooltip>
+      <span>{appt.patientName}</span>
+      <span className="week-table__appt-room">
+        {appt.start} · ord. {appt.roomNumber}
+      </span>
+    </div>
   );
 };

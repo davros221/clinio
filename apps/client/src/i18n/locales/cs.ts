@@ -39,24 +39,13 @@ const cs = {
     actionsColumn: "Akce",
     emptyFallback: "Žádné záznamy",
     errorFallback: "Nepodařilo se načíst data",
-    errors: {
-      INTERNAL_SERVER_ERROR: "Došlo k chybě serveru",
-      UNAUTHORIZED: "Nejste přihlášeni",
-      FORBIDDEN: "Nemáte oprávnění zobrazit tato data",
-      NOT_FOUND: "Požadovaná data nebyla nalezena",
-      USER_NOT_FOUND: "Uživatel nebyl nalezen",
-      OFFICE_NOT_FOUND: "Ordinace nebyla nalezena",
-      EMAIL_ALREADY_EXISTS: "E-mail již existuje",
-      INVALID_CREDENTIALS: "Neplatné přihlašovací údaje",
-      BAD_REQUEST: "Neplatný požadavek",
-    },
   },
   quickActions: {
     offices: "Ordinace",
     officesDescription: "Seznam ordinací",
     patients: "Pacienti",
     patientsDescription: "Seznam pacientů",
-    newAppointment: "+ Nová schůzka",
+    newAppointment: "Nová schůzka",
     newAppointmentDescription: "Přidat záznam",
     show: "Zobrazit",
     add: "Přidat",
@@ -66,7 +55,6 @@ const cs = {
   },
   nurseDashboard: {
     title: "Vítejte zpět!",
-    errorLoadingAppointments: "Nepodařilo se načíst schůzky",
   },
   offices: {
     title: "Seznam ordinací",
@@ -105,6 +93,9 @@ const cs = {
       detail: "Detail",
       book: "Objednat",
     },
+  },
+  appointments: {
+    errorLoadingAppointments: "Nepodařilo se načíst schůzky",
   },
 } as const;
 

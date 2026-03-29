@@ -1,7 +1,7 @@
 import { Title, Stack, Text } from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
-import { OfficeService, Office } from "@clinio/api";
+import { Office } from "@clinio/api";
 import { OfficeHoursTemplate } from "@clinio/shared";
+import { useGetOfficesQuery } from "../../api/officeApi";
 import {
   DataTable,
   DataTableColumn,
@@ -31,13 +31,7 @@ function formatOfficeHours(
 export const OfficeListPage = () => {
   const t = useT();
 
-  const { data, isLoading, isError, error } = useQuery<Office[]>({
-    queryKey: ["offices"],
-    queryFn: async () => {
-      const { data } = await OfficeService.getOffices({ throwOnError: true });
-      return data ?? [];
-    },
-  });
+  const { data, isLoading, isError } = useGetOfficesQuery();
 
   const columns: DataTableColumn<Office>[] = [
     { key: "name", header: t("offices.columns.name") },
@@ -74,7 +68,6 @@ export const OfficeListPage = () => {
         actions={actions}
         isLoading={isLoading}
         isError={isError}
-        error={error}
         emptyMessage={t("offices.emptyMessage")}
       />
     </Stack>

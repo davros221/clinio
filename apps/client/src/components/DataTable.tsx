@@ -1,7 +1,6 @@
 import { Table, Loader, Alert, Button, Group, Text, Box } from "@mantine/core";
 import { MdErrorOutline } from "react-icons/md";
 import { useT } from "../hooks/useT";
-import { extractErrorCode } from "../utils/error";
 import classes from "./DataTable.module.css";
 
 export type DataTableColumn<T> = {
@@ -25,7 +24,6 @@ type Props<T> = {
   actions?: DataTableAction<T>[];
   isLoading?: boolean;
   isError?: boolean;
-  error?: unknown;
   emptyMessage?: string;
 };
 
@@ -36,7 +34,6 @@ export const DataTable = <T,>({
   actions,
   isLoading,
   isError,
-  error,
   emptyMessage,
 }: Props<T>) => {
   const t = useT();
@@ -50,14 +47,9 @@ export const DataTable = <T,>({
     );
 
   if (isError) {
-    const errorCode = extractErrorCode(error);
-    const errorMessage = errorCode
-      ? t(`dataTable.errors.${errorCode}`)
-      : t("dataTable.errorFallback");
-
     return (
       <Alert icon={<MdErrorOutline size={16} />} color="red">
-        {errorMessage}
+        {t("dataTable.errorFallback")}
       </Alert>
     );
   }
