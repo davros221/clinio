@@ -25,6 +25,26 @@
   padding: var(--mantine-spacing-xl) 0;
 }
 
+.wrapper {
+  position: relative;
+}
+
+.fetchingOverlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--mantine-color-white) 60%, transparent);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: var(--mantine-spacing-xs);
+  z-index: 1;
+  pointer-events: none;
+}
+
+[data-mantine-color-scheme="dark"] .fetchingOverlay {
+  background: color-mix(in srgb, var(--mantine-color-dark-7) 60%, transparent);
+}
+
 .loader {
   display: flex;
   justify-content: center;
