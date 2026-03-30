@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import {
+  ConflictException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
@@ -140,6 +141,34 @@ describe("UserService", () => {
         service.findAll(clientUser, [UserRole.CLIENT])
       ).rejects.toThrow(ForbiddenException);
     });
+
+    it("should filter by search term on firstName and lastName", async () => {
+      repository.find.mockResolvedValue([mockUser]);
+
+      const result = await service.findAll(
+        doctorUser,
+        [UserRole.CLIENT],
+        "John"
+      );
+
+      expect(result).toEqual([mockUser]);
+      expect(repository.find).toHaveBeenCalledWith({
+        where: [
+          { role: expect.anything(), firstName: expect.anything() },
+          { role: expect.anything(), lastName: expect.anything() },
+        ],
+      });
+    });
+
+    it("should not apply search filter when search is undefined", async () => {
+      repository.find.mockResolvedValue([mockUser]);
+
+      await service.findAll(adminUser, [UserRole.DOCTOR]);
+
+      expect(repository.find).toHaveBeenCalledWith({
+        where: { role: expect.anything() },
+      });
+    });
   });
 
   describe("findById", () => {
@@ -205,7 +234,18 @@ describe("UserService", () => {
   });
 
   describe("create", () => {
-    const createDto: CreateUserDto = {
+    const adminUser: AuthUser = {
+      id: "admin-id",
+      email: "admin@example.com",
+      role: UserRole.ADMIN,
+    };
+    const doctorUser: AuthUser = {
+      id: "doctor-id",
+      email: "doctor@example.com",
+      role: UserRole.DOCTOR,
+    };
+
+    const clientDto: CreateUserDto = {
       email: "jane@example.com",
       password: "StrongP@ss1",
       firstName: "Jane",
@@ -213,23 +253,147 @@ describe("UserService", () => {
       role: UserRole.CLIENT,
     };
 
+    const doctorDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.DOCTOR,
+    };
+
+    const nurseDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.NURSE,
+    };
+
+    const adminDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.ADMIN,
+    };
+
+    // --- Role constraint tests ---
+
+    it("should allow public (no auth) to create CLIENT", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(clientDto)).resolves.toBeDefined();
+    });
+
+    it("should forbid public (no auth) from creating DOCTOR", async () => {
+      await expect(service.create(doctorDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid public (no auth) from creating NURSE", async () => {
+      await expect(service.create(nurseDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid public (no auth) from creating ADMIN", async () => {
+      await expect(service.create(adminDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should allow ADMIN to create CLIENT", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(clientDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should allow ADMIN to create DOCTOR", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...doctorDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...doctorDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(doctorDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should allow ADMIN to create NURSE", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...nurseDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...nurseDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(nurseDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should forbid ADMIN from creating ADMIN", async () => {
+      await expect(service.create(adminDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid non-ADMIN authenticated user from creating any role", async () => {
+      await expect(service.create(clientDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
+      await expect(service.create(doctorDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    // --- Existing behavior tests ---
+
     it("should hash the password before saving", async () => {
       const hashSpy = jest.spyOn(bcrypt, "hash") as jest.Mock;
       hashSpy.mockResolvedValue("bcrypt-hashed");
       repository.create.mockReturnValue({
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "bcrypt-hashed",
       } as UserEntity);
       repository.save.mockResolvedValue({
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "bcrypt-hashed",
       } as UserEntity);
 
-      await service.create(createDto);
+      await service.create(clientDto);
 
-      expect(hashSpy).toHaveBeenCalledWith(createDto.password, 10);
+      expect(hashSpy).toHaveBeenCalledWith(clientDto.password, 10);
       hashSpy.mockRestore();
     });
 
@@ -241,20 +405,20 @@ describe("UserService", () => {
         Promise.resolve({ ...entity, id: "new-id" } as UserEntity)
       );
 
-      await service.create(createDto);
+      await service.create(clientDto);
 
       expect(repository.create).toHaveBeenCalledWith(
         expect.objectContaining({ password: "bcrypt-hashed" })
       );
       expect(repository.create).not.toHaveBeenCalledWith(
-        expect.objectContaining({ password: createDto.password })
+        expect.objectContaining({ password: clientDto.password })
       );
       hashSpy.mockRestore();
     });
 
     it("should return the saved entity", async () => {
       const saved = {
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "hashed",
       } as UserEntity;
@@ -264,9 +428,17 @@ describe("UserService", () => {
       repository.create.mockReturnValue(saved);
       repository.save.mockResolvedValue(saved);
 
-      const result = await service.create(createDto);
+      const result = await service.create(clientDto);
 
       expect(result).toEqual(saved);
+    });
+
+    it("should throw ConflictException when email already exists", async () => {
+      repository.findOneBy.mockResolvedValue(mockUser);
+
+      await expect(service.create(clientDto)).rejects.toThrow(
+        ConflictException
+      );
     });
   });
 

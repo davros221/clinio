@@ -64,9 +64,11 @@ describe("UserController", () => {
       const result = await controller.getAll(mockAdmin, [UserRole.DOCTOR]);
 
       expect(result).toEqual([mockUserDto]);
-      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [
-        UserRole.DOCTOR,
-      ]);
+      expect(service.findAll).toHaveBeenCalledWith(
+        mockAdmin,
+        [UserRole.DOCTOR],
+        undefined
+      );
     });
 
     it("should return empty array when no users exist", async () => {
@@ -82,10 +84,11 @@ describe("UserController", () => {
 
       await controller.getAll(mockAdmin, [UserRole.DOCTOR, UserRole.NURSE]);
 
-      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [
-        UserRole.DOCTOR,
-        UserRole.NURSE,
-      ]);
+      expect(service.findAll).toHaveBeenCalledWith(
+        mockAdmin,
+        [UserRole.DOCTOR, UserRole.NURSE],
+        undefined
+      );
     });
 
     it("should normalize single role to array", async () => {
@@ -93,7 +96,23 @@ describe("UserController", () => {
 
       await controller.getAll(mockAdmin, UserRole.NURSE);
 
-      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [UserRole.NURSE]);
+      expect(service.findAll).toHaveBeenCalledWith(
+        mockAdmin,
+        [UserRole.NURSE],
+        undefined
+      );
+    });
+
+    it("should pass search param to service", async () => {
+      service.findAll.mockResolvedValue([mockUser]);
+
+      await controller.getAll(mockAdmin, [UserRole.DOCTOR], "John");
+
+      expect(service.findAll).toHaveBeenCalledWith(
+        mockAdmin,
+        [UserRole.DOCTOR],
+        "John"
+      );
     });
 
     it("should throw BadRequestException when role param is missing", async () => {
@@ -129,7 +148,7 @@ describe("UserController", () => {
       role: UserRole.CLIENT,
     };
 
-    it("should create user and return mapped DTO", async () => {
+    it("should create user and return mapped DTO (public)", async () => {
       const created: UserEntity = {
         ...createDto,
         id: "new-id",
@@ -137,10 +156,23 @@ describe("UserController", () => {
       };
       service.create.mockResolvedValue(created);
 
-      const result = await controller.create(createDto);
+      const result = await controller.create(undefined, createDto);
 
       expect(result).toEqual(UserMapper.toDto(created));
-      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledWith(createDto, undefined);
+    });
+
+    it("should pass currentUser to service when authenticated", async () => {
+      const created: UserEntity = {
+        ...createDto,
+        id: "new-id",
+        password: "hashed",
+      };
+      service.create.mockResolvedValue(created);
+
+      await controller.create(mockAdmin, createDto);
+
+      expect(service.create).toHaveBeenCalledWith(createDto, mockAdmin);
     });
   });
 

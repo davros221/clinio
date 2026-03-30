@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ErrorCode, UserRole } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
-import { In, Repository } from "typeorm";
+import { In, ILike, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
   emailAlreadyExists,
@@ -27,7 +27,8 @@ export class UserService {
 
   async findAll(
     currentUser: AuthUser,
-    roles: UserRole[]
+    roles: UserRole[],
+    search?: string
   ): Promise<UserEntity[]> {
     const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
     const requestingPatients = roles.includes(UserRole.CLIENT);
@@ -48,8 +49,20 @@ export class UserService {
       throw forbidden();
     }
 
+    const baseWhere = { role: In(roles) };
+
+    if (search) {
+      const pattern = ILike(`%${search}%`);
+      return this.userRepository.find({
+        where: [
+          { ...baseWhere, firstName: pattern },
+          { ...baseWhere, lastName: pattern },
+        ],
+      });
+    }
+
     // TODO: DOCTOR and NURSE should only see their own patients (via office relation)
-    return this.userRepository.find({ where: { role: In(roles) } });
+    return this.userRepository.find({ where: baseWhere });
   }
 
   async findById(id: string): Promise<UserEntity> {
@@ -72,7 +85,27 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async create(user: CreateUserDto): Promise<UserEntity> {
+  async create(
+    user: CreateUserDto,
+    currentUser?: AuthUser
+  ): Promise<UserEntity> {
+    if (currentUser) {
+      // Authenticated: only ADMIN can create, and only CLIENT/DOCTOR/NURSE
+      if (currentUser.role !== UserRole.ADMIN) {
+        throw forbidden();
+      }
+      if (
+        ![UserRole.CLIENT, UserRole.DOCTOR, UserRole.NURSE].includes(user.role)
+      ) {
+        throw forbidden();
+      }
+    } else {
+      // Public (no auth): can only create CLIENT
+      if (user.role !== UserRole.CLIENT) {
+        throw forbidden();
+      }
+    }
+
     const existingUser = await this.findByEmail(user.email);
     if (existingUser) {
       throw emailAlreadyExists();
