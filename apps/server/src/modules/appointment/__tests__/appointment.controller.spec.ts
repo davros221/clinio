@@ -4,7 +4,9 @@ import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
 import { AppointmentMapper } from "../mapper/AppointmentMapper";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
-import { AppointmentStatus } from "@clinio/shared";
+import { AppointmentStatus, ErrorCode } from "@clinio/shared";
+import { NotFoundException } from "@nestjs/common";
+import { appointmentNotFound } from "../../../common/error-messages";
 
 const mockAppointment: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -72,6 +74,28 @@ describe("AppointmentController", () => {
 
       expect(result).toEqual(mockAppointmentDto);
       expect(service.findById).toHaveBeenCalledWith(mockAppointment.id);
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      service.findById.mockRejectedValue(appointmentNotFound());
+
+      await expect(controller.getById("non-existent-id")).rejects.toThrow(
+        NotFoundException
+      );
+    });
+
+    it("should throw NotFoundException with APPOINTMENT_NOT_FOUND error code", async () => {
+      service.findById.mockRejectedValue(appointmentNotFound());
+
+      try {
+        await controller.getById("non-existent-id");
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect((error as NotFoundException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
+        });
+      }
     });
   });
 

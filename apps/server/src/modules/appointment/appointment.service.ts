@@ -1,10 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { ErrorCode } from "@clinio/shared";
+
 import { AppointmentEntity } from "./appointment.entity";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
-import { internalError, notFound } from "../../common/error-messages";
+import {
+  appointmentNotFound,
+  internalError,
+} from "../../common/error-messages";
 
 @Injectable()
 export class AppointmentService {
@@ -30,14 +33,17 @@ export class AppointmentService {
     }
 
     if (!appointment) {
-      throw notFound("Appointment", ErrorCode.APPOINTMENT_NOT_FOUND);
+      throw appointmentNotFound();
     }
 
     return appointment;
   }
 
   async create(dto: CreateAppointmentDto): Promise<AppointmentEntity> {
-    const entity = this.appointmentRepository.create(dto);
+    const entity = this.appointmentRepository.create({
+      ...dto,
+      datetime: new Date(dto.datetime),
+    });
     return this.appointmentRepository.save(entity);
   }
 }
