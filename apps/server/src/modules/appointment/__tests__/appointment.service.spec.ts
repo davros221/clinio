@@ -129,7 +129,10 @@ describe("AppointmentService", () => {
       const result = await service.create(createDto);
 
       expect(result).toEqual(mockAppointment);
-      expect(repository.create).toHaveBeenCalledWith(createDto);
+      expect(repository.create).toHaveBeenCalledWith({
+        ...createDto,
+        datetime: new Date(createDto.datetime),
+      });
       expect(repository.save).toHaveBeenCalledWith(mockAppointment);
     });
   });
