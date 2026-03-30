@@ -9,6 +9,7 @@ export type User = {
     email: string;
     firstName: string;
     lastName: string;
+    role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
 };
 
 export type CreateUserDto = {
@@ -40,14 +41,175 @@ export type MeResponse = {
     authData: AuthData | null;
 };
 
+export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
+
+export type AppointmentType = 'CHECKUP' | 'CONSULTATION' | 'URGENT' | 'FIRST_VISIT';
+
+export type AppointmentStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'NO_SHOW';
+
+export type CalendarAppointmentPatient = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    insuranceCode: string;
+};
+
+export type CalendarAppointmentDoctor = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    specialization: string;
+};
+
+export type CalendarAppointment = {
+    id: string;
+    isOwned: boolean;
+    type: AppointmentType;
+    status: AppointmentStatus;
+    note?: string;
+    patient: CalendarAppointmentPatient;
+    doctor: CalendarAppointmentDoctor;
+};
+
+export type CalendarHour = {
+    hour: number;
+    state: CalendarHourState;
+    appointment?: CalendarAppointment;
+};
+
+export type CalendarDay = {
+    date: string;
+    day: number;
+    hours: Array<CalendarHour>;
+};
+
+export type Office = {
+    id: string;
+    name: string;
+    specialization: string;
+    address: string;
+    officeHoursTemplate?: {
+        [key: string]: unknown;
+    } | null;
+    staffIds: Array<string>;
+};
+
+export type CreateOfficeDto = {
+    name: string;
+    specialization: string;
+    address: string;
+    officeHoursTemplate: {
+        monday: Array<{
+            from: number;
+            to: number;
+        }>;
+        tuesday: Array<{
+            from: number;
+            to: number;
+        }>;
+        wednesday: Array<{
+            from: number;
+            to: number;
+        }>;
+        thursday: Array<{
+            from: number;
+            to: number;
+        }>;
+        friday: Array<{
+            from: number;
+            to: number;
+        }>;
+        saturday: Array<{
+            from: number;
+            to: number;
+        }>;
+        sunday: Array<{
+            from: number;
+            to: number;
+        }>;
+    } | unknown;
+    staffIds: Array<string>;
+};
+
+export type UpdateOfficeDto = {
+    name?: string;
+    specialization?: string;
+    address?: string;
+    officeHoursTemplate?: {
+        monday: Array<{
+            from: number;
+            to: number;
+        }>;
+        tuesday: Array<{
+            from: number;
+            to: number;
+        }>;
+        wednesday: Array<{
+            from: number;
+            to: number;
+        }>;
+        thursday: Array<{
+            from: number;
+            to: number;
+        }>;
+        friday: Array<{
+            from: number;
+            to: number;
+        }>;
+        saturday: Array<{
+            from: number;
+            to: number;
+        }>;
+        sunday: Array<{
+            from: number;
+            to: number;
+        }>;
+    } | unknown;
+    staffIds?: Array<string>;
+};
+
+export type SuggestItemPosition = {
+    lon: number;
+    lat: number;
+};
+
+export type SuggestItemRegionalStructure = {
+    name: string;
+    type: string;
+};
+
+export type SuggestItem = {
+    name: string;
+    label: string;
+    location: string;
+    position: SuggestItemPosition;
+    regionalStructure?: Array<SuggestItemRegionalStructure>;
+    zip?: string | null;
+};
+
+export type SuggestResponse = {
+    items: Array<SuggestItem>;
+};
+
 export type GetData = {
     body?: never;
     path?: never;
-    query?: never;
+    query: {
+        /**
+         * Search by first name or last name
+         */
+        search?: string;
+        role: Array<'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT'>;
+    };
     url: '/api/users';
 };
 
 export type GetErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
     /**
      * Internal Server Error
      */
@@ -72,6 +234,10 @@ export type CreateErrors = {
      * Bad Request
      */
     400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
 };
 
 export type CreateResponses = {
@@ -169,3 +335,187 @@ export type MeResponses = {
 };
 
 export type MeResponse2 = MeResponses[keyof MeResponses];
+
+export type GetCalendarData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/calendar';
+};
+
+export type GetCalendarResponses = {
+    200: Array<CalendarDay>;
+};
+
+export type GetCalendarResponse = GetCalendarResponses[keyof GetCalendarResponses];
+
+export type GetOfficesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/offices';
+};
+
+export type GetOfficesErrors = {
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type GetOfficesResponses = {
+    200: Array<Office>;
+};
+
+export type GetOfficesResponse = GetOfficesResponses[keyof GetOfficesResponses];
+
+export type CreateOfficeData = {
+    body: CreateOfficeDto;
+    path?: never;
+    query?: never;
+    url: '/api/offices';
+};
+
+export type CreateOfficeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+};
+
+export type CreateOfficeResponses = {
+    201: Office;
+};
+
+export type CreateOfficeResponse = CreateOfficeResponses[keyof CreateOfficeResponses];
+
+export type DeleteOfficeData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/offices/{id}';
+};
+
+export type DeleteOfficeErrors = {
+    /**
+     * Office not found
+     */
+    404: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type DeleteOfficeResponses = {
+    /**
+     * Office deleted successfully
+     */
+    200: unknown;
+};
+
+export type GetOfficeByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/offices/{id}';
+};
+
+export type GetOfficeByIdErrors = {
+    /**
+     * Office not found
+     */
+    404: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type GetOfficeByIdResponses = {
+    200: Office;
+};
+
+export type GetOfficeByIdResponse = GetOfficeByIdResponses[keyof GetOfficeByIdResponses];
+
+export type UpdateOfficeData = {
+    body: UpdateOfficeDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/offices/{id}';
+};
+
+export type UpdateOfficeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Office not found
+     */
+    404: unknown;
+};
+
+export type UpdateOfficeResponses = {
+    200: Office;
+};
+
+export type UpdateOfficeResponse = UpdateOfficeResponses[keyof UpdateOfficeResponses];
+
+export type ReplaceOfficeData = {
+    body: CreateOfficeDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/offices/{id}';
+};
+
+export type ReplaceOfficeErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Office not found
+     */
+    404: unknown;
+};
+
+export type ReplaceOfficeResponses = {
+    200: Office;
+};
+
+export type ReplaceOfficeResponse = ReplaceOfficeResponses[keyof ReplaceOfficeResponses];
+
+export type SuggestAddressData = {
+    body?: never;
+    path?: never;
+    query: {
+        query: string;
+    };
+    url: '/api/addresses/suggest';
+};
+
+export type SuggestAddressErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type SuggestAddressResponses = {
+    200: SuggestResponse;
+};
+
+export type SuggestAddressResponse = SuggestAddressResponses[keyof SuggestAddressResponses];
