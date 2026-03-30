@@ -32,3 +32,5 @@ export const createOfficeSchema = z
     staffIds: z.array(z.uuid()).optional().default([]),
   })
   .required();
+
+export const updateOfficeSchema = createOfficeSchema.partial();

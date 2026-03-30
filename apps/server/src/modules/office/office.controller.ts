@@ -5,7 +5,9 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
+  Put,
   UsePipes,
 } from "@nestjs/common";
 import {
@@ -18,9 +20,10 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
-import { createOfficeSchema } from "@clinio/shared";
+import { createOfficeSchema, updateOfficeSchema } from "@clinio/shared";
 import { OfficeService } from "./office.service";
 import { CreateOfficeDto } from "./dto/create-office.dto";
+import { UpdateOfficeDto } from "./dto/update-office.dto";
 import { Office } from "./dto/office.dto";
 import { OfficeMapper } from "./mapper/OfficeMapper";
 
@@ -55,6 +58,34 @@ export class OfficeController {
   @UsePipes(new ZodValidationPipe(createOfficeSchema))
   async create(@Body() dto: CreateOfficeDto) {
     const entity = await this.officeService.create(dto);
+    return OfficeMapper.toDto(entity);
+  }
+
+  @Put(":id")
+  @ApiOperation({ operationId: "replaceOffice" })
+  @ApiOkResponse({ type: Office })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiNotFoundResponse({ description: "Office not found" })
+  @UsePipes(new ZodValidationPipe(createOfficeSchema))
+  async replace(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: CreateOfficeDto
+  ) {
+    const entity = await this.officeService.replace(id, dto);
+    return OfficeMapper.toDto(entity);
+  }
+
+  @Patch(":id")
+  @ApiOperation({ operationId: "updateOffice" })
+  @ApiOkResponse({ type: Office })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiNotFoundResponse({ description: "Office not found" })
+  @UsePipes(new ZodValidationPipe(updateOfficeSchema))
+  async update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: UpdateOfficeDto
+  ) {
+    const entity = await this.officeService.update(id, dto);
     return OfficeMapper.toDto(entity);
   }
 

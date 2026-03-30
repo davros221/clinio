@@ -10,6 +10,7 @@ import { OfficeEntity } from "../office.entity";
 import { UserEntity } from "../../user/user.entity";
 import { ErrorCode, UserRole } from "@clinio/shared";
 import { CreateOfficeDto } from "../dto/create-office.dto";
+import { UpdateOfficeDto } from "../dto/update-office.dto";
 
 const mockStaff: UserEntity = {
   id: "staff-1",
@@ -200,6 +201,126 @@ describe("OfficeService", () => {
         officeHoursTemplate: dtoNoStaff.officeHoursTemplate,
         staff: [],
       });
+    });
+  });
+
+  describe("replace", () => {
+    const replaceDto: CreateOfficeDto = {
+      name: "Replaced Office",
+      specialization: "Cardiology",
+      address: "789 New St",
+      officeHoursTemplate: null,
+      staffIds: ["staff-1"],
+    };
+
+    it("should replace all fields on the office entity", async () => {
+      officeRepository.findOne.mockResolvedValue({ ...mockOffice });
+      userRepository.findBy.mockResolvedValue([mockStaff]);
+      const saved = {
+        ...mockOffice,
+        name: "Replaced Office",
+        specialization: "Cardiology",
+        address: "789 New St",
+        officeHoursTemplate: null,
+        staff: [mockStaff],
+      };
+      officeRepository.save.mockResolvedValue(saved);
+
+      const result = await service.replace(mockOffice.id, replaceDto);
+
+      expect(result).toEqual(saved);
+      expect(officeRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Replaced Office",
+          specialization: "Cardiology",
+          address: "789 New St",
+          officeHoursTemplate: null,
+        })
+      );
+    });
+
+    it("should clear staff when staffIds is empty", async () => {
+      officeRepository.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [mockStaff],
+      });
+      officeRepository.save.mockResolvedValue({
+        ...mockOffice,
+        staff: [],
+      });
+
+      await service.replace(mockOffice.id, { ...replaceDto, staffIds: [] });
+
+      expect(userRepository.findBy).not.toHaveBeenCalled();
+      expect(officeRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ staff: [] })
+      );
+    });
+
+    it("should throw NotFoundException when office not found", async () => {
+      officeRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.replace("non-existent-id", replaceDto)
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("update", () => {
+    const updateDto: UpdateOfficeDto = {
+      name: "Updated Office",
+      specialization: "Cardiology",
+    };
+
+    it("should update office fields and return updated entity", async () => {
+      officeRepository.findOne.mockResolvedValue({ ...mockOffice });
+      const saved = {
+        ...mockOffice,
+        name: "Updated Office",
+        specialization: "Cardiology",
+      };
+      officeRepository.save.mockResolvedValue(saved);
+
+      const result = await service.update(mockOffice.id, updateDto);
+
+      expect(result).toEqual(saved);
+      expect(officeRepository.save).toHaveBeenCalled();
+    });
+
+    it("should update staff when staffIds is provided", async () => {
+      officeRepository.findOne.mockResolvedValue({ ...mockOffice });
+      userRepository.findBy.mockResolvedValue([mockStaff]);
+      const saved = { ...mockOffice, staff: [mockStaff] };
+      officeRepository.save.mockResolvedValue(saved);
+
+      const result = await service.update(mockOffice.id, {
+        staffIds: ["staff-1"],
+      });
+
+      expect(result.staff).toEqual([mockStaff]);
+      expect(userRepository.findBy).toHaveBeenCalledWith({
+        id: expect.objectContaining({ _type: "in" }),
+      });
+    });
+
+    it("should not update staff when staffIds is not provided", async () => {
+      officeRepository.findOne.mockResolvedValue({ ...mockOffice });
+      officeRepository.save.mockResolvedValue({
+        ...mockOffice,
+        name: "Updated Office",
+      });
+
+      await service.update(mockOffice.id, { name: "Updated Office" });
+
+      expect(userRepository.findBy).not.toHaveBeenCalled();
+    });
+
+    it("should throw NotFoundException when office not found", async () => {
+      officeRepository.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update("non-existent-id", updateDto)
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

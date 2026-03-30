@@ -4,6 +4,7 @@ import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
 import { OfficeMapper } from "../mapper/OfficeMapper";
 import { CreateOfficeDto } from "../dto/create-office.dto";
+import { UpdateOfficeDto } from "../dto/update-office.dto";
 import { UserRole } from "@clinio/shared";
 import { UserEntity } from "../../user/user.entity";
 
@@ -39,13 +40,18 @@ const mockOfficeService = () => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  replace: jest.fn(),
+  update: jest.fn(),
   remove: jest.fn(),
 });
 
 describe("OfficeController", () => {
   let controller: OfficeController;
   let service: jest.Mocked<
-    Pick<OfficeService, "findAll" | "findById" | "create" | "remove">
+    Pick<
+      OfficeService,
+      "findAll" | "findById" | "create" | "replace" | "update" | "remove"
+    >
   >;
 
   beforeEach(async () => {
@@ -115,6 +121,52 @@ describe("OfficeController", () => {
 
       expect(result).toEqual(OfficeMapper.toDto(created));
       expect(service.create).toHaveBeenCalledWith(createDto);
+    });
+  });
+
+  describe("replace", () => {
+    const replaceDto: CreateOfficeDto = {
+      name: "Replaced Office",
+      specialization: "Cardiology",
+      address: "789 New St",
+      officeHoursTemplate: null,
+      staffIds: [],
+    };
+
+    it("should replace office and return mapped DTO", async () => {
+      const replaced: OfficeEntity = {
+        ...mockOffice,
+        name: replaceDto.name,
+        specialization: replaceDto.specialization,
+        address: replaceDto.address,
+        officeHoursTemplate: null,
+        staff: [],
+      };
+      service.replace.mockResolvedValue(replaced);
+
+      const result = await controller.replace(mockOffice.id, replaceDto);
+
+      expect(result).toEqual(OfficeMapper.toDto(replaced));
+      expect(service.replace).toHaveBeenCalledWith(mockOffice.id, replaceDto);
+    });
+  });
+
+  describe("update", () => {
+    const updateDto: UpdateOfficeDto = {
+      name: "Updated Office",
+    };
+
+    it("should update office and return mapped DTO", async () => {
+      const updated: OfficeEntity = {
+        ...mockOffice,
+        name: "Updated Office",
+      };
+      service.update.mockResolvedValue(updated);
+
+      const result = await controller.update(mockOffice.id, updateDto);
+
+      expect(result).toEqual(OfficeMapper.toDto(updated));
+      expect(service.update).toHaveBeenCalledWith(mockOffice.id, updateDto);
     });
   });
 
