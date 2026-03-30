@@ -5,6 +5,7 @@ import { ErrorCode } from "@clinio/shared";
 import { OfficeEntity } from "./office.entity";
 import { UserEntity } from "../user/user.entity";
 import { CreateOfficeDto } from "./dto/create-office.dto";
+import { UpdateOfficeDto } from "./dto/update-office.dto";
 import { internalError, notFound } from "../../common/error-messages";
 
 @Injectable()
@@ -49,6 +50,38 @@ export class OfficeService {
     const entity = this.officeRepository.create({ ...rest, staff });
 
     return this.officeRepository.save(entity);
+  }
+
+  async replace(id: string, dto: CreateOfficeDto): Promise<OfficeEntity> {
+    const office = await this.findById(id);
+
+    const { staffIds, ...rest } = dto;
+
+    office.name = rest.name;
+    office.specialization = rest.specialization;
+    office.address = rest.address;
+    office.officeHoursTemplate = rest.officeHoursTemplate;
+    office.staff = staffIds.length
+      ? await this.userRepository.findBy({ id: In(staffIds) })
+      : [];
+
+    return this.officeRepository.save(office);
+  }
+
+  async update(id: string, dto: UpdateOfficeDto): Promise<OfficeEntity> {
+    const office = await this.findById(id);
+
+    const { staffIds, ...rest } = dto;
+
+    Object.assign(office, rest);
+
+    if (staffIds !== undefined) {
+      office.staff = staffIds.length
+        ? await this.userRepository.findBy({ id: In(staffIds) })
+        : [];
+    }
+
+    return this.officeRepository.save(office);
   }
 
   async remove(id: string): Promise<void> {
