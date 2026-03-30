@@ -43,6 +43,10 @@ export type MeResponse = {
 
 export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
 
+export type AppointmentType = 'CHECKUP' | 'CONSULTATION' | 'URGENT' | 'FIRST_VISIT';
+
+export type AppointmentStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'NO_SHOW';
+
 export type CalendarAppointmentPatient = {
     id: string;
     firstName: string;
@@ -61,6 +65,8 @@ export type CalendarAppointmentDoctor = {
 export type CalendarAppointment = {
     id: string;
     isOwned: boolean;
+    type: AppointmentType;
+    status: AppointmentStatus;
     note?: string;
     patient: CalendarAppointmentPatient;
     doctor: CalendarAppointmentDoctor;
@@ -78,50 +84,14 @@ export type CalendarDay = {
     hours: Array<CalendarHour>;
 };
 
-export type Appointment = {
-    id: string;
-    officeId?: {
-        [key: string]: unknown;
-    } | null;
-    patientId?: {
-        [key: string]: unknown;
-    } | null;
-    date: string;
-    hour: number;
-    status: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
-    note: string;
-};
-
-export type CreateAppointmentDto = {
-    officeId?: string | null;
-    patientId?: string | null;
-    date: string;
-    hour: number;
-    status: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
-    note: string;
-};
-
-export type OfficeHoursInterval = {
-    from: number;
-    to: number;
-};
-
-export type OfficeHoursTemplateDto = {
-    monday: Array<OfficeHoursInterval>;
-    tuesday: Array<OfficeHoursInterval>;
-    wednesday: Array<OfficeHoursInterval>;
-    thursday: Array<OfficeHoursInterval>;
-    friday: Array<OfficeHoursInterval>;
-    saturday: Array<OfficeHoursInterval>;
-    sunday: Array<OfficeHoursInterval>;
-};
-
 export type Office = {
     id: string;
     name: string;
     specialization: string;
     address: string;
-    officeHoursTemplate: OfficeHoursTemplateDto;
+    officeHoursTemplate?: {
+        [key: string]: unknown;
+    } | null;
     staffIds: Array<string>;
 };
 
@@ -158,7 +128,7 @@ export type CreateOfficeDto = {
             from: number;
             to: number;
         }>;
-    };
+    } | unknown;
     staffIds: Array<string>;
 };
 
@@ -195,7 +165,7 @@ export type UpdateOfficeDto = {
             from: number;
             to: number;
         }>;
-    };
+    } | unknown;
     staffIds?: Array<string>;
 };
 
@@ -378,72 +348,6 @@ export type GetCalendarResponses = {
 };
 
 export type GetCalendarResponse = GetCalendarResponses[keyof GetCalendarResponses];
-
-export type GetAppointmentsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/appointments';
-};
-
-export type GetAppointmentsErrors = {
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-};
-
-export type GetAppointmentsResponses = {
-    200: Array<Appointment>;
-};
-
-export type GetAppointmentsResponse = GetAppointmentsResponses[keyof GetAppointmentsResponses];
-
-export type CreateAppointmentData = {
-    body: CreateAppointmentDto;
-    path?: never;
-    query?: never;
-    url: '/api/appointments';
-};
-
-export type CreateAppointmentErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-};
-
-export type CreateAppointmentResponses = {
-    201: Appointment;
-};
-
-export type CreateAppointmentResponse = CreateAppointmentResponses[keyof CreateAppointmentResponses];
-
-export type GetAppointmentByIdData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/appointments/{id}';
-};
-
-export type GetAppointmentByIdErrors = {
-    /**
-     * Appointment not found
-     */
-    404: unknown;
-    /**
-     * Internal Server Error
-     */
-    500: unknown;
-};
-
-export type GetAppointmentByIdResponses = {
-    200: Appointment;
-};
-
-export type GetAppointmentByIdResponse = GetAppointmentByIdResponses[keyof GetAppointmentByIdResponses];
 
 export type GetOfficesData = {
     body?: never;
