@@ -13,13 +13,13 @@ export class AppointmentEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column()
-  officeId!: string;
+  @Column({ type: "varchar", nullable: true })
+  officeId!: string | null;
 
   // ToDo: Check with ANA team
-  @ManyToOne(() => OfficeEntity, { onDelete: "CASCADE" })
+  @ManyToOne(() => OfficeEntity, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "officeId" })
-  office!: OfficeEntity;
+  office!: OfficeEntity | null;
 
   @Column({ type: "varchar", nullable: true })
   patientId!: string | null;

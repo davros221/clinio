@@ -7,7 +7,7 @@ export enum AppointmentStatus {
 }
 
 export const createAppointmentSchema = z.object({
-  officeId: z.string().uuid(),
+  officeId: z.string().uuid().nullable().optional(),
   patientId: z.string().nullable().optional(),
   datetime: z.string().datetime(),
   status: z.nativeEnum(AppointmentStatus),

@@ -12,15 +12,8 @@ import { CreateAppointmentDto } from "../dto/create-appointment.dto";
 
 const mockAppointment: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  officeId: "660e8400-e29b-41d4-a716-446655440001",
-  office: {
-    id: "660e8400-e29b-41d4-a716-446655440001",
-    name: "Main Office",
-    specialization: "General",
-    address: "123 Main St",
-    officeHoursTemplate: null,
-    staff: [],
-  },
+  officeId: null,
+  office: null,
   patientId: null,
   datetime: new Date("2026-04-01T10:00:00Z"),
   status: AppointmentStatus.PLANNED,
@@ -122,7 +115,7 @@ describe("AppointmentService", () => {
 
   describe("create", () => {
     const createDto: CreateAppointmentDto = {
-      officeId: "660e8400-e29b-41d4-a716-446655440001",
+      officeId: null,
       patientId: null,
       datetime: "2026-04-01T10:00:00Z",
       status: AppointmentStatus.PLANNED,

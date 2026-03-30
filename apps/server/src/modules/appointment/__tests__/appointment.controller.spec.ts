@@ -8,15 +8,8 @@ import { AppointmentStatus } from "@clinio/shared";
 
 const mockAppointment: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  officeId: "660e8400-e29b-41d4-a716-446655440001",
-  office: {
-    id: "660e8400-e29b-41d4-a716-446655440001",
-    name: "Main Office",
-    specialization: "General",
-    address: "123 Main St",
-    officeHoursTemplate: null,
-    staff: [],
-  },
+  officeId: null,
+  office: null,
   patientId: "patient-1",
   datetime: new Date("2026-04-01T10:00:00Z"),
   status: AppointmentStatus.PLANNED,
@@ -84,7 +77,7 @@ describe("AppointmentController", () => {
 
   describe("create", () => {
     const createDto: CreateAppointmentDto = {
-      officeId: "660e8400-e29b-41d4-a716-446655440001",
+      officeId: null,
       patientId: "patient-1",
       datetime: "2026-04-01T10:00:00Z",
       status: AppointmentStatus.PLANNED,
