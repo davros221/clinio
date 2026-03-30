@@ -7,7 +7,6 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
@@ -45,15 +44,26 @@ export class UserController {
     isArray: true,
     required: true,
   })
+  @ApiQuery({
+    name: "search",
+    required: false,
+    type: String,
+    description: "Search by first name or last name",
+  })
   @ApiOkResponse({ type: [User] })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
     @CurrentUser() currentUser: AuthUser,
-    @Query("role") roles: UserRole | UserRole[] | undefined
+    @Query("role") roles: UserRole | UserRole[] | undefined,
+    @Query("search") search?: string
   ) {
     const parsed = new ParseEnumArrayPipe(UserRole).transform(roles);
-    const entities = await this.userService.findAll(currentUser, parsed);
+    const entities = await this.userService.findAll(
+      currentUser,
+      parsed,
+      search
+    );
     return UserMapper.toDtoList(entities);
   }
 
@@ -72,9 +82,12 @@ export class UserController {
   @ApiOperation({ operationId: "create" })
   @ApiCreatedResponse({ type: User })
   @ApiBadRequestResponse({ description: "Bad Request" })
-  @UsePipes(new ZodValidationPipe(createUserSchema))
-  async create(@Body() dto: CreateUserDto) {
-    const entity = await this.userService.create(dto);
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  async create(
+    @CurrentUser() currentUser: AuthUser | undefined,
+    @Body(new ZodValidationPipe(createUserSchema)) dto: CreateUserDto
+  ) {
+    const entity = await this.userService.create(dto, currentUser);
     return UserMapper.toDto(entity);
   }
 
