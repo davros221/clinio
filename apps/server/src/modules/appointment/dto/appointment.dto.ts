@@ -12,7 +12,10 @@ export class Appointment {
   patientId!: string | null;
 
   @ApiProperty()
-  datetime!: Date;
+  date!: string;
+
+  @ApiProperty()
+  hour!: number;
 
   @ApiProperty({ enum: AppointmentStatus })
   status!: AppointmentStatus;

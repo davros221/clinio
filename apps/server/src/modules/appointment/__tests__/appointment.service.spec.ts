@@ -15,7 +15,8 @@ const mockAppointment: AppointmentEntity = {
   officeId: null,
   office: null,
   patientId: null,
-  datetime: new Date("2026-04-01T10:00:00Z"),
+  date: "2026-04-01",
+  hour: 10,
   status: AppointmentStatus.PLANNED,
   note: "Initial consultation",
 };
@@ -117,7 +118,8 @@ describe("AppointmentService", () => {
     const createDto: CreateAppointmentDto = {
       officeId: null,
       patientId: null,
-      datetime: "2026-04-01T10:00:00Z",
+      date: "2026-04-01",
+      hour: 10,
       status: AppointmentStatus.PLANNED,
       note: "Initial consultation",
     };
@@ -129,10 +131,7 @@ describe("AppointmentService", () => {
       const result = await service.create(createDto);
 
       expect(result).toEqual(mockAppointment);
-      expect(repository.create).toHaveBeenCalledWith({
-        ...createDto,
-        datetime: new Date(createDto.datetime),
-      });
+      expect(repository.create).toHaveBeenCalledWith(createDto);
       expect(repository.save).toHaveBeenCalledWith(mockAppointment);
     });
   });

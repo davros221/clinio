@@ -7,7 +7,8 @@ export class AppointmentMapper {
       id: entity.id,
       officeId: entity.officeId,
       patientId: entity.patientId,
-      datetime: entity.datetime,
+      date: entity.date,
+      hour: entity.hour,
       status: entity.status,
       note: entity.note,
     };

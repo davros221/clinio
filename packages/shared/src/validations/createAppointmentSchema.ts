@@ -12,7 +12,8 @@ export type AppointmentStatus =
 export const createAppointmentSchema = z.object({
   officeId: z.string().uuid().nullable().optional(),
   patientId: z.string().nullable().optional(),
-  datetime: z.string().datetime(),
+  date: z.string().date(),
+  hour: z.number().int().min(0).max(23),
   status: z.enum(AppointmentStatus),
   note: z.string(),
 });

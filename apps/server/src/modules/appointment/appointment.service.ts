@@ -16,10 +16,24 @@ export class AppointmentService {
     private appointmentRepository: Repository<AppointmentEntity>
   ) {}
 
+  /**
+   * ToDo: Constraints:
+   * - CLIENT: can see only his own reservations
+   * - NURSE / DOCTOR: Can see only reservations for his office
+   *
+   * ToDo: Find by USER ID or OFFICE ID
+   *
+   * ToDo: Add FROM and TO params
+   */
   findAll(): Promise<AppointmentEntity[]> {
     return this.appointmentRepository.find({ relations: ["office"] });
   }
 
+  /**
+   * ToDo: Constraints:
+   * - CLIENT: can see only his own reservations
+   * - NURSE / DOCTOR: Can see only reservations for his office
+   */
   async findById(id: string): Promise<AppointmentEntity> {
     let appointment: AppointmentEntity | null;
 
@@ -39,11 +53,12 @@ export class AppointmentService {
     return appointment;
   }
 
+  /**
+   * ToDo: Constraints:
+   * - NURSE / DOCTOR: Can create only appointment for own office
+   */
   async create(dto: CreateAppointmentDto): Promise<AppointmentEntity> {
-    const entity = this.appointmentRepository.create({
-      ...dto,
-      datetime: new Date(dto.datetime),
-    });
+    const entity = this.appointmentRepository.create(dto);
     return this.appointmentRepository.save(entity);
   }
 }

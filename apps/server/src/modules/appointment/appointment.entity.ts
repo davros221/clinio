@@ -24,8 +24,11 @@ export class AppointmentEntity {
   @Column({ type: "varchar", nullable: true })
   patientId!: string | null;
 
-  @Column({ type: "timestamptz" })
-  datetime!: Date;
+  @Column({ type: "varchar" })
+  date!: string;
+
+  @Column({ type: "int" })
+  hour!: number;
 
   @Column({ type: "enum", enum: Object.values(AppointmentStatus) })
   status!: AppointmentStatus;

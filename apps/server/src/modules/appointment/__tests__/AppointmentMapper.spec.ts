@@ -7,7 +7,8 @@ const mockEntity: AppointmentEntity = {
   officeId: null,
   office: null,
   patientId: "patient-1",
-  datetime: new Date("2026-04-01T10:00:00Z"),
+  date: "2026-04-01",
+  hour: 10,
   status: AppointmentStatus.PLANNED,
   note: "Initial consultation",
 };
@@ -21,7 +22,8 @@ describe("AppointmentMapper", () => {
         id: mockEntity.id,
         officeId: mockEntity.officeId,
         patientId: mockEntity.patientId,
-        datetime: mockEntity.datetime,
+        date: mockEntity.date,
+        hour: mockEntity.hour,
         status: mockEntity.status,
         note: mockEntity.note,
       });
