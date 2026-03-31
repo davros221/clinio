@@ -1,6 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { createZodDto } from "nestjs-zod";
-import { getCalendarQuerySchema } from "@clinio/shared";
 
 export enum CalendarHourState {
   AVAILABLE = "AVAILABLE",
@@ -64,11 +62,11 @@ export class CalendarAppointment {
   @ApiProperty()
   isOwned!: boolean;
 
-  @ApiProperty({ enum: AppointmentType, enumName: "AppointmentType" })
-  type!: AppointmentType;
+  // @ApiProperty({ enum: AppointmentType, enumName: "AppointmentType" })
+  // type!: AppointmentType;
 
-  @ApiProperty({ enum: AppointmentStatus, enumName: "AppointmentStatus" })
-  status!: AppointmentStatus;
+  // @ApiProperty({ enum: AppointmentStatus, enumName: "AppointmentStatus" })
+  // status!: AppointmentStatus;
 
   @ApiProperty({ required: false })
   note?: string;
@@ -92,8 +90,8 @@ export class CalendarHour {
 }
 
 export class CalendarDay {
-  @ApiProperty({ type: Date })
-  date!: Date;
+  @ApiProperty()
+  date!: string;
 
   @ApiProperty()
   day!: number;
@@ -101,5 +99,3 @@ export class CalendarDay {
   @ApiProperty({ type: [CalendarHour] })
   hours!: CalendarHour[];
 }
-
-export class GetCalendarQueryDto extends createZodDto(getCalendarQuerySchema) {}

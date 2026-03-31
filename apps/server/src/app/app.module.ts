@@ -2,10 +2,11 @@ import { Module } from "@nestjs/common";
 import { DatabaseModule } from "../database/database.module";
 import { ConfigModule } from "../config/config.module";
 import {
-  AddressModule,
   CalendarModule,
   OfficeModule,
   UserModule,
+  AppointmentModule,
+  AddressModule,
 } from "../modules";
 import { AuthModule } from "../auth/auth.module";
 
@@ -18,6 +19,7 @@ import { AuthModule } from "../auth/auth.module";
     CalendarModule,
     OfficeModule,
     AddressModule,
+    AppointmentModule,
   ],
 })
 export class AppModule {}
