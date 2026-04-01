@@ -5,7 +5,7 @@ import { OfficeEntity } from "../office.entity";
 import { OfficeMapper } from "../mapper/OfficeMapper";
 import { CreateOfficeDto } from "../dto/create-office.dto";
 import { UpdateOfficeDto } from "../dto/update-office.dto";
-import { UserRole } from "@clinio/shared";
+import { UserRole, OfficeSortField, SortOrder } from "@clinio/shared";
 import { UserEntity } from "../../user/user.entity";
 
 const mockStaff: UserEntity = {
@@ -70,21 +70,74 @@ describe("OfficeController", () => {
   });
 
   describe("getAll", () => {
-    it("should return mapped office DTOs", async () => {
-      service.findAll.mockResolvedValue([mockOffice]);
+    const defaultQuery = {
+      page: 1,
+      limit: 20,
+      sortBy: OfficeSortField.NAME,
+      sortOrder: SortOrder.ASC,
+    };
+
+    it("should return paginated office DTOs", async () => {
+      service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
 
       const result = await controller.getAll();
 
-      expect(result).toEqual([mockOfficeDto]);
-      expect(service.findAll).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        items: [mockOfficeDto],
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, undefined);
     });
 
-    it("should return empty array when no offices exist", async () => {
-      service.findAll.mockResolvedValue([]);
+    it("should return empty items when no offices exist", async () => {
+      service.findAll.mockResolvedValue({ items: [], total: 0 });
 
       const result = await controller.getAll();
 
-      expect(result).toEqual([]);
+      expect(result.items).toEqual([]);
+      expect(result.total).toBe(0);
+      expect(result.totalPages).toBe(0);
+    });
+
+    it("should pass pagination and sorting params to service", async () => {
+      service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
+
+      await controller.getAll(
+        undefined,
+        "2",
+        "10",
+        OfficeSortField.SPECIALIZATION,
+        SortOrder.DESC
+      );
+
+      expect(service.findAll).toHaveBeenCalledWith(
+        {
+          page: 2,
+          limit: 10,
+          sortBy: OfficeSortField.SPECIALIZATION,
+          sortOrder: SortOrder.DESC,
+        },
+        undefined
+      );
+    });
+
+    it("should pass search to service", async () => {
+      service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
+
+      await controller.getAll("cardio");
+
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, "cardio");
+    });
+
+    it("should calculate totalPages correctly", async () => {
+      service.findAll.mockResolvedValue({ items: [mockOffice], total: 45 });
+
+      const result = await controller.getAll(undefined, "1", "20");
+
+      expect(result.totalPages).toBe(3);
     });
   });
 

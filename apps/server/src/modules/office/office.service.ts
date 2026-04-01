@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
-import { ErrorCode } from "@clinio/shared";
+import { ILike, In, Repository, type FindOptionsWhere } from "typeorm";
+import { ErrorCode, type OfficeListQuery } from "@clinio/shared";
 import { OfficeEntity } from "./office.entity";
 import { UserEntity } from "../user/user.entity";
 import { CreateOfficeDto } from "./dto/create-office.dto";
@@ -17,8 +17,29 @@ export class OfficeService {
     private userRepository: Repository<UserEntity>
   ) {}
 
-  findAll(): Promise<OfficeEntity[]> {
-    return this.officeRepository.find({ relations: ["staff"] });
+  async findAll(
+    query: OfficeListQuery,
+    search?: string
+  ): Promise<{ items: OfficeEntity[]; total: number }> {
+    let where:
+      | FindOptionsWhere<OfficeEntity>
+      | FindOptionsWhere<OfficeEntity>[];
+    if (search) {
+      const pattern = ILike(`%${search}%`);
+      where = [{ name: pattern }, { specialization: pattern }];
+    } else {
+      where = {};
+    }
+
+    const [items, total] = await this.officeRepository.findAndCount({
+      where,
+      relations: ["staff"],
+      order: { [query.sortBy]: query.sortOrder },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
+
+    return { items, total };
   }
 
   async findById(id: string): Promise<OfficeEntity> {

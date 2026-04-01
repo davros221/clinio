@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ErrorCode, UserRole } from "@clinio/shared";
+import { ErrorCode, UserRole, type UserListQuery } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
-import { In, ILike, Repository } from "typeorm";
+import { In, ILike, Repository, type FindOptionsWhere } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
   emailAlreadyExists,
@@ -28,8 +28,9 @@ export class UserService {
   async findAll(
     currentUser: AuthUser,
     roles: UserRole[],
+    query: UserListQuery,
     search?: string
-  ): Promise<UserEntity[]> {
+  ): Promise<{ items: UserEntity[]; total: number }> {
     const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
     const requestingPatients = roles.includes(UserRole.CLIENT);
 
@@ -49,20 +50,28 @@ export class UserService {
       throw forbidden();
     }
 
-    const baseWhere = { role: In(roles) };
+    const baseWhere: FindOptionsWhere<UserEntity> = { role: In(roles) };
 
+    let where: FindOptionsWhere<UserEntity> | FindOptionsWhere<UserEntity>[];
     if (search) {
       const pattern = ILike(`%${search}%`);
-      return this.userRepository.find({
-        where: [
-          { ...baseWhere, firstName: pattern },
-          { ...baseWhere, lastName: pattern },
-        ],
-      });
+      where = [
+        { ...baseWhere, firstName: pattern },
+        { ...baseWhere, lastName: pattern },
+      ];
+    } else {
+      where = baseWhere;
     }
 
     // TODO: DOCTOR and NURSE should only see their own patients (via office relation)
-    return this.userRepository.find({ where: baseWhere });
+    const [items, total] = await this.userRepository.findAndCount({
+      where,
+      order: { [query.sortBy]: query.sortOrder },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
+
+    return { items, total };
   }
 
   async findById(id: string): Promise<UserEntity> {

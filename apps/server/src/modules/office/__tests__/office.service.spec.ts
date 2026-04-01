@@ -8,7 +8,12 @@ import { Repository } from "typeorm";
 import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
 import { UserEntity } from "../../user/user.entity";
-import { ErrorCode, UserRole } from "@clinio/shared";
+import {
+  ErrorCode,
+  UserRole,
+  OfficeSortField,
+  SortOrder,
+} from "@clinio/shared";
 import { CreateOfficeDto } from "../dto/create-office.dto";
 import { UpdateOfficeDto } from "../dto/update-office.dto";
 
@@ -38,8 +43,16 @@ const mockOffice: OfficeEntity = {
   staff: [],
 };
 
+const defaultQuery = {
+  page: 1,
+  limit: 20,
+  sortBy: OfficeSortField.NAME,
+  sortOrder: SortOrder.ASC,
+};
+
 const mockOfficeRepository = () => ({
   find: jest.fn(),
+  findAndCount: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
@@ -55,7 +68,7 @@ describe("OfficeService", () => {
   let officeRepository: jest.Mocked<
     Pick<
       Repository<OfficeEntity>,
-      "find" | "findOne" | "create" | "save" | "delete"
+      "find" | "findAndCount" | "findOne" | "create" | "save" | "delete"
     >
   >;
   let userRepository: jest.Mocked<Pick<Repository<UserEntity>, "findBy">>;
@@ -81,15 +94,68 @@ describe("OfficeService", () => {
   });
 
   describe("findAll", () => {
-    it("should return all offices with staff relation", async () => {
-      officeRepository.find.mockResolvedValue([mockOffice]);
+    it("should return offices with pagination", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[mockOffice], 1]);
 
-      const result = await service.findAll();
+      const result = await service.findAll(defaultQuery);
 
-      expect(result).toEqual([mockOffice]);
-      expect(officeRepository.find).toHaveBeenCalledWith({
+      expect(result).toEqual({ items: [mockOffice], total: 1 });
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith({
+        where: {},
         relations: ["staff"],
+        order: { name: "ASC" },
+        skip: 0,
+        take: 20,
       });
+    });
+
+    it("should apply correct skip for page 2", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({ ...defaultQuery, page: 2 });
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 20 })
+      );
+    });
+
+    it("should apply sorting parameters", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({
+        ...defaultQuery,
+        sortBy: OfficeSortField.SPECIALIZATION,
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { specialization: "DESC" } })
+      );
+    });
+
+    it("should search by name and specialization when search provided", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[mockOffice], 1]);
+
+      await service.findAll(defaultQuery, "cardio");
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: [
+            { name: expect.anything() },
+            { specialization: expect.anything() },
+          ],
+        })
+      );
+    });
+
+    it("should not filter when search not provided", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(defaultQuery);
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: {} })
+      );
     });
   });
 
