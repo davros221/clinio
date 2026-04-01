@@ -11,8 +11,10 @@ import { OfficeEntity } from "../office/office.entity";
 
 @Entity("appointments")
 @Index("idx_appointment_officeId", ["officeId"])
-@Index("idx_appointment_status", ["status"])
-@Index("idx_appointment_date_hour", ["date", "hour"])
+@Index("idx_appointment_status", ["status"], {
+  where: `"status" = 'PLANNED'`,
+})
+@Index("idx_appointment_date", ["date"])
 export class AppointmentEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
