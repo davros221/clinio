@@ -8,6 +8,7 @@ export type DataTableColumn<T> = {
   key: string;
   header: string;
   render?: (row: T) => React.ReactNode;
+  style?: React.CSSProperties;
 };
 
 export type DataTableAction<T> = {
@@ -27,6 +28,7 @@ type Props<T> = {
   isError?: boolean;
   error?: unknown;
   emptyMessage?: string;
+  highlightOnHover?: boolean;
 };
 
 export const DataTable = <T,>({
@@ -38,9 +40,11 @@ export const DataTable = <T,>({
   isError,
   error,
   emptyMessage,
+  highlightOnHover = true,
 }: Props<T>) => {
   const t = useT();
-  const resolvedEmptyMessage = emptyMessage ?? t("dataTable.emptyFallback");
+  const resolvedEmptyMessage =
+    emptyMessage ?? t("component.dataTable.emptyText");
 
   if (isLoading)
     return (
@@ -52,8 +56,8 @@ export const DataTable = <T,>({
   if (isError) {
     const errorCode = extractErrorCode(error);
     const errorMessage = errorCode
-      ? t(`dataTable.errors.${errorCode}`)
-      : t("dataTable.errorFallback");
+      ? t(`common.error.${errorCode}`)
+      : t("component.dataTable.errorFallback");
 
     return (
       <Alert icon={<MdErrorOutline size={16} />} color="red">
@@ -67,7 +71,7 @@ export const DataTable = <T,>({
   return (
     <Table
       striped
-      highlightOnHover
+      highlightOnHover={highlightOnHover}
       withTableBorder
       withColumnBorders
       classNames={{
@@ -79,12 +83,15 @@ export const DataTable = <T,>({
     >
       <Table.Thead>
         <Table.Tr>
-          {hasActions && <Table.Th>{t("dataTable.actionsColumn")}</Table.Th>}
+          {hasActions && (
+            <Table.Th>{t("component.dataTable.actionsColumn")}</Table.Th>
+          )}
           {columns.map((col) => (
             <Table.Th key={col.key}>{col.header}</Table.Th>
           ))}
         </Table.Tr>
       </Table.Thead>
+
       <Table.Tbody>
         {data.length === 0 ? (
           <Table.Tr>
@@ -121,8 +128,9 @@ export const DataTable = <T,>({
                   </Group>
                 </Table.Td>
               )}
+
               {columns.map((col) => (
-                <Table.Td key={col.key}>
+                <Table.Td key={col.key} style={col.style}>
                   {col.render
                     ? col.render(row)
                     : String((row as Record<string, unknown>)[col.key] ?? "")}

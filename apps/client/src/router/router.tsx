@@ -6,6 +6,7 @@ import { AppLayout } from "../components/AppLayout";
 import { AuthenticatedLayout } from "../pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
+import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
 
 export const routes: RouteObject[] = [
   {
@@ -29,6 +30,10 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.HOME,
                 element: <DashboardSwitch />,
+              },
+              {
+                path: ROUTER_PATHS.OFFICES,
+                element: <OfficesOverview />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
