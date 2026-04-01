@@ -1,9 +1,59 @@
-const cs = {
+import { ErrorCode } from "@clinio/shared";
+import { TranslationKeys } from "./en";
+
+const cs: TranslationKeys = {
   common: {
+    action: {
+      save: "Uložit",
+    },
     appName: "ClinIO",
+    error: {
+      noData: "Žádná data nejsou k dispozici",
+      createFailed: "Vytvoření se nezdařilo",
+      updateFailed: "Aktualizace se nezdařila",
+      ...({
+        [ErrorCode.INTERNAL_SERVER_ERROR]: "Došlo k chybě serveru",
+        [ErrorCode.INVALID_CREDENTIALS]: "Neplatný e-mail nebo heslo",
+        [ErrorCode.UNAUTHORIZED]: "Musíte se přihlásit",
+        [ErrorCode.FORBIDDEN]: "Nemáte dostatečná oprávnění",
+        [ErrorCode.NOT_FOUND]: "Zdroj nebyl nalezen",
+        [ErrorCode.USER_NOT_FOUND]: "Uživatel nebyl nalezen",
+        [ErrorCode.EMAIL_ALREADY_EXISTS]: "Tento e-mail se již používá",
+        [ErrorCode.OFFICE_NOT_FOUND]: "Ordinace nebyla nalezena",
+        [ErrorCode.APPOINTMENT_NOT_FOUND]: "Schůzka nebyla nalezena",
+        [ErrorCode.BAD_REQUEST]: "Neplatný požadavek",
+      } satisfies Record<ErrorCode, string>),
+    },
     forbidden: "Zakázáno",
     forbiddenMessage: "Nemáte oprávnění přistoupit na tuto stránku.",
     returnHome: "Zpět na domovskou stránku",
+    time: {
+      daysShort: {
+        monday: "PO",
+        tuesday: "ÚT",
+        wednesday: "ST",
+        thursday: "ČT",
+        friday: "PÁ",
+        saturday: "SO",
+        sunday: "NE",
+      },
+    },
+    validation: {
+      required: "povinné pole",
+    },
+  },
+  component: {
+    dataTable: {
+      emptyText: "Žádná data k zobrazení",
+      errorFallback: "Při načítání dat došlo k chybě",
+      actionsColumn: "Akce",
+    },
+  },
+  nav: {
+    dashboard: "Přehled",
+    offices: "Ordinace",
+    settings: "Nastavení",
+    logout: "Odhlásit se",
   },
   login: {
     welcome: "VÍTEJTE!",
@@ -14,6 +64,55 @@ const cs = {
     submitButton: "Přihlásit se",
     forgotPassword: "Zapomenuté heslo",
     signUp: "Registrace",
+  },
+  office: {
+    createOfficeModal: {
+      title: {
+        create: "Vytvořit novou ordinaci",
+        detail: "Detail ordinace",
+      },
+      sections: {
+        basicInfo: "Základní informace",
+        hours: "Ordinační hodiny",
+        personnel: "Personál",
+      },
+      fields: {
+        name: "Název",
+        namePlaceholder: "Zubní ordinace Nováková",
+        specialization: "Specializace",
+        specializationPlaceholder: "Stomatologie",
+        address: "Adresa",
+        addressPlaceholder: "Za rohem 616/1, Liberec",
+        user: "Uživatel",
+        userPlaceholder: "email@example.com",
+        role: "Role",
+        rolePlaceholder: "Sestra / Lékař",
+      },
+      table: {
+        open: "Otevřeno",
+        day: "Den",
+        from: "Od",
+        to: "Do",
+        role: "Role",
+        actions: "Akce",
+        remove: "Odebrat",
+        add: "Přidat",
+      },
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Vytvořit",
+      },
+    },
+    overview: {
+      officesListHeader: {
+        action: "Akce",
+        name: "Název",
+        specialization: "Specializace",
+        address: "Adresa",
+        officeHours: "Ordinační hodiny",
+      },
+      title: "Přehled ordinací",
+    },
   },
   signUp: {
     title: "VYTVOŘIT ÚČET",
