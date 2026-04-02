@@ -7,7 +7,12 @@ import {
 import { Repository } from "typeorm";
 import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
-import { AppointmentStatus, ErrorCode } from "@clinio/shared";
+import {
+  AppointmentStatus,
+  AppointmentSortField,
+  SortOrder,
+  ErrorCode,
+} from "@clinio/shared";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
 
 const mockAppointment: AppointmentEntity = {
@@ -21,8 +26,16 @@ const mockAppointment: AppointmentEntity = {
   note: "Initial consultation",
 };
 
+const defaultQuery = {
+  page: 1,
+  limit: 20,
+  sortBy: AppointmentSortField.DATE,
+  sortOrder: SortOrder.ASC,
+};
+
 const mockAppointmentRepository = () => ({
   find: jest.fn(),
+  findAndCount: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
@@ -31,7 +44,10 @@ const mockAppointmentRepository = () => ({
 describe("AppointmentService", () => {
   let service: AppointmentService;
   let repository: jest.Mocked<
-    Pick<Repository<AppointmentEntity>, "find" | "findOne" | "create" | "save">
+    Pick<
+      Repository<AppointmentEntity>,
+      "find" | "findAndCount" | "findOne" | "create" | "save"
+    >
   >;
 
   beforeEach(async () => {
@@ -50,15 +66,65 @@ describe("AppointmentService", () => {
   });
 
   describe("findAll", () => {
-    it("should return all appointments with office relation", async () => {
-      repository.find.mockResolvedValue([mockAppointment]);
+    it("should return appointments with pagination", async () => {
+      repository.findAndCount.mockResolvedValue([[mockAppointment], 1]);
 
-      const result = await service.findAll();
+      const result = await service.findAll(defaultQuery);
 
-      expect(result).toEqual([mockAppointment]);
-      expect(repository.find).toHaveBeenCalledWith({
+      expect(result).toEqual({ items: [mockAppointment], total: 1 });
+      expect(repository.findAndCount).toHaveBeenCalledWith({
+        where: {},
         relations: ["office"],
+        order: { date: "ASC" },
+        skip: 0,
+        take: 20,
       });
+    });
+
+    it("should apply correct skip for page 2", async () => {
+      repository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({ ...defaultQuery, page: 2 });
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 20 })
+      );
+    });
+
+    it("should apply sorting parameters", async () => {
+      repository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll({
+        ...defaultQuery,
+        sortBy: AppointmentSortField.STATUS,
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { status: "DESC" } })
+      );
+    });
+
+    it("should filter by statuses when provided", async () => {
+      repository.findAndCount.mockResolvedValue([[mockAppointment], 1]);
+
+      await service.findAll(defaultQuery, [AppointmentStatus.PLANNED]);
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: expect.anything() },
+        })
+      );
+    });
+
+    it("should not filter by status when statuses not provided", async () => {
+      repository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(defaultQuery);
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: {} })
+      );
     });
   });
 

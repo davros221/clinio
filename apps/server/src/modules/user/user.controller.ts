@@ -22,14 +22,22 @@ import {
 import { Public } from "../../common/decorators/public.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
-import { UserRole } from "@clinio/shared";
+import {
+  UserRole,
+  UserSortField,
+  SortOrder,
+  userListSchema,
+  createUserSchema,
+} from "@clinio/shared";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ZodValidationPipe } from "nestjs-zod";
 import { UserService } from "./user.service";
-import { createUserSchema } from "@clinio/shared";
 import { UserMapper } from "./mapper/UserMapper";
 import { User } from "./dto/user.dto";
+import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
+
+const PaginatedUserResponse = PaginatedResponseDto(User);
 
 @Controller("users")
 @ApiTags("User")
@@ -50,21 +58,57 @@ export class UserController {
     type: String,
     description: "Search by first name or last name",
   })
-  @ApiOkResponse({ type: [User] })
+  @ApiQuery({
+    name: "page",
+    required: false,
+    type: Number,
+    description: "Page number (default: 1)",
+  })
+  @ApiQuery({
+    name: "limit",
+    required: false,
+    type: Number,
+    description: "Items per page (default: 20, max: 100)",
+  })
+  @ApiQuery({
+    name: "sortBy",
+    required: false,
+    enum: UserSortField,
+    description: "Sort field (default: lastName)",
+  })
+  @ApiQuery({
+    name: "sortOrder",
+    required: false,
+    enum: SortOrder,
+    description: "Sort order (default: ASC)",
+  })
+  @ApiOkResponse({ type: PaginatedUserResponse })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
     @CurrentUser() currentUser: AuthUser,
     @Query("role") roles: UserRole | UserRole[] | undefined,
-    @Query("search") search?: string
+    @Query("search") search?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("sortBy") sortBy?: string,
+    @Query("sortOrder") sortOrder?: string
   ) {
-    const parsed = new ParseEnumArrayPipe(UserRole).transform(roles);
-    const entities = await this.userService.findAll(
+    const parsedRoles = new ParseEnumArrayPipe(UserRole).transform(roles);
+    const query = userListSchema.parse({ page, limit, sortBy, sortOrder });
+    const { items, total } = await this.userService.findAll(
       currentUser,
-      parsed,
+      parsedRoles,
+      query,
       search
     );
-    return UserMapper.toDtoList(entities);
+    return {
+      items: UserMapper.toDtoList(items),
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages: Math.ceil(total / query.limit),
+    };
   }
 
   @Get(":id")

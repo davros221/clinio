@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository, type FindOptionsWhere } from "typeorm";
+import {
+  type AppointmentListQuery,
+  type AppointmentStatus,
+} from "@clinio/shared";
 
 import { AppointmentEntity } from "./appointment.entity";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
@@ -25,8 +29,24 @@ export class AppointmentService {
    *
    * ToDo: Add FROM and TO params
    */
-  findAll(): Promise<AppointmentEntity[]> {
-    return this.appointmentRepository.find({ relations: ["office"] });
+  async findAll(
+    query: AppointmentListQuery,
+    statuses?: AppointmentStatus[]
+  ): Promise<{ items: AppointmentEntity[]; total: number }> {
+    const where: FindOptionsWhere<AppointmentEntity> = {};
+    if (statuses?.length) {
+      where.status = In(statuses);
+    }
+
+    const [items, total] = await this.appointmentRepository.findAndCount({
+      where,
+      relations: ["office"],
+      order: { [query.sortBy]: query.sortOrder },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
+
+    return { items, total };
   }
 
   /**

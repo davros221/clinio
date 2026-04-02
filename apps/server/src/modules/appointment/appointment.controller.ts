@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UsePipes,
 } from "@nestjs/common";
 import {
@@ -14,15 +15,27 @@ import {
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
-import { createAppointmentSchema, UserRole } from "@clinio/shared";
+import {
+  createAppointmentSchema,
+  UserRole,
+  AppointmentStatus,
+  AppointmentSortField,
+  SortOrder,
+  appointmentListSchema,
+} from "@clinio/shared";
+import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { AppointmentService } from "./appointment.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { Appointment } from "./dto/appointment.dto";
 import { AppointmentMapper } from "./mapper/AppointmentMapper";
+import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+
+const PaginatedAppointmentResponse = PaginatedResponseDto(Appointment);
 
 @Controller("appointments")
 @ApiTags("Appointment")
@@ -32,11 +45,66 @@ export class AppointmentController {
 
   @Get()
   @ApiOperation({ operationId: "getAppointments" })
-  @ApiOkResponse({ type: [Appointment] })
+  @ApiQuery({
+    name: "status",
+    required: false,
+    enum: AppointmentStatus,
+    isArray: true,
+    description: "Filter by status",
+  })
+  @ApiQuery({
+    name: "page",
+    required: false,
+    type: Number,
+    description: "Page number (default: 1)",
+  })
+  @ApiQuery({
+    name: "limit",
+    required: false,
+    type: Number,
+    description: "Items per page (default: 20, max: 100)",
+  })
+  @ApiQuery({
+    name: "sortBy",
+    required: false,
+    enum: AppointmentSortField,
+    description: "Sort field (default: date)",
+  })
+  @ApiQuery({
+    name: "sortOrder",
+    required: false,
+    enum: SortOrder,
+    description: "Sort order (default: ASC)",
+  })
+  @ApiOkResponse({ type: PaginatedAppointmentResponse })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
-  async getAll() {
-    const entities = await this.appointmentService.findAll();
-    return AppointmentMapper.toDtoList(entities);
+  async getAll(
+    @Query("status") status?: AppointmentStatus | AppointmentStatus[],
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+    @Query("sortBy") sortBy?: string,
+    @Query("sortOrder") sortOrder?: string
+  ) {
+    const statuses = status
+      ? new ParseEnumArrayPipe(AppointmentStatus).transform(status)
+      : undefined;
+    const query = appointmentListSchema.parse({
+      page,
+      limit,
+      sortBy,
+      sortOrder,
+    });
+    const { items, total } = await this.appointmentService.findAll(
+      query,
+      statuses
+    );
+    return {
+      items: AppointmentMapper.toDtoList(items),
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages: Math.ceil(total / query.limit),
+    };
   }
 
   @Get(":id")

@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
@@ -9,6 +10,8 @@ import { OfficeHoursTemplate } from "@clinio/shared";
 import { UserEntity } from "../user/user.entity";
 
 @Entity("offices")
+@Index("idx_office_name", ["name"])
+@Index("idx_office_specialization", ["specialization"])
 export class OfficeEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

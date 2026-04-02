@@ -4,7 +4,12 @@ import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
 import { AppointmentMapper } from "../mapper/AppointmentMapper";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
-import { AppointmentStatus, ErrorCode } from "@clinio/shared";
+import {
+  AppointmentStatus,
+  AppointmentSortField,
+  SortOrder,
+  ErrorCode,
+} from "@clinio/shared";
 import { NotFoundException } from "@nestjs/common";
 import { appointmentNotFound } from "../../../common/error-messages";
 
@@ -49,21 +54,93 @@ describe("AppointmentController", () => {
   });
 
   describe("getAll", () => {
-    it("should return mapped appointment DTOs", async () => {
-      service.findAll.mockResolvedValue([mockAppointment]);
+    const defaultQuery = {
+      page: 1,
+      limit: 20,
+      sortBy: AppointmentSortField.DATE,
+      sortOrder: SortOrder.ASC,
+    };
+
+    it("should return paginated appointment DTOs", async () => {
+      service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
       const result = await controller.getAll();
 
-      expect(result).toEqual([mockAppointmentDto]);
-      expect(service.findAll).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        items: [mockAppointmentDto],
+        total: 1,
+        page: 1,
+        limit: 20,
+        totalPages: 1,
+      });
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, undefined);
     });
 
-    it("should return empty array when no appointments exist", async () => {
-      service.findAll.mockResolvedValue([]);
+    it("should return empty items when no appointments exist", async () => {
+      service.findAll.mockResolvedValue({ items: [], total: 0 });
 
       const result = await controller.getAll();
 
-      expect(result).toEqual([]);
+      expect(result.items).toEqual([]);
+      expect(result.total).toBe(0);
+      expect(result.totalPages).toBe(0);
+    });
+
+    it("should pass pagination and sorting params to service", async () => {
+      service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
+
+      await controller.getAll(
+        undefined,
+        "2",
+        "10",
+        AppointmentSortField.STATUS,
+        SortOrder.DESC
+      );
+
+      expect(service.findAll).toHaveBeenCalledWith(
+        {
+          page: 2,
+          limit: 10,
+          sortBy: AppointmentSortField.STATUS,
+          sortOrder: SortOrder.DESC,
+        },
+        undefined
+      );
+    });
+
+    it("should filter by status when provided", async () => {
+      service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
+
+      await controller.getAll(AppointmentStatus.PLANNED);
+
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
+        AppointmentStatus.PLANNED,
+      ]);
+    });
+
+    it("should filter by multiple statuses", async () => {
+      service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
+
+      await controller.getAll([
+        AppointmentStatus.PLANNED,
+        AppointmentStatus.COMPLETED,
+      ]);
+
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
+        AppointmentStatus.PLANNED,
+        AppointmentStatus.COMPLETED,
+      ]);
+    });
+
+    it("should calculate totalPages correctly", async () => {
+      service.findAll.mockResolvedValue({
+        items: [mockAppointment],
+        total: 45,
+      });
+
+      const result = await controller.getAll(undefined, "1", "20");
+
+      expect(result.totalPages).toBe(3);
     });
   });
 
