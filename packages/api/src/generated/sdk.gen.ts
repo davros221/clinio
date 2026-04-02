@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses } from './types.gen.js';
+import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -80,6 +80,36 @@ export class CalendarService {
         return (options?.client ?? client).get<GetCalendarResponses, unknown, ThrowOnError>({
             responseType: 'json',
             url: '/api/calendar',
+            ...options
+        });
+    }
+}
+
+export class AppointmentService {
+    public static getAppointments<ThrowOnError extends boolean = false>(options?: Options<GetAppointmentsData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetAppointmentsResponses, GetAppointmentsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments',
+            ...options
+        });
+    }
+    
+    public static createAppointment<ThrowOnError extends boolean = false>(options: Options<CreateAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).post<CreateAppointmentResponses, CreateAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static getAppointmentById<ThrowOnError extends boolean = false>(options: Options<GetAppointmentByIdData, ThrowOnError>) {
+        return (options.client ?? client).get<GetAppointmentByIdResponses, GetAppointmentByIdErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}',
             ...options
         });
     }
