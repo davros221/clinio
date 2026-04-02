@@ -66,10 +66,9 @@ export class OfficeController {
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
-  @UsePipes(new ZodValidationPipe(createOfficeSchema))
   async replace(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() dto: CreateOfficeDto
+    @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto
   ) {
     const entity = await this.officeService.replace(id, dto);
     return OfficeMapper.toDto(entity);
@@ -80,10 +79,9 @@ export class OfficeController {
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
-  @UsePipes(new ZodValidationPipe(updateOfficeSchema))
   async update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() dto: UpdateOfficeDto
+    @Body(new ZodValidationPipe(updateOfficeSchema)) dto: UpdateOfficeDto
   ) {
     const entity = await this.officeService.update(id, dto);
     return OfficeMapper.toDto(entity);
