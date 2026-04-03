@@ -135,10 +135,7 @@ export const Login = () => {
                   right: 0,
                 }}
               >
-                <SignUpPanel
-                  onSuccess={handleSignUpSuccess}
-                  onBack={() => setShowSignUp(false)}
-                />
+                <SignUpPanel onSuccess={handleSignUpSuccess} />
               </Box>
             )}
           </Transition>

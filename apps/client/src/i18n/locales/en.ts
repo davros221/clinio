@@ -5,6 +5,7 @@ const en = {
     action: {
       save: "Save",
       delete: "Delete",
+      cancel: "Cancel",
     },
     appName: "ClinIO",
     error: {
@@ -51,7 +52,11 @@ const en = {
     },
     validation: {
       required: "required",
+      email: "invalid email address",
+      phone: "invalid phone number format (+420111222333)",
       datePast: "date cannot be in the past",
+      dateFuture: "date cannot be in the future",
+      birthNumberLength: "Birth number must be exactly 10 digits",
     },
   },
   component: {
@@ -65,6 +70,8 @@ const en = {
     dashboard: "Dashboard",
     offices: "Offices",
     appointments: "Appointments",
+    patients: "Patients",
+    staff: "Staff",
     settings: "Settings",
     logout: "Logout",
   },
@@ -191,6 +198,53 @@ const en = {
     backToLogin: "Back to Login",
     successTitle: "Account created!",
     successMessage: "Logging you in automatically, welcome to Clinio!",
+    birthNumberLabel: "Birth Number",
+    birthNumberPlaceholder: "Birth number",
+    birthdateLabel: "Date of Birth",
+    birthdatePlaceholder: "Date of birth",
+    phoneLabel: "Phone",
+    phonePlaceholder: "Phone number",
+  },
+  user: {
+    roles: {
+      nurse: "Nurse",
+      doctor: "Doctor",
+      client: "Patient",
+      admin: "Admin",
+      staff: "Staff",
+    },
+    form: {
+      title: "New User",
+      role: "Role",
+      password: "Password",
+      submit: "Create User",
+    },
+    notification: {
+      createSuccessTitle: "Done!",
+      createSuccessMessage: "User was successfully created.",
+    },
+  },
+  patient: {
+    overview: {
+      title: "Patients",
+    },
+    form: {
+      title: "New Patient",
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+      birthNumber: "Birth Number",
+      birthdate: "Date of Birth",
+      phone: "Phone",
+      submit: "Create Patient",
+      password: "Password",
+      passwordConfirm: "Confirm Password",
+      role: "Role",
+    },
+    notification: {
+      createSuccessTitle: "Done!",
+      createSuccessMessage: "Patient was successfully created.",
+    },
   },
 } as const;
 
