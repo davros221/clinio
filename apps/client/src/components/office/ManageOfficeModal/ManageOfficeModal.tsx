@@ -9,8 +9,7 @@ import {
   Button,
   Box,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "../../../api/userService.ts";
 import { UserRole } from "@clinio/shared";
 import { DAYS, WEEK_DAYS } from "../../utils/types.ts";
@@ -21,31 +20,16 @@ import {
 import { CreateOfficeDto, Office } from "@clinio/api";
 import {
   ManageOfficeModalDayRow,
-  SELECTABLE_HOURS,
+  type HourValue,
 } from "./ManageOfficeModalDayRow.tsx";
 import { useT } from "../../../hooks/useT";
 import { ParseKeys } from "i18next";
-
-type HourEntryType = (typeof SELECTABLE_HOURS)[number] | null;
-
-type IntervalType = { from: HourEntryType; to: HourEntryType };
-
-/** Max 2 intervals per day (e.g. morning + afternoon split) */
-const MAX_INTERVALS_PER_DAY = 2;
-
-type DayEntryType = {
-  key: string;
-  checked: boolean;
-  intervals: IntervalType[];
-};
-
-type FormValues = {
-  name: string;
-  specialization: string;
-  address: string;
-  days: DayEntryType[];
-  staffIds: string[];
-};
+import {
+  ManageOfficeFormProvider,
+  useManageOfficeForm,
+  type DayEntryType,
+  type ManageOfficeFormValues,
+} from "./ManageOfficeFormContext";
 
 type PropsType = {
   opened: boolean;
@@ -53,9 +37,9 @@ type PropsType = {
   office?: Office | null; // If provided, we are in Edit mode
 };
 
-const DEFAULT_INTERVAL: IntervalType = {
-  from: "08:00" as HourEntryType,
-  to: "16:00" as HourEntryType,
+const DEFAULT_INTERVAL = {
+  from: "08:00" as HourValue,
+  to: "16:00" as HourValue,
 };
 
 const INITIAL_DAYS: DayEntryType[] = WEEK_DAYS.map((day) => ({
@@ -80,7 +64,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
 
   const isEdit = !!office;
 
-  const form = useForm<FormValues>({
+  const form = useManageOfficeForm({
     mode: "uncontrolled",
     initialValues: {
       name: "",
@@ -98,13 +82,21 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
         value.trim() ? null : t("common.validation.required"),
       days: {
         intervals: {
-          from: (value: HourEntryType, values: FormValues, path: string) => {
+          from: (
+            value: HourValue,
+            values: ManageOfficeFormValues,
+            path: string
+          ) => {
             const dayIndex = Number(path.split(".")[1]);
             return values.days[dayIndex].checked && !value
               ? t("common.validation.required")
               : null;
           },
-          to: (value: HourEntryType, values: FormValues, path: string) => {
+          to: (
+            value: HourValue,
+            values: ManageOfficeFormValues,
+            path: string
+          ) => {
             const dayIndex = Number(path.split(".")[1]);
             return values.days[dayIndex].checked && !value
               ? t("common.validation.required")
@@ -132,9 +124,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
           return {
             key,
             checked: false,
-            intervals: [
-              { from: null as HourEntryType, to: null as HourEntryType },
-            ],
+            intervals: [{ from: null as HourValue, to: null as HourValue }],
           };
         }
 
@@ -142,10 +132,8 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
           key,
           checked: true,
           intervals: dayIntervals.map((slot) => ({
-            from: `${slot.from
-              .toString()
-              .padStart(2, "0")}:00` as HourEntryType,
-            to: `${slot.to.toString().padStart(2, "0")}:00` as HourEntryType,
+            from: `${slot.from.toString().padStart(2, "0")}:00` as HourValue,
+            to: `${slot.to.toString().padStart(2, "0")}:00` as HourValue,
           })),
         };
       });
@@ -159,6 +147,8 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       });
     } else if (!opened) {
       form.reset();
+      setSelectedUserId(null);
+      setSelectedRole(null);
     }
   }, [office, opened]);
 
@@ -171,60 +161,6 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   const handleRemoveStaff = (index: number) => {
     form.removeListItem("staffIds", index);
   };
-
-  const { setFieldValue, insertListItem, removeListItem } = form;
-
-  const handleDayChecked = useCallback(
-    (index: number, checked: boolean) => {
-      setFieldValue(`days.${index}.checked`, checked);
-      setFieldValue(
-        `days.${index}.intervals`,
-        checked
-          ? [{ ...DEFAULT_INTERVAL }]
-          : [{ from: null as HourEntryType, to: null as HourEntryType }]
-      );
-    },
-    [setFieldValue]
-  );
-
-  const handleFromChange = useCallback(
-    (dayIndex: number, intervalIndex: number, val: string | null) => {
-      setFieldValue(
-        `days.${dayIndex}.intervals.${intervalIndex}.from`,
-        val as HourEntryType
-      );
-    },
-    [setFieldValue]
-  );
-
-  const handleToChange = useCallback(
-    (dayIndex: number, intervalIndex: number, val: string | null) => {
-      setFieldValue(
-        `days.${dayIndex}.intervals.${intervalIndex}.to`,
-        val as HourEntryType
-      );
-    },
-    [setFieldValue]
-  );
-
-  const handleAddInterval = useCallback(
-    (dayIndex: number) => {
-      const current = form.getValues().days[dayIndex].intervals;
-      if (current.length >= MAX_INTERVALS_PER_DAY) return;
-      insertListItem(`days.${dayIndex}.intervals`, {
-        from: null as HourEntryType,
-        to: null as HourEntryType,
-      });
-    },
-    [form, insertListItem]
-  );
-
-  const handleRemoveInterval = useCallback(
-    (dayIndex: number, intervalIndex: number) => {
-      removeListItem(`days.${dayIndex}.intervals`, intervalIndex);
-    },
-    [removeListItem]
-  );
 
   const roleSelectData = useMemo(
     () => [
@@ -256,8 +192,8 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
     [users, selectedRole]
   );
 
-  const handleSubmit = ({ days, ...rest }: FormValues) => {
-    const parseHourToInt = (hour: HourEntryType) =>
+  const handleSubmit = ({ days, ...rest }: ManageOfficeFormValues) => {
+    const parseHourToInt = (hour: HourValue) =>
       hour ? parseInt(hour.split(":")[0]) : 0;
 
     const officeHoursTemplate = Object.fromEntries(
@@ -297,179 +233,180 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       }
       size="lg"
     >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md" m="md">
-          {/* Basic Info */}
-          <Box>
-            <TextInput
-              key={form.key("name")}
-              label={t("office.createOfficeModal.fields.name")}
-              placeholder={t("office.createOfficeModal.fields.namePlaceholder")}
-              {...form.getInputProps("name")}
-              mb="xs"
-            />
-            <TextInput
-              key={form.key("specialization")}
-              label={t("office.createOfficeModal.fields.specialization")}
-              placeholder={t(
-                "office.createOfficeModal.fields.specializationPlaceholder"
-              )}
-              {...form.getInputProps("specialization")}
-              mb="xs"
-            />
-            <TextInput
-              key={form.key("address")}
-              label={t("office.createOfficeModal.fields.address")}
-              placeholder={t(
-                "office.createOfficeModal.fields.addressPlaceholder"
-              )}
-              {...form.getInputProps("address")}
-            />
-          </Box>
+      <ManageOfficeFormProvider form={form}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Stack gap="md" m="md">
+            {/* Basic Info */}
+            <Box>
+              <TextInput
+                key={form.key("name")}
+                label={t("office.createOfficeModal.fields.name")}
+                placeholder={t(
+                  "office.createOfficeModal.fields.namePlaceholder"
+                )}
+                {...form.getInputProps("name")}
+                mb="xs"
+              />
+              <TextInput
+                key={form.key("specialization")}
+                label={t("office.createOfficeModal.fields.specialization")}
+                placeholder={t(
+                  "office.createOfficeModal.fields.specializationPlaceholder"
+                )}
+                {...form.getInputProps("specialization")}
+                mb="xs"
+              />
+              <TextInput
+                key={form.key("address")}
+                label={t("office.createOfficeModal.fields.address")}
+                placeholder={t(
+                  "office.createOfficeModal.fields.addressPlaceholder"
+                )}
+                {...form.getInputProps("address")}
+              />
+            </Box>
 
-          {/* Office Hours */}
-          <Box py="md">
-            <Title order={5} mb="xs">
-              {t("office.createOfficeModal.sections.hours")}
-            </Title>
+            {/* Office Hours */}
+            <Box py="md">
+              <Title order={5} mb="xs">
+                {t("office.createOfficeModal.sections.hours")}
+              </Title>
 
-            <Table>
+              <Table>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>
+                      {t("office.createOfficeModal.table.open")}
+                    </Table.Th>
+                    <Table.Th>
+                      {t("office.createOfficeModal.table.day")}
+                    </Table.Th>
+                    <Table.Th>
+                      {t("office.createOfficeModal.table.from")}
+                    </Table.Th>
+                    <Table.Th>
+                      {t("office.createOfficeModal.table.to")}
+                    </Table.Th>
+                    <Table.Th />
+                  </Table.Tr>
+                </Table.Thead>
+
+                <Table.Tbody>
+                  {form.getValues().days.map((day, index) => (
+                    <ManageOfficeModalDayRow
+                      key={day.key}
+                      index={index}
+                      label={t(`common.time.daysShort.${day.key}` as ParseKeys)}
+                    />
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Box>
+
+            {/* Personnel Selection */}
+            <Box>
+              <Title order={5} mb="xs">
+                {t("office.createOfficeModal.sections.personnel")}
+              </Title>
+
+              <Group grow align="flex-end">
+                <Select
+                  label={t("office.createOfficeModal.fields.role")}
+                  placeholder={t(
+                    "office.createOfficeModal.fields.rolePlaceholder"
+                  )}
+                  data={roleSelectData}
+                  value={selectedRole}
+                  onChange={handleRoleChange}
+                  clearable
+                />
+
+                <Select
+                  label={t("office.createOfficeModal.fields.user")}
+                  placeholder={t(
+                    "office.createOfficeModal.fields.userPlaceholder"
+                  )}
+                  data={userSelectData}
+                  value={selectedUserId}
+                  onChange={setSelectedUserId}
+                  searchable
+                  disabled={!selectedRole}
+                />
+
+                <Button
+                  variant="filled"
+                  color="gray"
+                  disabled={!selectedUserId}
+                  onClick={handleAddStaff}
+                >
+                  {t("office.createOfficeModal.table.add")}
+                </Button>
+              </Group>
+            </Box>
+
+            {/* Personnel Table */}
+            <Table verticalSpacing="xs">
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>
-                    {t("office.createOfficeModal.table.open")}
+                    {t("office.createOfficeModal.fields.user")}
                   </Table.Th>
-                  <Table.Th>{t("office.createOfficeModal.table.day")}</Table.Th>
+
                   <Table.Th>
-                    {t("office.createOfficeModal.table.from")}
+                    {t("office.createOfficeModal.table.role")}
                   </Table.Th>
-                  <Table.Th>{t("office.createOfficeModal.table.to")}</Table.Th>
-                  <Table.Th />
+
+                  <Table.Th>
+                    {t("office.createOfficeModal.table.actions")}
+                  </Table.Th>
                 </Table.Tr>
               </Table.Thead>
 
               <Table.Tbody>
-                {form.values.days.map((day, index) => (
-                  <ManageOfficeModalDayRow
-                    key={day.key}
-                    index={index}
-                    label={t(`common.time.daysShort.${day.key}` as ParseKeys)}
-                    checked={day.checked}
-                    intervals={day.intervals}
-                    onCheck={handleDayChecked}
-                    onFromChange={handleFromChange}
-                    onToChange={handleToChange}
-                    onAddInterval={handleAddInterval}
-                    onRemoveInterval={handleRemoveInterval}
-                    errors={day.intervals.map((_, i) => ({
-                      from: form.errors[`days.${index}.intervals.${i}.from`],
-                      to: form.errors[`days.${index}.intervals.${i}.to`],
-                    }))}
-                  />
-                ))}
+                {form.getValues().staffIds.map((id, index) => {
+                  const member = users.find((u) => u.id === id);
+
+                  if (!member) return null;
+
+                  return (
+                    <Table.Tr key={id}>
+                      <Table.Td>
+                        {member.firstName} {member.lastName}
+                      </Table.Td>
+
+                      <Table.Td>{member.role}</Table.Td>
+
+                      <Table.Td>
+                        <Button
+                          variant="subtle"
+                          color="blue"
+                          size="xs"
+                          onClick={() => handleRemoveStaff(index)}
+                        >
+                          {t("office.createOfficeModal.table.remove")}
+                        </Button>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
               </Table.Tbody>
             </Table>
-          </Box>
 
-          {/* Personnel Selection */}
-          <Box>
-            <Title order={5} mb="xs">
-              {t("office.createOfficeModal.sections.personnel")}
-            </Title>
+            {/* Actions */}
+            <Group justify="center" mt="xl">
+              <Button variant="outline" color="gray" onClick={onClose}>
+                {t("office.createOfficeModal.buttons.cancel")}
+              </Button>
 
-            <Group grow align="flex-end">
-              <Select
-                label={t("office.createOfficeModal.fields.role")}
-                placeholder={t(
-                  "office.createOfficeModal.fields.rolePlaceholder"
-                )}
-                data={roleSelectData}
-                value={selectedRole}
-                onChange={handleRoleChange}
-                clearable
-              />
-
-              <Select
-                label={t("office.createOfficeModal.fields.user")}
-                placeholder={t(
-                  "office.createOfficeModal.fields.userPlaceholder"
-                )}
-                data={userSelectData}
-                value={selectedUserId}
-                onChange={setSelectedUserId}
-                searchable
-                disabled={!selectedRole}
-              />
-
-              <Button
-                variant="filled"
-                color="gray"
-                disabled={!selectedUserId}
-                onClick={handleAddStaff}
-              >
-                {t("office.createOfficeModal.table.add")}
+              <Button type="submit" loading={isCreating || isUpdating}>
+                {isEdit
+                  ? t("common.action.save")
+                  : t("office.createOfficeModal.buttons.submit")}
               </Button>
             </Group>
-          </Box>
-
-          {/* Personnel Table */}
-          <Table verticalSpacing="xs">
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>{t("office.createOfficeModal.fields.user")}</Table.Th>
-
-                <Table.Th>{t("office.createOfficeModal.table.role")}</Table.Th>
-
-                <Table.Th>
-                  {t("office.createOfficeModal.table.actions")}
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-
-            <Table.Tbody>
-              {form.values.staffIds.map((id, index) => {
-                const member = users.find((u) => u.id === id);
-
-                if (!member) return null;
-
-                return (
-                  <Table.Tr key={id}>
-                    <Table.Td>
-                      {member.firstName} {member.lastName}
-                    </Table.Td>
-
-                    <Table.Td>{member.role}</Table.Td>
-
-                    <Table.Td>
-                      <Button
-                        variant="subtle"
-                        color="blue"
-                        size="xs"
-                        onClick={() => handleRemoveStaff(index)}
-                      >
-                        {t("office.createOfficeModal.table.remove")}
-                      </Button>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-
-          {/* Actions */}
-          <Group justify="center" mt="xl">
-            <Button variant="outline" color="gray" onClick={onClose}>
-              {t("office.createOfficeModal.buttons.cancel")}
-            </Button>
-
-            <Button type="submit" loading={isCreating || isUpdating}>
-              {isEdit
-                ? t("common.action.save")
-                : t("office.createOfficeModal.buttons.submit")}
-            </Button>
-          </Group>
-        </Stack>
-      </form>
+          </Stack>
+        </form>
+      </ManageOfficeFormProvider>
     </Modal>
   );
 }
