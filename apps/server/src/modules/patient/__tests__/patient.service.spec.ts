@@ -1,10 +1,11 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { PatientService } from "./patient.service";
-import { PatientEntity } from "./patient.entity";
+import { PatientService } from "../patient.service";
+import { PatientEntity } from "../patient.entity";
 import { ErrorCode } from "@clinio/shared";
-import { CreatePatientDto } from "./dto/create-patient.dto";
+import { CreatePatientDto } from "../dto/create-patient.dto";
+import { UpdatePatientDto } from "../dto/update-patient.dto";
 
 const mockPatient: PatientEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -62,6 +63,30 @@ describe("PatientService", () => {
       const result = await service.create(dto);
       expect(result).toEqual(mockPatient);
       expect(repository.create).toHaveBeenCalledWith(dto);
+    });
+  });
+
+  // ADDED: Update test block
+  describe("update", () => {
+    it("should update partial fields and save the patient", async () => {
+      const updateDto: UpdatePatientDto = { email: "new.email@example.com" };
+      const updatedPatient: PatientEntity = { ...mockPatient, ...updateDto };
+
+      repository.findOne.mockResolvedValue(mockPatient);
+      repository.save.mockResolvedValue(updatedPatient);
+
+      const result = await service.update(mockPatient.id, updateDto);
+
+      expect(result).toEqual(updatedPatient);
+      // Verify that save was called with the entity containing the merged updates
+      expect(repository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ email: "new.email@example.com" })
+      );
+    });
+
+    it("should throw an error if updating a non-existent patient", async () => {
+      repository.findOne.mockResolvedValue(null);
+      await expect(service.update("none", {})).rejects.toThrow();
     });
   });
 

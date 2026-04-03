@@ -1,8 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { PatientController } from "./patient.controller";
-import { PatientService } from "./patient.service";
-import { PatientMapper } from "./mapper/PatientMapper";
-import { PatientEntity } from "./patient.entity";
+import { PatientController } from "../patient.controller";
+import { PatientService } from "../patient.service";
+import { PatientMapper } from "../mapper/PatientMapper";
+import { PatientEntity } from "../patient.entity";
+import { UpdatePatientDto } from "../dto/update-patient.dto";
 
 const mockPatient: PatientEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
@@ -51,6 +52,21 @@ describe("PatientController", () => {
       service.create.mockResolvedValue(mockPatient);
       const result = await controller.create(mockPatient as any);
       expect(result).toEqual(PatientMapper.toDto(mockPatient));
+    });
+  });
+
+  // ADDED: Update test block
+  describe("update", () => {
+    it("should update patient and return mapped DTO", async () => {
+      const updateDto: UpdatePatientDto = { phone: "+420987654321" };
+      const updatedEntity: PatientEntity = { ...mockPatient, ...updateDto };
+
+      service.update.mockResolvedValue(updatedEntity);
+
+      const result = await controller.update(mockPatient.id, updateDto);
+
+      expect(result).toEqual(PatientMapper.toDto(updatedEntity));
+      expect(service.update).toHaveBeenCalledWith(mockPatient.id, updateDto);
     });
   });
 

@@ -34,6 +34,7 @@ describe("PatientMapper", () => {
         ...mockEntity,
         id: "660e8400-e29b-41d4-a716-446655440001",
         firstName: "Petr",
+        email: "petr.novak@example.com",
       };
 
       const dtos = PatientMapper.toDtoList([mockEntity, secondEntity]);
@@ -41,6 +42,12 @@ describe("PatientMapper", () => {
       expect(dtos).toHaveLength(2);
       expect(dtos[0]).toEqual(PatientMapper.toDto(mockEntity));
       expect(dtos[1]).toEqual(PatientMapper.toDto(secondEntity));
+    });
+
+    it("should return an empty array if provided with an empty array", () => {
+      const dtos = PatientMapper.toDtoList([]);
+      expect(dtos).toHaveLength(0);
+      expect(dtos).toEqual([]);
     });
   });
 });
