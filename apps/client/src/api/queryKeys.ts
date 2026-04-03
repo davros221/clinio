@@ -10,4 +10,5 @@ export const addressKeys = createQueryKeys("addresses");
 export const suggestKeys = createQueryKeys("suggest");
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
+export const patientKeys = createQueryKeys("patients");
 export const appointmentKeys = createQueryKeys("appointments");

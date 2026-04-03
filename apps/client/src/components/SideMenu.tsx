@@ -41,9 +41,16 @@ export const SideMenu = () => {
   const getRoleNavItems = (role: AuthData["role"]) => {
     switch (role) {
       case "ADMIN":
+        return [
+          mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices")),
+          mapNavItem(ROUTER_PATHS.CREATE_PATIENT, t("nav.staff")),
+        ];
       case "DOCTOR":
       case "NURSE":
-        return [mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices"))];
+        return [
+          mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices")),
+          mapNavItem(ROUTER_PATHS.CREATE_PATIENT, t("nav.patients")),
+        ];
       case "CLIENT":
         return [
           mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices")),
@@ -85,13 +92,13 @@ export const SideMenu = () => {
 
       <Stack h="100%" justify="space-between">
         <Stack gap="xxs">
-          {topNavItems.map(({ to, label }, index) => (
+          {topNavItems.map(({ to, label }) => (
             <NavBtn key={to} to={to} label={label} />
           ))}
         </Stack>
 
         <Stack gap="xxs">
-          {bottomNavItems.map(({ to, label }, index) => (
+          {bottomNavItems.map(({ to, label }) => (
             <NavBtn key={to} to={to} label={label} />
           ))}
         </Stack>

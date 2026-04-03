@@ -1,0 +1,45 @@
+import { User } from "@clinio/api";
+import { UserRole } from "@clinio/shared";
+import { DataTable } from "../DataTable";
+import { useGetUsersQuery } from "../../api/userService";
+import { useT } from "../../hooks/useT";
+import { useUser } from "../../hooks/useUser";
+
+const mapColumn = (key: keyof User, headerKey: string) => ({
+  key,
+  header: headerKey,
+  render: (row: User) => row[key],
+});
+
+export function PatientsOverviewTable() {
+  const t = useT();
+  const currentUser = useUser();
+  const isAdmin = currentUser?.role === UserRole.ADMIN;
+  const {
+    data: users = [],
+    isLoading,
+    isError,
+    error,
+  } = useGetUsersQuery(
+    isAdmin ? [UserRole.DOCTOR, UserRole.NURSE] : [UserRole.CLIENT]
+  );
+
+  const columns = [
+    mapColumn("firstName", t("patient.form.firstName")),
+    mapColumn("lastName", t("patient.form.lastName")),
+    mapColumn("email", t("patient.form.email")),
+    ...(isAdmin ? [mapColumn("role", t("user.form.role"))] : []),
+  ];
+
+  return (
+    <DataTable<User>
+      data={users}
+      keyExtractor={(row) => row.id}
+      isLoading={isLoading}
+      isError={isError}
+      error={error}
+      columns={columns}
+      highlightOnHover={false}
+    />
+  );
+}
