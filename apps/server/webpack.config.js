@@ -28,6 +28,7 @@ module.exports = {
           /^@as-integrations\/fastify/,
           /^@apollo\/(subgraph|gateway)/,
           /^class-transformer/,
+          /^class-validator/,
           /^@google-cloud\/spanner/,
           /^@sap\/hana-client/,
           /^better-sqlite3/,
