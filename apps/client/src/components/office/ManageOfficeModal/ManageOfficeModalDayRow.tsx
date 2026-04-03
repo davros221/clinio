@@ -1,4 +1,4 @@
-import { Checkbox, NativeSelect, Table } from "@mantine/core";
+import { ActionIcon, Checkbox, NativeSelect, Table } from "@mantine/core";
 import { memo, useCallback, useMemo } from "react";
 import * as React from "react";
 
@@ -31,52 +31,78 @@ export const SELECTABLE_HOURS = [
 
 type HourValue = (typeof SELECTABLE_HOURS)[number] | null;
 
+export type IntervalType = { from: HourValue; to: HourValue };
+
 interface DayRowProps {
   index: number;
   label: string;
   checked: boolean;
-  fromValue: HourValue;
-  toValue: HourValue;
+  intervals: IntervalType[];
   onCheck: (index: number, checked: boolean) => void;
-  onFromChange: (index: number, val: string | null) => void;
-  onToChange: (index: number, val: string | null) => void;
-  errorFrom?: React.ReactNode;
-  errorTo?: React.ReactNode;
+  onFromChange: (
+    dayIndex: number,
+    intervalIndex: number,
+    val: string | null
+  ) => void;
+  onToChange: (
+    dayIndex: number,
+    intervalIndex: number,
+    val: string | null
+  ) => void;
+  onAddInterval: (dayIndex: number) => void;
+  onRemoveInterval: (dayIndex: number, intervalIndex: number) => void;
+  errors: Array<{ from?: React.ReactNode; to?: React.ReactNode }>;
 }
 
 const EMPTY_OPTION = "";
+
+// Returns hours strictly after `after` and strictly before `before`.
+// Passing null/undefined means no bound on that side.
+function hoursInRange(
+  after: HourValue | null | undefined,
+  before: HourValue | null | undefined
+): string[] {
+  const afterIdx = after ? SELECTABLE_HOURS.indexOf(after) : -1;
+  const beforeIdx = before
+    ? SELECTABLE_HOURS.indexOf(before)
+    : SELECTABLE_HOURS.length;
+  return [
+    EMPTY_OPTION,
+    ...(SELECTABLE_HOURS.slice(afterIdx + 1, beforeIdx) as unknown as string[]),
+  ];
+}
 
 export const ManageOfficeModalDayRow = memo(
   ({
     index,
     label,
     checked,
-    fromValue,
-    toValue,
+    intervals,
     onCheck,
     onFromChange,
     onToChange,
-    errorFrom,
-    errorTo,
+    onAddInterval,
+    onRemoveInterval,
+    errors,
   }: DayRowProps) => {
-    const fromData = useMemo(() => {
-      const hours = toValue
-        ? (SELECTABLE_HOURS.slice(
-            0,
-            SELECTABLE_HOURS.indexOf(toValue)
-          ) as unknown as string[])
-        : (SELECTABLE_HOURS as unknown as string[]);
-      return [EMPTY_OPTION, ...hours];
-    }, [toValue]);
+    const hasSecond = intervals.length === 2;
 
-    const toData = useMemo(() => {
-      const hours = fromValue
-        ? (SELECTABLE_HOURS.slice(
-            SELECTABLE_HOURS.indexOf(fromValue) + 1
-          ) as unknown as string[])
-        : (SELECTABLE_HOURS as unknown as string[]);
-      return [EMPTY_OPTION, ...hours];
-    }, [fromValue]);
+    const from0 = intervals[0].from;
+    const to0 = intervals[0].to;
+    const from1 = intervals[1]?.from ?? null;
+    const to1 = intervals[1]?.to ?? null;
+
+    // Interval 0: from0 < to0 < from1 (if exists)
+    // from1 is null when there's no second interval, so to0Options naturally has no upper bound then
+    const from0Options = useMemo(() => hoursInRange(null, to0), [to0]);
+    const to0Options = useMemo(
+      () => hoursInRange(from0, from1),
+      [from0, from1]
+    );
+
+    // Interval 1: to0 < from1 < to1
+    const from1Options = useMemo(() => hoursInRange(to0, to1), [to0, to1]);
+    const to1Options = useMemo(() => hoursInRange(from1, null), [from1]);
 
     const handleCheck = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -84,46 +110,119 @@ export const ManageOfficeModalDayRow = memo(
       [onCheck, index]
     );
 
-    const handleFromChange = useCallback(
+    const handleFrom0Change = useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) =>
-        onFromChange(index, e.currentTarget.value || null),
+        onFromChange(index, 0, e.currentTarget.value || null),
       [onFromChange, index]
     );
-
-    const handleToChange = useCallback(
+    const handleTo0Change = useCallback(
       (e: React.ChangeEvent<HTMLSelectElement>) =>
-        onToChange(index, e.currentTarget.value || null),
+        onToChange(index, 0, e.currentTarget.value || null),
+      [onToChange, index]
+    );
+    const handleFrom1Change = useCallback(
+      (e: React.ChangeEvent<HTMLSelectElement>) =>
+        onFromChange(index, 1, e.currentTarget.value || null),
+      [onFromChange, index]
+    );
+    const handleTo1Change = useCallback(
+      (e: React.ChangeEvent<HTMLSelectElement>) =>
+        onToChange(index, 1, e.currentTarget.value || null),
       [onToChange, index]
     );
 
+    const handleAdd = useCallback(
+      () => onAddInterval(index),
+      [onAddInterval, index]
+    );
+    const handleRemove = useCallback(
+      () => onRemoveInterval(index, 1),
+      [onRemoveInterval, index]
+    );
+
+    const canAdd =
+      checked && !hasSecond && !!intervals[0].from && !!intervals[0].to;
+
     return (
-      <Table.Tr>
-        <Table.Td>
-          <Checkbox checked={checked} onChange={handleCheck} />
-        </Table.Td>
+      <>
+        <Table.Tr style={hasSecond ? { borderBottom: "none" } : undefined}>
+          <Table.Td>
+            <Checkbox checked={checked} onChange={handleCheck} />
+          </Table.Td>
 
-        <Table.Td>{label}</Table.Td>
+          <Table.Td>{label}</Table.Td>
 
-        <Table.Td>
-          <NativeSelect
-            data={fromData}
-            value={fromValue ?? EMPTY_OPTION}
-            onChange={handleFromChange}
-            disabled={!checked}
-            error={errorFrom}
-          />
-        </Table.Td>
+          <Table.Td>
+            <NativeSelect
+              data={from0Options}
+              value={intervals[0].from ?? EMPTY_OPTION}
+              onChange={handleFrom0Change}
+              disabled={!checked}
+              error={errors[0]?.from}
+            />
+          </Table.Td>
 
-        <Table.Td>
-          <NativeSelect
-            data={toData}
-            value={toValue ?? EMPTY_OPTION}
-            onChange={handleToChange}
-            disabled={!checked || !fromValue}
-            error={errorTo}
-          />
-        </Table.Td>
-      </Table.Tr>
+          <Table.Td>
+            <NativeSelect
+              data={to0Options}
+              value={intervals[0].to ?? EMPTY_OPTION}
+              onChange={handleTo0Change}
+              disabled={!checked || !intervals[0].from}
+              error={errors[0]?.to}
+            />
+          </Table.Td>
+
+          <Table.Td>
+            <ActionIcon
+              variant="subtle"
+              size="sm"
+              disabled={!canAdd}
+              onClick={handleAdd}
+              aria-label="Add interval"
+            >
+              +
+            </ActionIcon>
+          </Table.Td>
+        </Table.Tr>
+
+        {hasSecond && (
+          <Table.Tr>
+            <Table.Td colSpan={2} />
+
+            <Table.Td>
+              <NativeSelect
+                data={from1Options}
+                value={intervals[1].from ?? EMPTY_OPTION}
+                onChange={handleFrom1Change}
+                disabled={!checked}
+                error={errors[1]?.from}
+              />
+            </Table.Td>
+
+            <Table.Td>
+              <NativeSelect
+                data={to1Options}
+                value={intervals[1].to ?? EMPTY_OPTION}
+                onChange={handleTo1Change}
+                disabled={!checked || !intervals[1].from}
+                error={errors[1]?.to}
+              />
+            </Table.Td>
+
+            <Table.Td>
+              <ActionIcon
+                variant="subtle"
+                color="red"
+                size="sm"
+                onClick={handleRemove}
+                aria-label="Remove interval"
+              >
+                ×
+              </ActionIcon>
+            </Table.Td>
+          </Table.Tr>
+        )}
+      </>
     );
   }
 );

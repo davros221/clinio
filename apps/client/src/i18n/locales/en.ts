@@ -4,11 +4,13 @@ const en = {
   common: {
     action: {
       save: "Save",
+      delete: "Delete",
     },
     appName: "ClinIO",
     error: {
       noData: "No data available",
       createFailed: "Failed to create",
+      deleteFailed: "Failed to delete",
       updateFailed: "Failed to update",
       ...({
         [ErrorCode.INTERNAL_SERVER_ERROR]: "A server error occurred",
@@ -101,6 +103,13 @@ const en = {
         cancel: "Cancel",
         submit: "Create",
       },
+    },
+    deleteModal: {
+      title: "Delete office",
+      message:
+        "Are you sure you want to delete this office? This action is permanent and cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
     },
     overview: {
       officesListHeader: {

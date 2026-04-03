@@ -5,11 +5,13 @@ const cs: TranslationKeys = {
   common: {
     action: {
       save: "Uložit",
+      delete: "Smazat",
     },
     appName: "ClinIO",
     error: {
       noData: "Žádná data nejsou k dispozici",
       createFailed: "Vytvoření se nezdařilo",
+      deleteFailed: "Smazání se nezdařilo",
       updateFailed: "Aktualizace se nezdařila",
       ...({
         [ErrorCode.INTERNAL_SERVER_ERROR]: "Došlo k chybě serveru",
@@ -102,6 +104,12 @@ const cs: TranslationKeys = {
         cancel: "Zrušit",
         submit: "Vytvořit",
       },
+    },
+    deleteModal: {
+      title: "Smazat ordinaci",
+      message: "Opravdu chcete tuto ordinaci smazat? Tato akce je nevratná.",
+      confirm: "Smazat",
+      cancel: "Zrušit",
     },
     overview: {
       officesListHeader: {

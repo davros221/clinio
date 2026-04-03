@@ -69,77 +69,82 @@ export const DataTable = <T,>({
   const hasActions = actions && actions.length > 0;
 
   return (
-    <Table
-      striped
-      highlightOnHover={highlightOnHover}
-      withTableBorder
-      withColumnBorders
-      classNames={{
-        table: classes.table,
-        thead: classes.thead,
-        th: classes.th,
-        td: classes.td,
-      }}
-    >
-      <Table.Thead>
-        <Table.Tr>
-          {hasActions && (
-            <Table.Th>{t("component.dataTable.actionsColumn")}</Table.Th>
-          )}
-          {columns.map((col) => (
-            <Table.Th key={col.key}>{col.header}</Table.Th>
-          ))}
-        </Table.Tr>
-      </Table.Thead>
-
-      <Table.Tbody>
-        {data.length === 0 ? (
-          <Table.Tr>
-            <Table.Td colSpan={columns.length + (hasActions ? 1 : 0)}>
-              <Text
-                ta="center"
-                c="dimmed"
-                size="sm"
-                className={classes.emptyRow}
-              >
-                {resolvedEmptyMessage}
-              </Text>
-            </Table.Td>
-          </Table.Tr>
-        ) : (
-          data.map((row) => (
-            <Table.Tr key={keyExtractor(row)}>
+    <Box className={classes.scrollContainer}>
+      <Box className={classes.wrapper}>
+        <Table
+          striped
+          highlightOnHover={highlightOnHover}
+          withColumnBorders
+          classNames={{
+            table: classes.table,
+            thead: classes.thead,
+            th: classes.th,
+            td: classes.td,
+          }}
+        >
+          <Table.Thead>
+            <Table.Tr>
               {hasActions && (
-                <Table.Td>
-                  <Group gap="xs">
-                    {actions
-                      .filter((action) => action.visible?.(row) ?? true)
-                      .map((action) => (
-                        <Button
-                          key={action.label}
-                          size="xs"
-                          variant={action.variant ?? "default"}
-                          color={action.color}
-                          onClick={() => action.onClick(row)}
-                        >
-                          {action.label}
-                        </Button>
-                      ))}
-                  </Group>
-                </Table.Td>
+                <Table.Th>{t("component.dataTable.actionsColumn")}</Table.Th>
               )}
-
               {columns.map((col) => (
-                <Table.Td key={col.key} style={col.style}>
-                  {col.render
-                    ? col.render(row)
-                    : String((row as Record<string, unknown>)[col.key] ?? "")}
-                </Table.Td>
+                <Table.Th key={col.key}>{col.header}</Table.Th>
               ))}
             </Table.Tr>
-          ))
-        )}
-      </Table.Tbody>
-    </Table>
+          </Table.Thead>
+
+          <Table.Tbody>
+            {data.length === 0 ? (
+              <Table.Tr>
+                <Table.Td colSpan={columns.length + (hasActions ? 1 : 0)}>
+                  <Text
+                    ta="center"
+                    c="dimmed"
+                    size="sm"
+                    className={classes.emptyRow}
+                  >
+                    {resolvedEmptyMessage}
+                  </Text>
+                </Table.Td>
+              </Table.Tr>
+            ) : (
+              data.map((row) => (
+                <Table.Tr key={keyExtractor(row)}>
+                  {hasActions && (
+                    <Table.Td>
+                      <Group gap="xs">
+                        {actions
+                          .filter((action) => action.visible?.(row) ?? true)
+                          .map((action) => (
+                            <Button
+                              key={action.label}
+                              size="xs"
+                              variant={action.variant ?? "default"}
+                              color={action.color}
+                              onClick={() => action.onClick(row)}
+                            >
+                              {action.label}
+                            </Button>
+                          ))}
+                      </Group>
+                    </Table.Td>
+                  )}
+
+                  {columns.map((col) => (
+                    <Table.Td key={col.key} style={col.style}>
+                      {col.render
+                        ? col.render(row)
+                        : String(
+                            (row as Record<string, unknown>)[col.key] ?? ""
+                          )}
+                    </Table.Td>
+                  ))}
+                </Table.Tr>
+              ))
+            )}
+          </Table.Tbody>
+        </Table>
+      </Box>
+    </Box>
   );
 };

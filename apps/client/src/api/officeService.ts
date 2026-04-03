@@ -4,25 +4,29 @@ import {
   Office,
   OfficeService,
   type UpdateOfficeData,
+  type DeleteOfficeData,
 } from "@clinio/api";
 import { t } from "../i18n";
 import { notifyError } from "../utils/notification";
+import { officeKeys } from "./queryKeys";
 
-export const useGetOfficesQuery = () => {
+// TODO: API returns PaginatedOfficeResponse — expose pagination metadata when
+// the offices table needs server-side paging (total, page, limit, totalPages).
+export const useGetOfficeListQuery = () => {
   return useQuery<Office[]>({
-    queryKey: ["useGetOfficesQuery"],
+    queryKey: officeKeys.list(),
     queryFn: async () => {
       const { data } = await OfficeService.getOffices({
         throwOnError: true,
       });
-      return data ?? [];
+      return data?.items ?? [];
     },
   });
 };
 
 export const useGetOfficeDetailQuery = (id: string, enabled: boolean) => {
   return useQuery<Office | null>({
-    queryKey: ["useGetOfficeDetailQuery", id],
+    queryKey: officeKeys.detail(id),
     queryFn: async () => {
       const { data } = await OfficeService.getOfficeById({
         path: { id },
@@ -48,7 +52,7 @@ export const useCreateOfficeMutation = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["useGetOfficesQuery"] });
+      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
     },
 
     onError: (error) =>
@@ -71,13 +75,33 @@ export const useUpdateOfficeMutation = () => {
     },
 
     onSuccess: (updatedOffice) => {
-      queryClient.invalidateQueries({ queryKey: ["useGetOfficesQuery"] });
+      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
       queryClient.setQueryData(
-        ["useGetOfficeDetailQuery", updatedOffice.id],
+        officeKeys.detail(updatedOffice.id),
         updatedOffice
       );
     },
     onError: (error) =>
       notifyError(t("common.error.updateFailed"), error.message),
+  });
+};
+
+export const useDeleteOfficeMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, Pick<DeleteOfficeData, "path">>({
+    mutationFn: async ({ path }) => {
+      await OfficeService.deleteOffice({
+        path,
+        throwOnError: true,
+      });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
+    },
+
+    onError: (error) =>
+      notifyError(t("common.error.deleteFailed"), error.message),
   });
 };

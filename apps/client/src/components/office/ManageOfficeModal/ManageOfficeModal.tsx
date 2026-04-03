@@ -10,13 +10,7 @@ import {
   Box,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "../../../api/userService.ts";
 import { UserRole } from "@clinio/shared";
 import { DAYS, WEEK_DAYS } from "../../utils/types.ts";
@@ -24,7 +18,7 @@ import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,
 } from "../../../api/officeService.ts";
-import { Office } from "@clinio/api";
+import { CreateOfficeDto, Office } from "@clinio/api";
 import {
   ManageOfficeModalDayRow,
   SELECTABLE_HOURS,
@@ -34,11 +28,15 @@ import { ParseKeys } from "i18next";
 
 type HourEntryType = (typeof SELECTABLE_HOURS)[number] | null;
 
+type IntervalType = { from: HourEntryType; to: HourEntryType };
+
+/** Max 2 intervals per day (e.g. morning + afternoon split) */
+const MAX_INTERVALS_PER_DAY = 2;
+
 type DayEntryType = {
   key: string;
-  from: HourEntryType;
-  to: HourEntryType;
   checked: boolean;
+  intervals: IntervalType[];
 };
 
 type FormValues = {
@@ -52,14 +50,18 @@ type FormValues = {
 type PropsType = {
   opened: boolean;
   onClose: () => void;
-  office?: Office; // If provided, we are in Edit mode
+  office?: Office | null; // If provided, we are in Edit mode
+};
+
+const DEFAULT_INTERVAL: IntervalType = {
+  from: "08:00" as HourEntryType,
+  to: "16:00" as HourEntryType,
 };
 
 const INITIAL_DAYS: DayEntryType[] = WEEK_DAYS.map((day) => ({
   key: day.toLowerCase(),
-  from: "08:00" as HourEntryType,
-  to: "16:00" as HourEntryType,
   checked: DAYS.includes(day),
+  intervals: [{ ...DEFAULT_INTERVAL }],
 }));
 
 export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
@@ -78,33 +80,8 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
 
   const isEdit = !!office;
 
-  const formValidate = useMemo(
-    () => ({
-      name: (value: string) =>
-        value.trim() ? null : t("common.validation.required"),
-      specialization: (value: string) =>
-        value.trim() ? null : t("common.validation.required"),
-      address: (value: string) =>
-        value.trim() ? null : t("common.validation.required"),
-      days: {
-        from: (value: HourEntryType, values: FormValues, path: string) => {
-          const index = Number(path.split(".")[1]);
-          return values.days[index].checked && !value
-            ? t("common.validation.required")
-            : null;
-        },
-        to: (value: HourEntryType, values: FormValues, path: string) => {
-          const index = Number(path.split(".")[1]);
-          return values.days[index].checked && !value
-            ? t("common.validation.required")
-            : null;
-        },
-      },
-    }),
-    [t]
-  );
-
   const form = useForm<FormValues>({
+    mode: "uncontrolled",
     initialValues: {
       name: "",
       specialization: "",
@@ -112,7 +89,30 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       days: INITIAL_DAYS,
       staffIds: [],
     },
-    validate: formValidate,
+    validate: {
+      name: (value: string) =>
+        value.trim() ? null : t("common.validation.required"),
+      specialization: (value: string) =>
+        value.trim() ? null : t("common.validation.required"),
+      address: (value: string) =>
+        value.trim() ? null : t("common.validation.required"),
+      days: {
+        intervals: {
+          from: (value: HourEntryType, values: FormValues, path: string) => {
+            const dayIndex = Number(path.split(".")[1]);
+            return values.days[dayIndex].checked && !value
+              ? t("common.validation.required")
+              : null;
+          },
+          to: (value: HourEntryType, values: FormValues, path: string) => {
+            const dayIndex = Number(path.split(".")[1]);
+            return values.days[dayIndex].checked && !value
+              ? t("common.validation.required")
+              : null;
+          },
+        },
+      },
+    },
   });
 
   // Populate form when office data arrives or modal opens for editing
@@ -126,19 +126,27 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
 
       const mappedDays = WEEK_DAYS.map((day) => {
         const key = day.toLowerCase();
-        const dayData = hours?.[key]?.[0];
+        const dayIntervals = hours?.[key] ?? [];
+
+        if (dayIntervals.length === 0) {
+          return {
+            key,
+            checked: false,
+            intervals: [
+              { from: null as HourEntryType, to: null as HourEntryType },
+            ],
+          };
+        }
 
         return {
           key,
-          from: dayData
-            ? (`${dayData.from
-                .toString()
-                .padStart(2, "0")}:00` as HourEntryType)
-            : null,
-          to: dayData
-            ? (`${dayData.to.toString().padStart(2, "0")}:00` as HourEntryType)
-            : null,
-          checked: !!dayData,
+          checked: true,
+          intervals: dayIntervals.map((slot) => ({
+            from: `${slot.from
+              .toString()
+              .padStart(2, "0")}:00` as HourEntryType,
+            to: `${slot.to.toString().padStart(2, "0")}:00` as HourEntryType,
+          })),
         };
       });
 
@@ -164,40 +172,58 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
     form.removeListItem("staffIds", index);
   };
 
-  const { setFieldValue } = form;
+  const { setFieldValue, insertListItem, removeListItem } = form;
 
   const handleDayChecked = useCallback(
     (index: number, checked: boolean) => {
-      startTransition(() => {
-        setFieldValue(`days.${index}.checked`, checked);
-        if (!checked) {
-          setFieldValue(`days.${index}.from`, null);
-          setFieldValue(`days.${index}.to`, null);
-        } else {
-          setFieldValue(`days.${index}.from`, "08:00" as HourEntryType);
-          setFieldValue(`days.${index}.to`, "16:00" as HourEntryType);
-        }
-      });
+      setFieldValue(`days.${index}.checked`, checked);
+      setFieldValue(
+        `days.${index}.intervals`,
+        checked
+          ? [{ ...DEFAULT_INTERVAL }]
+          : [{ from: null as HourEntryType, to: null as HourEntryType }]
+      );
     },
     [setFieldValue]
   );
 
   const handleFromChange = useCallback(
-    (index: number, val: string | null) => {
-      startTransition(() =>
-        setFieldValue(`days.${index}.from`, val as HourEntryType)
+    (dayIndex: number, intervalIndex: number, val: string | null) => {
+      setFieldValue(
+        `days.${dayIndex}.intervals.${intervalIndex}.from`,
+        val as HourEntryType
       );
     },
     [setFieldValue]
   );
 
   const handleToChange = useCallback(
-    (index: number, val: string | null) => {
-      startTransition(() =>
-        setFieldValue(`days.${index}.to`, val as HourEntryType)
+    (dayIndex: number, intervalIndex: number, val: string | null) => {
+      setFieldValue(
+        `days.${dayIndex}.intervals.${intervalIndex}.to`,
+        val as HourEntryType
       );
     },
     [setFieldValue]
+  );
+
+  const handleAddInterval = useCallback(
+    (dayIndex: number) => {
+      const current = form.getValues().days[dayIndex].intervals;
+      if (current.length >= MAX_INTERVALS_PER_DAY) return;
+      insertListItem(`days.${dayIndex}.intervals`, {
+        from: null as HourEntryType,
+        to: null as HourEntryType,
+      });
+    },
+    [form, insertListItem]
+  );
+
+  const handleRemoveInterval = useCallback(
+    (dayIndex: number, intervalIndex: number) => {
+      removeListItem(`days.${dayIndex}.intervals`, intervalIndex);
+    },
+    [removeListItem]
   );
 
   const roleSelectData = useMemo(
@@ -214,15 +240,20 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   };
 
   const userSelectData = useMemo(
-    () =>
-      users
+    () => {
+      const { staffIds } = form.getValues();
+      return users
         .filter(
           (u) =>
-            !form.values.staffIds.includes(u.id) &&
+            !staffIds.includes(u.id) &&
             (!selectedRole || u.role === selectedRole)
         )
-        .map((u) => ({ value: u.id, label: `${u.firstName} ${u.lastName}` })),
-    [users, form.values.staffIds, selectedRole]
+        .map((u) => ({ value: u.id, label: `${u.firstName} ${u.lastName}` }));
+    },
+    // `form` is omitted intentionally — `form.getValues()` reads current state
+    // imperatively (uncontrolled mode), so the memo only needs to recompute
+    // when the source data or filter changes, not on every form re-render.
+    [users, selectedRole]
   );
 
   const handleSubmit = ({ days, ...rest }: FormValues) => {
@@ -230,18 +261,20 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       hour ? parseInt(hour.split(":")[0]) : 0;
 
     const officeHoursTemplate = Object.fromEntries(
-      days.map(({ key, from, to, checked }) => [
+      days.map(({ key, checked, intervals }) => [
         key,
-        checked && from && to
-          ? [{ from: parseHourToInt(from), to: parseHourToInt(to) }]
+        checked
+          ? intervals
+              .filter(({ from, to }) => from && to)
+              .map(({ from, to }) => ({
+                from: parseHourToInt(from),
+                to: parseHourToInt(to),
+              }))
           : [],
       ])
-    );
+    ) as CreateOfficeDto["officeHoursTemplate"];
 
-    const dto = {
-      ...rest,
-      officeHoursTemplate,
-    };
+    const dto = { ...rest, officeHoursTemplate };
 
     if (isEdit && office) {
       updateOffice(
@@ -269,12 +302,14 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
           {/* Basic Info */}
           <Box>
             <TextInput
+              key={form.key("name")}
               label={t("office.createOfficeModal.fields.name")}
               placeholder={t("office.createOfficeModal.fields.namePlaceholder")}
               {...form.getInputProps("name")}
               mb="xs"
             />
             <TextInput
+              key={form.key("specialization")}
               label={t("office.createOfficeModal.fields.specialization")}
               placeholder={t(
                 "office.createOfficeModal.fields.specializationPlaceholder"
@@ -283,6 +318,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
               mb="xs"
             />
             <TextInput
+              key={form.key("address")}
               label={t("office.createOfficeModal.fields.address")}
               placeholder={t(
                 "office.createOfficeModal.fields.addressPlaceholder"
@@ -296,6 +332,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
             <Title order={5} mb="xs">
               {t("office.createOfficeModal.sections.hours")}
             </Title>
+
             <Table>
               <Table.Thead>
                 <Table.Tr>
@@ -307,8 +344,10 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                     {t("office.createOfficeModal.table.from")}
                   </Table.Th>
                   <Table.Th>{t("office.createOfficeModal.table.to")}</Table.Th>
+                  <Table.Th />
                 </Table.Tr>
               </Table.Thead>
+
               <Table.Tbody>
                 {form.values.days.map((day, index) => (
                   <ManageOfficeModalDayRow
@@ -316,13 +355,16 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                     index={index}
                     label={t(`common.time.daysShort.${day.key}` as ParseKeys)}
                     checked={day.checked}
-                    fromValue={day.from}
-                    toValue={day.to}
+                    intervals={day.intervals}
                     onCheck={handleDayChecked}
                     onFromChange={handleFromChange}
                     onToChange={handleToChange}
-                    errorFrom={form.errors[`days.${index}.from`]}
-                    errorTo={form.errors[`days.${index}.to`]}
+                    onAddInterval={handleAddInterval}
+                    onRemoveInterval={handleRemoveInterval}
+                    errors={day.intervals.map((_, i) => ({
+                      from: form.errors[`days.${index}.intervals.${i}.from`],
+                      to: form.errors[`days.${index}.intervals.${i}.to`],
+                    }))}
                   />
                 ))}
               </Table.Tbody>
@@ -334,6 +376,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
             <Title order={5} mb="xs">
               {t("office.createOfficeModal.sections.personnel")}
             </Title>
+
             <Group grow align="flex-end">
               <Select
                 label={t("office.createOfficeModal.fields.role")}
@@ -345,6 +388,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                 onChange={handleRoleChange}
                 clearable
               />
+
               <Select
                 label={t("office.createOfficeModal.fields.user")}
                 placeholder={t(
@@ -356,6 +400,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                 searchable
                 disabled={!selectedRole}
               />
+
               <Button
                 variant="filled"
                 color="gray"
@@ -372,22 +417,29 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>{t("office.createOfficeModal.fields.user")}</Table.Th>
+
                 <Table.Th>{t("office.createOfficeModal.table.role")}</Table.Th>
+
                 <Table.Th>
                   {t("office.createOfficeModal.table.actions")}
                 </Table.Th>
               </Table.Tr>
             </Table.Thead>
+
             <Table.Tbody>
               {form.values.staffIds.map((id, index) => {
                 const member = users.find((u) => u.id === id);
+
                 if (!member) return null;
+
                 return (
                   <Table.Tr key={id}>
                     <Table.Td>
                       {member.firstName} {member.lastName}
                     </Table.Td>
+
                     <Table.Td>{member.role}</Table.Td>
+
                     <Table.Td>
                       <Button
                         variant="subtle"
@@ -409,6 +461,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
             <Button variant="outline" color="gray" onClick={onClose}>
               {t("office.createOfficeModal.buttons.cancel")}
             </Button>
+
             <Button type="submit" loading={isCreating || isUpdating}>
               {isEdit
                 ? t("common.action.save")
