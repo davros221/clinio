@@ -1,5 +1,5 @@
 import { StrictMode } from "react";
-import "./api/client";
+import "./api/clientService.ts";
 import "./i18n"; // initialize i18next before rendering
 import "./index.css";
 import App from "./App.tsx";
