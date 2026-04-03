@@ -1,10 +1,18 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { ErrorCode, PatientSortField, type PatientListQuery } from "@clinio/shared";
+import {
+  ErrorCode,
+  PatientSortField,
+  type PatientListQuery,
+} from "@clinio/shared";
 import { PatientEntity } from "./patient.entity";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
-import { forbidden, internalError, notFound } from "../../common/error-messages";
+import {
+  forbidden,
+  internalError,
+  notFound,
+} from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
 
@@ -15,8 +23,13 @@ export class PatientService {
     private patientRepository: Repository<PatientEntity>
   ) {}
 
-  async findAll(query: PatientListQuery, search?: string): Promise<{ items: PatientEntity[]; total: number }> {
-    const qb = this.patientRepository.createQueryBuilder("patient").innerJoinAndSelect("patient.user", "user");
+  async findAll(
+    query: PatientListQuery,
+    search?: string
+  ): Promise<{ items: PatientEntity[]; total: number }> {
+    const qb = this.patientRepository
+      .createQueryBuilder("patient")
+      .innerJoinAndSelect("patient.user", "user");
 
     if (search) {
       qb.where("user.firstName ILIKE :search OR user.lastName ILIKE :search", {
@@ -24,7 +37,10 @@ export class PatientService {
       });
     }
 
-    const sortColumn = query.sortBy === PatientSortField.LAST_NAME ? "user.lastName" : `patient.${query.sortBy}`;
+    const sortColumn =
+      query.sortBy === PatientSortField.LAST_NAME
+        ? "user.lastName"
+        : `patient.${query.sortBy}`;
 
     qb.orderBy(sortColumn, query.sortOrder)
       .skip((query.page - 1) * query.limit)
@@ -53,7 +69,11 @@ export class PatientService {
     return patient;
   }
 
-  async update(id: string, dto: UpdatePatientDto, currentUser: AuthUser): Promise<PatientEntity> {
+  async update(
+    id: string,
+    dto: UpdatePatientDto,
+    currentUser: AuthUser
+  ): Promise<PatientEntity> {
     const patient = await this.findById(id, currentUser);
     Object.assign(patient, dto);
     return this.patientRepository.save(patient);

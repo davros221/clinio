@@ -10,12 +10,19 @@ import { UserMapper } from "../modules/user/mapper/UserMapper";
 
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService, private jwtService: JwtService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService
+  ) {}
 
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.userService.findByEmail(dto.email);
 
-    if (!user || !user.password || !(await bcrypt.compare(dto.password, user.password))) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(dto.password, user.password))
+    ) {
       throw invalidCredentials();
     }
 

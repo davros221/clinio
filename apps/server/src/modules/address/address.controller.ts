@@ -1,5 +1,12 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { ApiOkResponse, ApiInternalServerErrorResponse, ApiBadRequestResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+  ApiOkResponse,
+  ApiInternalServerErrorResponse,
+  ApiBadRequestResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { AddressService } from "./address.service";
 import { SuggestResponse } from "./dto/address.dto";
 

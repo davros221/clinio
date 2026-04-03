@@ -1,7 +1,16 @@
 ## Controller Reference
 
 ```typescript
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, UsePipes } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UsePipes,
+} from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiCreatedResponse,

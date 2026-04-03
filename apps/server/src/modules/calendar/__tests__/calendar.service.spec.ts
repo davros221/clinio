@@ -11,7 +11,9 @@ const mockAppointmentService = () => ({
 
 describe("CalendarService", () => {
   let service: CalendarService;
-  let appointmentService: jest.Mocked<Pick<AppointmentService, "findByOfficeAndWeek">>;
+  let appointmentService: jest.Mocked<
+    Pick<AppointmentService, "findByOfficeAndWeek">
+  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -48,7 +50,10 @@ describe("CalendarService", () => {
 
       await service.getWeek(officeId, wednesday);
 
-      expect(appointmentService.findByOfficeAndWeek).toHaveBeenCalledWith(officeId, expect.any(Date));
+      expect(appointmentService.findByOfficeAndWeek).toHaveBeenCalledWith(
+        officeId,
+        expect.any(Date)
+      );
     });
 
     it("should mark hours with appointments as BOOKED", async () => {

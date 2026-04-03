@@ -1,11 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, In, Repository, type FindOptionsWhere } from "typeorm";
-import { type AppointmentListQuery, type AppointmentStatus } from "@clinio/shared";
+import {
+  type AppointmentListQuery,
+  type AppointmentStatus,
+} from "@clinio/shared";
 
 import { AppointmentEntity } from "./appointment.entity";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
-import { appointmentNotFound, internalError } from "../../common/error-messages";
+import {
+  appointmentNotFound,
+  internalError,
+} from "../../common/error-messages";
 
 @Injectable()
 export class AppointmentService {
@@ -23,7 +29,10 @@ export class AppointmentService {
    *
    * ToDo: Add FROM and TO params
    */
-  async findAll(query: AppointmentListQuery, statuses?: AppointmentStatus[]): Promise<{ items: AppointmentEntity[]; total: number }> {
+  async findAll(
+    query: AppointmentListQuery,
+    statuses?: AppointmentStatus[]
+  ): Promise<{ items: AppointmentEntity[]; total: number }> {
     const where: FindOptionsWhere<AppointmentEntity> = {};
     if (statuses?.length) {
       where.status = In(statuses);
@@ -40,9 +49,14 @@ export class AppointmentService {
     return { items, total };
   }
 
-  async findByOfficeAndWeek(officeId: string, weekStart: Date): Promise<AppointmentEntity[]> {
+  async findByOfficeAndWeek(
+    officeId: string,
+    weekStart: Date
+  ): Promise<AppointmentEntity[]> {
     const startDate = weekStart.toISOString().slice(0, 10);
-    const endDate = new Date(weekStart.getTime() + 6 * 86400000).toISOString().slice(0, 10);
+    const endDate = new Date(weekStart.getTime() + 6 * 86400000)
+      .toISOString()
+      .slice(0, 10);
 
     return this.appointmentRepository.find({
       where: {

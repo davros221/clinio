@@ -4,7 +4,12 @@ import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
 import { AppointmentMapper } from "../mapper/AppointmentMapper";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
-import { AppointmentStatus, AppointmentSortField, SortOrder, ErrorCode } from "@clinio/shared";
+import {
+  AppointmentStatus,
+  AppointmentSortField,
+  SortOrder,
+  ErrorCode,
+} from "@clinio/shared";
 import { NotFoundException } from "@nestjs/common";
 import { appointmentNotFound } from "../../../common/error-messages";
 
@@ -29,7 +34,9 @@ const mockAppointmentService = () => ({
 
 describe("AppointmentController", () => {
   let controller: AppointmentController;
-  let service: jest.Mocked<Pick<AppointmentService, "findAll" | "findById" | "create">>;
+  let service: jest.Mocked<
+    Pick<AppointmentService, "findAll" | "findById" | "create">
+  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -82,7 +89,13 @@ describe("AppointmentController", () => {
     it("should pass pagination and sorting params to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      await controller.getAll(undefined, "2", "10", AppointmentSortField.STATUS, SortOrder.DESC);
+      await controller.getAll(
+        undefined,
+        "2",
+        "10",
+        AppointmentSortField.STATUS,
+        SortOrder.DESC
+      );
 
       expect(service.findAll).toHaveBeenCalledWith(
         {
@@ -100,15 +113,23 @@ describe("AppointmentController", () => {
 
       await controller.getAll(AppointmentStatus.PLANNED);
 
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [AppointmentStatus.PLANNED]);
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
+        AppointmentStatus.PLANNED,
+      ]);
     });
 
     it("should filter by multiple statuses", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      await controller.getAll([AppointmentStatus.PLANNED, AppointmentStatus.COMPLETED]);
+      await controller.getAll([
+        AppointmentStatus.PLANNED,
+        AppointmentStatus.COMPLETED,
+      ]);
 
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [AppointmentStatus.PLANNED, AppointmentStatus.COMPLETED]);
+      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
+        AppointmentStatus.PLANNED,
+        AppointmentStatus.COMPLETED,
+      ]);
     });
 
     it("should calculate totalPages correctly", async () => {
@@ -136,7 +157,9 @@ describe("AppointmentController", () => {
     it("should throw NotFoundException when appointment not found", async () => {
       service.findById.mockRejectedValue(appointmentNotFound());
 
-      await expect(controller.getById("non-existent-id")).rejects.toThrow(NotFoundException);
+      await expect(controller.getById("non-existent-id")).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("should throw NotFoundException with APPOINTMENT_NOT_FOUND error code", async () => {

@@ -1,10 +1,18 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { Repository } from "typeorm";
 import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
-import { AppointmentStatus, AppointmentSortField, SortOrder, ErrorCode } from "@clinio/shared";
+import {
+  AppointmentStatus,
+  AppointmentSortField,
+  SortOrder,
+  ErrorCode,
+} from "@clinio/shared";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
 
 const mockAppointment: AppointmentEntity = {
@@ -35,7 +43,12 @@ const mockAppointmentRepository = () => ({
 
 describe("AppointmentService", () => {
   let service: AppointmentService;
-  let repository: jest.Mocked<Pick<Repository<AppointmentEntity>, "find" | "findAndCount" | "findOne" | "create" | "save">>;
+  let repository: jest.Mocked<
+    Pick<
+      Repository<AppointmentEntity>,
+      "find" | "findAndCount" | "findOne" | "create" | "save"
+    >
+  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -73,7 +86,9 @@ describe("AppointmentService", () => {
 
       await service.findAll({ ...defaultQuery, page: 2 });
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ skip: 20, take: 20 }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 20 })
+      );
     });
 
     it("should apply sorting parameters", async () => {
@@ -85,7 +100,9 @@ describe("AppointmentService", () => {
         sortOrder: SortOrder.DESC,
       });
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ order: { status: "DESC" } }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { status: "DESC" } })
+      );
     });
 
     it("should filter by statuses when provided", async () => {
@@ -105,7 +122,9 @@ describe("AppointmentService", () => {
 
       await service.findAll(defaultQuery);
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: {} })
+      );
     });
   });
 
@@ -125,7 +144,9 @@ describe("AppointmentService", () => {
     it("should throw NotFoundException when appointment not found", async () => {
       repository.findOne.mockResolvedValue(null);
 
-      await expect(service.findById("non-existent-id")).rejects.toThrow(NotFoundException);
+      await expect(service.findById("non-existent-id")).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("should throw NotFoundException with APPOINTMENT_NOT_FOUND error code", async () => {
@@ -150,7 +171,9 @@ describe("AppointmentService", () => {
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect((error as InternalServerErrorException).getResponse()).toMatchObject({
+        expect(
+          (error as InternalServerErrorException).getResponse()
+        ).toMatchObject({
           errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
         });
       }

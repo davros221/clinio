@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiCreatedResponse,
@@ -14,7 +23,13 @@ import { Public } from "../../common/decorators/public.decorator";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
-import { UserRole, UserSortField, SortOrder, userListSchema, createUserSchema } from "@clinio/shared";
+import {
+  UserRole,
+  UserSortField,
+  SortOrder,
+  userListSchema,
+  createUserSchema,
+} from "@clinio/shared";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { ZodValidationPipe } from "nestjs-zod";
 import { UserService } from "./user.service";
@@ -82,7 +97,12 @@ export class UserController {
   ) {
     const parsedRoles = new ParseEnumArrayPipe(UserRole).transform(roles);
     const query = userListSchema.parse({ page, limit, sortBy, sortOrder });
-    const { items, total } = await this.userService.findAll(currentUser, parsedRoles, query, search);
+    const { items, total } = await this.userService.findAll(
+      currentUser,
+      parsedRoles,
+      query,
+      search
+    );
     return {
       items: UserMapper.toDtoList(items),
       total,
@@ -108,7 +128,10 @@ export class UserController {
   @ApiCreatedResponse({ type: User })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiForbiddenResponse({ description: "Forbidden" })
-  async create(@CurrentUser() currentUser: AuthUser | undefined, @Body(new ZodValidationPipe(createUserSchema)) dto: CreateUserDto) {
+  async create(
+    @CurrentUser() currentUser: AuthUser | undefined,
+    @Body(new ZodValidationPipe(createUserSchema)) dto: CreateUserDto
+  ) {
     const entity = await this.userService.create(dto, currentUser);
     return UserMapper.toDto(entity);
   }
@@ -120,7 +143,10 @@ export class UserController {
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   @ApiNotFoundResponse({ description: "User not found" })
-  async delete(@CurrentUser() currentUser: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+  async delete(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string
+  ) {
     return this.userService.remove(id, currentUser);
   }
 }

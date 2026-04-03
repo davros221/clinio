@@ -3,18 +3,38 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { ErrorCode, UserRole, type UserListQuery } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
 import { PatientEntity } from "../patient/patient.entity";
-import { DataSource, In, ILike, Repository, type FindOptionsWhere } from "typeorm";
+import {
+  DataSource,
+  In,
+  ILike,
+  Repository,
+  type FindOptionsWhere,
+} from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
-import { badRequest, emailAlreadyExists, forbidden, internalError, notFound } from "../../common/error-messages";
+import {
+  badRequest,
+  emailAlreadyExists,
+  forbidden,
+  internalError,
+  notFound,
+} from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import * as bcrypt from "bcryptjs";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
 
-const ADMIN_ONLY_ROLES: UserRole[] = [UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE];
+const ADMIN_ONLY_ROLES: UserRole[] = [
+  UserRole.ADMIN,
+  UserRole.DOCTOR,
+  UserRole.NURSE,
+];
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>, private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+    private dataSource: DataSource
+  ) {}
 
   async findAll(
     currentUser: AuthUser,
@@ -88,7 +108,10 @@ export class UserService {
    * @param user
    * @param currentUser
    */
-  async create(user: CreateUserDto, currentUser?: AuthUser): Promise<UserEntity> {
+  async create(
+    user: CreateUserDto,
+    currentUser?: AuthUser
+  ): Promise<UserEntity> {
     if (currentUser) {
       this.validateAuthenticatedCreate(user, currentUser);
     } else {
@@ -101,7 +124,9 @@ export class UserService {
       throw emailAlreadyExists();
     }
 
-    const hashedPassword = user.password ? await bcrypt.hash(user.password, 10) : undefined;
+    const hashedPassword = user.password
+      ? await bcrypt.hash(user.password, 10)
+      : undefined;
 
     return this.dataSource.transaction(async (manager) => {
       const newUser = manager.create(UserEntity, {
@@ -131,7 +156,10 @@ export class UserService {
    * @param currentUser
    * @private
    */
-  private validateAuthenticatedCreate(user: CreateUserDto, currentUser: AuthUser): void {
+  private validateAuthenticatedCreate(
+    user: CreateUserDto,
+    currentUser: AuthUser
+  ): void {
     const { isAdmin, isStaff } = AuthHelper.getRoles(currentUser);
 
     if (isAdmin) {

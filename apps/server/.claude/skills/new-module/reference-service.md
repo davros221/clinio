@@ -11,7 +11,9 @@ import { internalError, notFound } from "../../common/error-messages";
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>) {}
+  constructor(
+    @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>
+  ) {}
 
   findAll(): Promise<UserEntity[]> {
     return this.userRepository.find();

@@ -1,4 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query, UsePipes } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+  UsePipes,
+} from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiCreatedResponse,
@@ -10,7 +22,13 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
-import { createOfficeSchema, updateOfficeSchema, OfficeSortField, SortOrder, officeListSchema } from "@clinio/shared";
+import {
+  createOfficeSchema,
+  updateOfficeSchema,
+  OfficeSortField,
+  SortOrder,
+  officeListSchema,
+} from "@clinio/shared";
 import { OfficeService } from "./office.service";
 import { CreateOfficeDto } from "./dto/create-office.dto";
 import { UpdateOfficeDto } from "./dto/update-office.dto";
@@ -102,7 +120,10 @@ export class OfficeController {
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
-  async replace(@Param("id", ParseUUIDPipe) id: string, @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto) {
+  async replace(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto
+  ) {
     const entity = await this.officeService.replace(id, dto);
     return OfficeMapper.toDto(entity);
   }
@@ -112,7 +133,10 @@ export class OfficeController {
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
-  async update(@Param("id", ParseUUIDPipe) id: string, @Body(new ZodValidationPipe(updateOfficeSchema)) dto: UpdateOfficeDto) {
+  async update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(updateOfficeSchema)) dto: UpdateOfficeDto
+  ) {
     const entity = await this.officeService.update(id, dto);
     return OfficeMapper.toDto(entity);
   }

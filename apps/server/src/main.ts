@@ -21,7 +21,8 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
 
   // Set up Swagger for API documentation
-  const documentFactory = () => cleanupOpenApiDoc(SwaggerModule.createDocument(app, openApiConfig));
+  const documentFactory = () =>
+    cleanupOpenApiDoc(SwaggerModule.createDocument(app, openApiConfig));
   SwaggerModule.setup("api", app, documentFactory);
 
   // Start the application on the specified port
@@ -29,7 +30,9 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+  Logger.log(
+    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
+  );
 }
 
 void bootstrap();

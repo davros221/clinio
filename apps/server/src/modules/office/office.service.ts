@@ -17,8 +17,13 @@ export class OfficeService {
     private userRepository: Repository<UserEntity>
   ) {}
 
-  async findAll(query: OfficeListQuery, search?: string): Promise<{ items: OfficeEntity[]; total: number }> {
-    let where: FindOptionsWhere<OfficeEntity> | FindOptionsWhere<OfficeEntity>[];
+  async findAll(
+    query: OfficeListQuery,
+    search?: string
+  ): Promise<{ items: OfficeEntity[]; total: number }> {
+    let where:
+      | FindOptionsWhere<OfficeEntity>
+      | FindOptionsWhere<OfficeEntity>[];
     if (search) {
       const pattern = ILike(`%${search}%`);
       where = [{ name: pattern }, { specialization: pattern }];
@@ -59,7 +64,9 @@ export class OfficeService {
   async create(dto: CreateOfficeDto): Promise<OfficeEntity> {
     const { staffIds, ...rest } = dto;
 
-    const staff = staffIds.length ? await this.userRepository.findBy({ id: In(staffIds) }) : [];
+    const staff = staffIds.length
+      ? await this.userRepository.findBy({ id: In(staffIds) })
+      : [];
 
     const entity = this.officeRepository.create({ ...rest, staff });
 
@@ -75,7 +82,9 @@ export class OfficeService {
     office.specialization = rest.specialization;
     office.address = rest.address;
     office.officeHoursTemplate = rest.officeHoursTemplate;
-    office.staff = staffIds.length ? await this.userRepository.findBy({ id: In(staffIds) }) : [];
+    office.staff = staffIds.length
+      ? await this.userRepository.findBy({ id: In(staffIds) })
+      : [];
 
     return this.officeRepository.save(office);
   }
@@ -88,7 +97,9 @@ export class OfficeService {
     Object.assign(office, rest);
 
     if (staffIds !== undefined) {
-      office.staff = staffIds.length ? await this.userRepository.findBy({ id: In(staffIds) }) : [];
+      office.staff = staffIds.length
+        ? await this.userRepository.findBy({ id: In(staffIds) })
+        : [];
     }
 
     return this.officeRepository.save(office);

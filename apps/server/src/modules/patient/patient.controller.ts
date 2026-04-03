@@ -1,7 +1,29 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Query, UsePipes } from "@nestjs/common";
-import { ApiOkResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Query,
+  UsePipes,
+} from "@nestjs/common";
+import {
+  ApiOkResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
-import { updatePatientSchema, UserRole, PatientSortField, SortOrder, patientListSchema } from "@clinio/shared";
+import {
+  updatePatientSchema,
+  UserRole,
+  PatientSortField,
+  SortOrder,
+  patientListSchema,
+} from "@clinio/shared";
 import { PatientService } from "./patient.service";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { Patient } from "./dto/patient.dto";
@@ -21,11 +43,36 @@ export class PatientController {
   @Get()
   @Roles(UserRole.DOCTOR, UserRole.NURSE)
   @ApiOperation({ operationId: "getPatients" })
-  @ApiQuery({ name: "search", required: false, type: String, description: "Search by first name or last name" })
-  @ApiQuery({ name: "page", required: false, type: Number, description: "Page number (default: 1)" })
-  @ApiQuery({ name: "limit", required: false, type: Number, description: "Items per page (default: 20, max: 100)" })
-  @ApiQuery({ name: "sortBy", required: false, enum: PatientSortField, description: "Sort field (default: lastName)" })
-  @ApiQuery({ name: "sortOrder", required: false, enum: SortOrder, description: "Sort order (default: ASC)" })
+  @ApiQuery({
+    name: "search",
+    required: false,
+    type: String,
+    description: "Search by first name or last name",
+  })
+  @ApiQuery({
+    name: "page",
+    required: false,
+    type: Number,
+    description: "Page number (default: 1)",
+  })
+  @ApiQuery({
+    name: "limit",
+    required: false,
+    type: Number,
+    description: "Items per page (default: 20, max: 100)",
+  })
+  @ApiQuery({
+    name: "sortBy",
+    required: false,
+    enum: PatientSortField,
+    description: "Sort field (default: lastName)",
+  })
+  @ApiQuery({
+    name: "sortOrder",
+    required: false,
+    enum: SortOrder,
+    description: "Sort order (default: ASC)",
+  })
   @ApiOkResponse({ type: PaginatedPatientResponse })
   @ApiForbiddenResponse({ description: "Forbidden" })
   async getAll(
@@ -52,7 +99,10 @@ export class PatientController {
   @ApiOkResponse({ type: Patient })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiNotFoundResponse({ description: "Patient not found" })
-  async getById(@CurrentUser() currentUser: AuthUser, @Param("id", ParseUUIDPipe) id: string) {
+  async getById(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string
+  ) {
     const entity = await this.patientService.findById(id, currentUser);
     return PatientMapper.toDto(entity);
   }
@@ -64,7 +114,11 @@ export class PatientController {
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiNotFoundResponse({ description: "Patient not found" })
   @UsePipes(new ZodValidationPipe(updatePatientSchema))
-  async update(@CurrentUser() currentUser: AuthUser, @Param("id", ParseUUIDPipe) id: string, @Body() dto: UpdatePatientDto) {
+  async update(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: UpdatePatientDto
+  ) {
     const entity = await this.patientService.update(id, dto, currentUser);
     return PatientMapper.toDto(entity);
   }

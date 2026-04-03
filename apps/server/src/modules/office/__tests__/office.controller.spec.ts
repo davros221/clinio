@@ -47,7 +47,12 @@ const mockOfficeService = () => ({
 
 describe("OfficeController", () => {
   let controller: OfficeController;
-  let service: jest.Mocked<Pick<OfficeService, "findAll" | "findById" | "create" | "replace" | "update" | "remove">>;
+  let service: jest.Mocked<
+    Pick<
+      OfficeService,
+      "findAll" | "findById" | "create" | "replace" | "update" | "remove"
+    >
+  >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -100,7 +105,13 @@ describe("OfficeController", () => {
     it("should pass pagination and sorting params to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
 
-      await controller.getAll(undefined, "2", "10", OfficeSortField.SPECIALIZATION, SortOrder.DESC);
+      await controller.getAll(
+        undefined,
+        "2",
+        "10",
+        OfficeSortField.SPECIALIZATION,
+        SortOrder.DESC
+      );
 
       expect(service.findAll).toHaveBeenCalledWith(
         {

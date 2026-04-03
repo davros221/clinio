@@ -77,10 +77,18 @@ describe("PatientController", () => {
 
       service.update.mockResolvedValue(updatedEntity);
 
-      const result = await controller.update(clientUser, mockPatient.id, updateDto);
+      const result = await controller.update(
+        clientUser,
+        mockPatient.id,
+        updateDto
+      );
 
       expect(result).toEqual(PatientMapper.toDto(updatedEntity));
-      expect(service.update).toHaveBeenCalledWith(mockPatient.id, updateDto, clientUser);
+      expect(service.update).toHaveBeenCalledWith(
+        mockPatient.id,
+        updateDto,
+        clientUser
+      );
     });
   });
 });

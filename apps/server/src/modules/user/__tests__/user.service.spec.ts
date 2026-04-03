@@ -40,17 +40,26 @@ const mockTransactionManager = {
 };
 
 const mockDataSource = {
-  transaction: jest.fn((cb: (manager: typeof mockTransactionManager) => Promise<unknown>) => cb(mockTransactionManager)),
+  transaction: jest.fn(
+    (cb: (manager: typeof mockTransactionManager) => Promise<unknown>) =>
+      cb(mockTransactionManager)
+  ),
 };
 
 describe("UserService", () => {
   let service: UserService;
-  let repository: jest.Mocked<Pick<Repository<UserEntity>, "find" | "findAndCount" | "findOneBy" | "create" | "save" | "delete">>;
+  let repository: jest.Mocked<
+    Pick<
+      Repository<UserEntity>,
+      "find" | "findAndCount" | "findOneBy" | "create" | "save" | "delete"
+    >
+  >;
   beforeEach(async () => {
     mockTransactionManager.create.mockReset();
     mockTransactionManager.save.mockReset();
-    (mockDataSource.transaction as jest.Mock).mockImplementation((cb: (manager: typeof mockTransactionManager) => Promise<unknown>) =>
-      cb(mockTransactionManager)
+    (mockDataSource.transaction as jest.Mock).mockImplementation(
+      (cb: (manager: typeof mockTransactionManager) => Promise<unknown>) =>
+        cb(mockTransactionManager)
     );
 
     const module: TestingModule = await Test.createTestingModule({
@@ -103,7 +112,11 @@ describe("UserService", () => {
     it("should return users filtered by role with pagination", async () => {
       repository.findAndCount.mockResolvedValue([[mockUser], 1]);
 
-      const result = await service.findAll(adminUser, [UserRole.DOCTOR], defaultQuery);
+      const result = await service.findAll(
+        adminUser,
+        [UserRole.DOCTOR],
+        defaultQuery
+      );
 
       expect(result).toEqual({ items: [mockUser], total: 1 });
       expect(repository.findAndCount).toHaveBeenCalledWith({
@@ -122,7 +135,9 @@ describe("UserService", () => {
         page: 2,
       });
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ skip: 20, take: 20 }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 20 })
+      );
     });
 
     it("should apply sorting parameters", async () => {
@@ -134,49 +149,74 @@ describe("UserService", () => {
         sortOrder: SortOrder.DESC,
       });
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ order: { email: "DESC" } }));
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { email: "DESC" } })
+      );
     });
 
     it("should allow admin to request ADMIN, DOCTOR, NURSE roles", async () => {
       repository.findAndCount.mockResolvedValue([[], 0]);
 
-      await expect(service.findAll(adminUser, [UserRole.ADMIN], defaultQuery)).resolves.toBeDefined();
-      await expect(service.findAll(adminUser, [UserRole.DOCTOR], defaultQuery)).resolves.toBeDefined();
-      await expect(service.findAll(adminUser, [UserRole.NURSE], defaultQuery)).resolves.toBeDefined();
+      await expect(
+        service.findAll(adminUser, [UserRole.ADMIN], defaultQuery)
+      ).resolves.toBeDefined();
+      await expect(
+        service.findAll(adminUser, [UserRole.DOCTOR], defaultQuery)
+      ).resolves.toBeDefined();
+      await expect(
+        service.findAll(adminUser, [UserRole.NURSE], defaultQuery)
+      ).resolves.toBeDefined();
     });
 
     it("should forbid non-admin from requesting ADMIN role", async () => {
-      await expect(service.findAll(doctorUser, [UserRole.ADMIN], defaultQuery)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findAll(doctorUser, [UserRole.ADMIN], defaultQuery)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should forbid non-admin from requesting DOCTOR role", async () => {
-      await expect(service.findAll(nurseUser, [UserRole.DOCTOR], defaultQuery)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findAll(nurseUser, [UserRole.DOCTOR], defaultQuery)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should forbid admin from requesting CLIENT role", async () => {
-      await expect(service.findAll(adminUser, [UserRole.CLIENT], defaultQuery)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findAll(adminUser, [UserRole.CLIENT], defaultQuery)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should allow doctor to request CLIENT role", async () => {
       repository.findAndCount.mockResolvedValue([[], 0]);
 
-      await expect(service.findAll(doctorUser, [UserRole.CLIENT], defaultQuery)).resolves.toBeDefined();
+      await expect(
+        service.findAll(doctorUser, [UserRole.CLIENT], defaultQuery)
+      ).resolves.toBeDefined();
     });
 
     it("should allow nurse to request CLIENT role", async () => {
       repository.findAndCount.mockResolvedValue([[], 0]);
 
-      await expect(service.findAll(nurseUser, [UserRole.CLIENT], defaultQuery)).resolves.toBeDefined();
+      await expect(
+        service.findAll(nurseUser, [UserRole.CLIENT], defaultQuery)
+      ).resolves.toBeDefined();
     });
 
     it("should forbid client from requesting CLIENT role", async () => {
-      await expect(service.findAll(clientUser, [UserRole.CLIENT], defaultQuery)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findAll(clientUser, [UserRole.CLIENT], defaultQuery)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should filter by search term on firstName and lastName", async () => {
       repository.findAndCount.mockResolvedValue([[mockUser], 1]);
 
-      const result = await service.findAll(doctorUser, [UserRole.CLIENT], defaultQuery, "John");
+      const result = await service.findAll(
+        doctorUser,
+        [UserRole.CLIENT],
+        defaultQuery,
+        "John"
+      );
 
       expect(result).toEqual({ items: [mockUser], total: 1 });
       expect(repository.findAndCount).toHaveBeenCalledWith(
@@ -215,7 +255,9 @@ describe("UserService", () => {
     it("should throw NotFoundException when user not found", async () => {
       repository.findOneBy.mockResolvedValue(null);
 
-      await expect(service.findById("non-existent-id")).rejects.toThrow(NotFoundException);
+      await expect(service.findById("non-existent-id")).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("should throw NotFoundException with USER_NOT_FOUND error code", async () => {
@@ -235,7 +277,9 @@ describe("UserService", () => {
     it("should throw InternalServerErrorException when repository throws", async () => {
       repository.findOneBy.mockRejectedValue(new Error("DB error"));
 
-      await expect(service.findById(mockUser.id)).rejects.toThrow(InternalServerErrorException);
+      await expect(service.findById(mockUser.id)).rejects.toThrow(
+        InternalServerErrorException
+      );
     });
   });
 
@@ -301,7 +345,9 @@ describe("UserService", () => {
     // --- Role constraint tests ---
 
     it("should allow public (no auth) to create CLIENT", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue({
         ...clientDto,
         id: "new-id",
@@ -317,23 +363,33 @@ describe("UserService", () => {
     });
 
     it("should forbid public (no auth) from creating DOCTOR", async () => {
-      await expect(service.create(doctorDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(doctorDto)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it("should forbid public (no auth) from creating NURSE", async () => {
-      await expect(service.create(nurseDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(nurseDto)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it("should forbid public (no auth) from creating ADMIN", async () => {
-      await expect(service.create(adminDto)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(adminDto)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it("should forbid ADMIN from creating CLIENT", async () => {
-      await expect(service.create(clientDto, adminUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(clientDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it("should allow ADMIN to create DOCTOR", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue({
         ...doctorDto,
         id: "new-id",
@@ -349,7 +405,9 @@ describe("UserService", () => {
     });
 
     it("should allow ADMIN to create NURSE", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue({
         ...nurseDto,
         id: "new-id",
@@ -365,7 +423,9 @@ describe("UserService", () => {
     });
 
     it("should forbid ADMIN from creating ADMIN", async () => {
-      await expect(service.create(adminDto, adminUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(adminDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     it("should require password when ADMIN creates DOCTOR", async () => {
@@ -376,7 +436,9 @@ describe("UserService", () => {
         role: UserRole.DOCTOR,
       } as CreateUserDto;
 
-      await expect(service.create(doctorNoPassword, adminUser)).rejects.toThrow(BadRequestException);
+      await expect(service.create(doctorNoPassword, adminUser)).rejects.toThrow(
+        BadRequestException
+      );
     });
 
     it("should allow DOCTOR to create CLIENT without password", async () => {
@@ -401,15 +463,21 @@ describe("UserService", () => {
         password: null,
       } as UserEntity);
 
-      await expect(service.create(clientNoPassword, doctorUser)).resolves.toBeDefined();
+      await expect(
+        service.create(clientNoPassword, doctorUser)
+      ).resolves.toBeDefined();
     });
 
     it("should forbid DOCTOR from creating CLIENT with password", async () => {
-      await expect(service.create(clientDto, doctorUser)).rejects.toThrow(BadRequestException);
+      await expect(service.create(clientDto, doctorUser)).rejects.toThrow(
+        BadRequestException
+      );
     });
 
     it("should forbid DOCTOR from creating DOCTOR", async () => {
-      await expect(service.create(doctorDto, doctorUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.create(doctorDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
     });
 
     // --- Existing behavior tests ---
@@ -439,7 +507,10 @@ describe("UserService", () => {
       const result = await service.create(passwordlessDto, doctorUser);
 
       expect(result.password).toBeNull();
-      expect(mockTransactionManager.create).toHaveBeenCalledWith(UserEntity, expect.objectContaining({ password: undefined }));
+      expect(mockTransactionManager.create).toHaveBeenCalledWith(
+        UserEntity,
+        expect.objectContaining({ password: undefined })
+      );
     });
 
     it("should require password for public self-registration", async () => {
@@ -450,7 +521,9 @@ describe("UserService", () => {
         role: UserRole.CLIENT,
       } as CreateUserDto;
 
-      await expect(service.create(noPasswordDto)).rejects.toThrow(BadRequestException);
+      await expect(service.create(noPasswordDto)).rejects.toThrow(
+        BadRequestException
+      );
     });
 
     it("should hash the password before saving", async () => {
@@ -476,13 +549,23 @@ describe("UserService", () => {
     it("should not store the plaintext password", async () => {
       const hashSpy = jest.spyOn(bcrypt, "hash") as jest.Mock;
       hashSpy.mockResolvedValue("bcrypt-hashed");
-      mockTransactionManager.create.mockImplementation((_entity, data) => data as UserEntity);
-      mockTransactionManager.save.mockImplementation((entity) => Promise.resolve({ ...entity, id: "new-id" } as UserEntity));
+      mockTransactionManager.create.mockImplementation(
+        (_entity, data) => data as UserEntity
+      );
+      mockTransactionManager.save.mockImplementation((entity) =>
+        Promise.resolve({ ...entity, id: "new-id" } as UserEntity)
+      );
 
       await service.create(clientDto);
 
-      expect(mockTransactionManager.create).toHaveBeenCalledWith(UserEntity, expect.objectContaining({ password: "bcrypt-hashed" }));
-      expect(mockTransactionManager.create).not.toHaveBeenCalledWith(UserEntity, expect.objectContaining({ password: clientDto.password }));
+      expect(mockTransactionManager.create).toHaveBeenCalledWith(
+        UserEntity,
+        expect.objectContaining({ password: "bcrypt-hashed" })
+      );
+      expect(mockTransactionManager.create).not.toHaveBeenCalledWith(
+        UserEntity,
+        expect.objectContaining({ password: clientDto.password })
+      );
       hashSpy.mockRestore();
     });
 
@@ -492,7 +575,9 @@ describe("UserService", () => {
         id: "new-id",
         password: "hashed",
       } as UserEntity;
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue(saved);
       mockTransactionManager.save.mockResolvedValue(saved);
 
@@ -502,7 +587,9 @@ describe("UserService", () => {
     });
 
     it("should create patient entity when creating CLIENT user", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       const savedUser = {
         ...clientDto,
         id: "new-id",
@@ -513,17 +600,22 @@ describe("UserService", () => {
 
       await service.create(clientDto);
 
-      expect(mockTransactionManager.create).toHaveBeenCalledWith(PatientEntity, {
-        userId: "new-id",
-        birthNumber: clientDto.birthNumber,
-        birthdate: clientDto.birthdate,
-        phone: clientDto.phone,
-      });
+      expect(mockTransactionManager.create).toHaveBeenCalledWith(
+        PatientEntity,
+        {
+          userId: "new-id",
+          birthNumber: clientDto.birthNumber,
+          birthdate: clientDto.birthdate,
+          phone: clientDto.phone,
+        }
+      );
       expect(mockTransactionManager.save).toHaveBeenCalledTimes(2);
     });
 
     it("should not create patient when creating DOCTOR user", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue({
         ...doctorDto,
         id: "new-id",
@@ -538,11 +630,16 @@ describe("UserService", () => {
       await service.create(doctorDto, adminUser);
 
       expect(mockTransactionManager.create).toHaveBeenCalledTimes(1);
-      expect(mockTransactionManager.create).toHaveBeenCalledWith(UserEntity, expect.anything());
+      expect(mockTransactionManager.create).toHaveBeenCalledWith(
+        UserEntity,
+        expect.anything()
+      );
     });
 
     it("should use transaction for user and patient creation", async () => {
-      jest.spyOn(bcrypt, "hash").mockImplementation(() => Promise.resolve("hashed"));
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
       mockTransactionManager.create.mockReturnValue({
         ...clientDto,
         id: "new-id",
@@ -562,7 +659,9 @@ describe("UserService", () => {
     it("should throw ConflictException when email already exists", async () => {
       repository.findOneBy.mockResolvedValue(mockUser);
 
-      await expect(service.create(clientDto)).rejects.toThrow(ConflictException);
+      await expect(service.create(clientDto)).rejects.toThrow(
+        ConflictException
+      );
     });
   });
 
@@ -587,7 +686,9 @@ describe("UserService", () => {
     });
 
     it("should forbid admin from deleting own account", async () => {
-      await expect(service.remove(adminUser.id, adminUser)).rejects.toThrow(BadRequestException);
+      await expect(service.remove(adminUser.id, adminUser)).rejects.toThrow(
+        BadRequestException
+      );
     });
 
     it("should allow non-admin to delete own account", async () => {
@@ -599,7 +700,9 @@ describe("UserService", () => {
     });
 
     it("should forbid non-admin from deleting another user", async () => {
-      await expect(service.remove("other-user-id", doctorUser)).rejects.toThrow(ForbiddenException);
+      await expect(service.remove("other-user-id", doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
     });
   });
 });

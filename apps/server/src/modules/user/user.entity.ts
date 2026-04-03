@@ -1,4 +1,11 @@
-import { Column, Entity, Index, ManyToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from "typeorm";
 import { UserRole } from "@clinio/shared";
 import { OfficeEntity } from "../office/office.entity";
 

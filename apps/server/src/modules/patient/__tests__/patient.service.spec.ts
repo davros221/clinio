@@ -92,7 +92,10 @@ describe("PatientService", () => {
       const result = await service.findAll(defaultQuery);
 
       expect(result).toEqual({ items: [mockPatient], total: 1 });
-      expect(mockQb.innerJoinAndSelect).toHaveBeenCalledWith("patient.user", "user");
+      expect(mockQb.innerJoinAndSelect).toHaveBeenCalledWith(
+        "patient.user",
+        "user"
+      );
       expect(mockQb.orderBy).toHaveBeenCalledWith("user.lastName", "ASC");
       expect(mockQb.skip).toHaveBeenCalledWith(0);
       expect(mockQb.take).toHaveBeenCalledWith(20);
@@ -104,7 +107,10 @@ describe("PatientService", () => {
 
       await service.findAll(defaultQuery, "Jan");
 
-      expect(mockQb.where).toHaveBeenCalledWith("user.firstName ILIKE :search OR user.lastName ILIKE :search", { search: "%Jan%" });
+      expect(mockQb.where).toHaveBeenCalledWith(
+        "user.firstName ILIKE :search OR user.lastName ILIKE :search",
+        { search: "%Jan%" }
+      );
     });
 
     it("should not apply search filter when search is undefined", async () => {
@@ -120,7 +126,11 @@ describe("PatientService", () => {
       const mockQb = createMockQueryBuilder([[], 0]);
       repository.createQueryBuilder.mockReturnValue(mockQb as never);
 
-      await service.findAll({ ...defaultQuery, sortBy: PatientSortField.BIRTHDATE, sortOrder: SortOrder.DESC });
+      await service.findAll({
+        ...defaultQuery,
+        sortBy: PatientSortField.BIRTHDATE,
+        sortOrder: SortOrder.DESC,
+      });
 
       expect(mockQb.orderBy).toHaveBeenCalledWith("patient.birthdate", "DESC");
     });
@@ -161,7 +171,9 @@ describe("PatientService", () => {
 
     it("should forbid client from accessing another patient record", async () => {
       repository.findOne.mockResolvedValue(mockPatient);
-      await expect(service.findById(mockPatient.id, otherClientUser)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.findById(mockPatient.id, otherClientUser)
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -173,10 +185,16 @@ describe("PatientService", () => {
       repository.findOne.mockResolvedValue(mockPatient);
       repository.save.mockResolvedValue(updatedPatient);
 
-      const result = await service.update(mockPatient.id, updateDto, doctorUser);
+      const result = await service.update(
+        mockPatient.id,
+        updateDto,
+        doctorUser
+      );
 
       expect(result).toEqual(updatedPatient);
-      expect(repository.save).toHaveBeenCalledWith(expect.objectContaining({ phone: "+420999888777" }));
+      expect(repository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ phone: "+420999888777" })
+      );
     });
 
     it("should allow client to update own patient record", async () => {
@@ -186,13 +204,19 @@ describe("PatientService", () => {
       repository.findOne.mockResolvedValue(mockPatient);
       repository.save.mockResolvedValue(updatedPatient);
 
-      const result = await service.update(mockPatient.id, updateDto, clientUser);
+      const result = await service.update(
+        mockPatient.id,
+        updateDto,
+        clientUser
+      );
       expect(result).toEqual(updatedPatient);
     });
 
     it("should forbid client from updating another patient record", async () => {
       repository.findOne.mockResolvedValue(mockPatient);
-      await expect(service.update(mockPatient.id, { phone: "+420111" }, otherClientUser)).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.update(mockPatient.id, { phone: "+420111" }, otherClientUser)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should throw an error if updating a non-existent patient", async () => {
