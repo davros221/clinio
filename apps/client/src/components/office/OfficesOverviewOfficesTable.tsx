@@ -4,7 +4,7 @@ import {
   OfficeHoursInterval,
   OfficeHoursTemplateDto,
 } from "@clinio/api";
-import { memo, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
   useDeleteOfficeMutation,
   useGetOfficeListQuery,
@@ -101,80 +101,78 @@ function OfficeActionCell({
   );
 }
 
-export const OfficesOverviewOfficesTable = memo(
-  function OfficesOverviewOfficesTable() {
-    const t = useT();
-    const {
-      data: offices = [],
-      isLoading,
-      isError,
-      error,
-    } = useGetOfficeListQuery();
-    const { mutate: deleteOffice } = useDeleteOfficeMutation();
+export function OfficesOverviewOfficesTable() {
+  const t = useT();
+  const {
+    data: offices = [],
+    isLoading,
+    isError,
+    error,
+  } = useGetOfficeListQuery();
+  const { mutate: deleteOffice } = useDeleteOfficeMutation();
 
-    const handleDelete = useCallback(
-      (id: string) => {
-        modals.openConfirmModal({
-          title: t("office.deleteModal.title"),
-          centered: true,
-          children: <Text size="sm">{t("office.deleteModal.message")}</Text>,
-          labels: {
-            confirm: t("office.deleteModal.confirm"),
-            cancel: t("office.deleteModal.cancel"),
-          },
-          confirmProps: { color: "red" },
-          onConfirm: () => deleteOffice({ path: { id } }),
-        });
+  const handleDelete = useCallback(
+    (id: string) => {
+      modals.openConfirmModal({
+        title: t("office.deleteModal.title"),
+        centered: true,
+        children: <Text size="sm">{t("office.deleteModal.message")}</Text>,
+        labels: {
+          confirm: t("office.deleteModal.confirm"),
+          cancel: t("office.deleteModal.cancel"),
+        },
+        confirmProps: { color: "red" },
+        onConfirm: () => deleteOffice({ path: { id } }),
+      });
+    },
+    [t, deleteOffice]
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        key: "action",
+        header: t("office.overview.officesListHeader.action"),
+        style: TOP_ALIGN_LEFT,
+        render: ({ id }: Office) => (
+          <OfficeActionCell id={id} onDelete={handleDelete} />
+        ),
       },
-      [t, deleteOffice]
-    );
+      {
+        key: "name",
+        header: t("office.overview.officesListHeader.name"),
+        style: TOP_ALIGN_LEFT,
+      },
+      {
+        key: "specialization",
+        header: t("office.overview.officesListHeader.specialization"),
+        style: TOP_ALIGN_LEFT,
+      },
+      {
+        key: "address",
+        header: t("office.overview.officesListHeader.address"),
+        style: TOP_ALIGN_LEFT,
+      },
+      {
+        key: "officeHours",
+        header: t("office.overview.officesListHeader.officeHours"),
+        render: (row: Office) => (
+          <OfficeHoursCell template={row.officeHoursTemplate} />
+        ),
+      },
+    ],
+    [t, handleDelete]
+  );
 
-    const columns = useMemo(
-      () => [
-        {
-          key: "action",
-          header: t("office.overview.officesListHeader.action"),
-          style: TOP_ALIGN_LEFT,
-          render: ({ id }: Office) => (
-            <OfficeActionCell id={id} onDelete={handleDelete} />
-          ),
-        },
-        {
-          key: "name",
-          header: t("office.overview.officesListHeader.name"),
-          style: TOP_ALIGN_LEFT,
-        },
-        {
-          key: "specialization",
-          header: t("office.overview.officesListHeader.specialization"),
-          style: TOP_ALIGN_LEFT,
-        },
-        {
-          key: "address",
-          header: t("office.overview.officesListHeader.address"),
-          style: TOP_ALIGN_LEFT,
-        },
-        {
-          key: "officeHours",
-          header: t("office.overview.officesListHeader.officeHours"),
-          render: (row: Office) => (
-            <OfficeHoursCell template={row.officeHoursTemplate} />
-          ),
-        },
-      ],
-      [t, handleDelete]
-    );
-
-    return (
-      <DataTable<Office>
-        data={offices}
-        keyExtractor={(row) => row.id}
-        isLoading={isLoading}
-        isError={isError}
-        error={error}
-        columns={columns}
-        highlightOnHover={false}
-      />
-    );
-  }
-);
+  return (
+    <DataTable<Office>
+      data={offices}
+      keyExtractor={(row) => row.id}
+      isLoading={isLoading}
+      isError={isError}
+      error={error}
+      columns={columns}
+      highlightOnHover={false}
+    />
+  );
+}

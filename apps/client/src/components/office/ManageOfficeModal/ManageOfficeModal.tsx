@@ -18,15 +18,13 @@ import {
   useUpdateOfficeMutation,
 } from "../../../api/officeService.ts";
 import { CreateOfficeDto, Office } from "@clinio/api";
-import {
-  ManageOfficeModalDayRow,
-  type HourValue,
-} from "./ManageOfficeModalDayRow.tsx";
+import { ManageOfficeModalDayRow } from "./ManageOfficeModalDayRow.tsx";
 import { useT } from "../../../hooks/useT";
 import { ParseKeys } from "i18next";
 import {
   ManageOfficeFormProvider,
   useManageOfficeForm,
+  DEFAULT_INTERVAL,
   type DayEntryType,
   type ManageOfficeFormValues,
 } from "./ManageOfficeFormContext";
@@ -34,12 +32,7 @@ import {
 type PropsType = {
   opened: boolean;
   onClose: () => void;
-  office?: Office | null; // If provided, we are in Edit mode
-};
-
-const DEFAULT_INTERVAL = {
-  from: "08:00" as HourValue,
-  to: "16:00" as HourValue,
+  office?: Office | null;
 };
 
 const INITIAL_DAYS: DayEntryType[] = WEEK_DAYS.map((day) => ({
@@ -83,22 +76,22 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       days: {
         intervals: {
           from: (
-            value: HourValue,
+            value: number | null,
             values: ManageOfficeFormValues,
             path: string
           ) => {
             const dayIndex = Number(path.split(".")[1]);
-            return values.days[dayIndex].checked && !value
+            return values.days[dayIndex].checked && value == null
               ? t("common.validation.required")
               : null;
           },
           to: (
-            value: HourValue,
+            value: number | null,
             values: ManageOfficeFormValues,
             path: string
           ) => {
             const dayIndex = Number(path.split(".")[1]);
-            return values.days[dayIndex].checked && !value
+            return values.days[dayIndex].checked && value == null
               ? t("common.validation.required")
               : null;
           },
@@ -108,7 +101,6 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   });
 
   // Populate form when office data arrives or modal opens for editing
-  // form is intentionally omitted from deps — it's a stable ref from useForm
   useEffect(() => {
     if (office && opened) {
       const hours = office.officeHoursTemplate as Record<
@@ -121,19 +113,15 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
         const dayIntervals = hours?.[key] ?? [];
 
         if (dayIntervals.length === 0) {
-          return {
-            key,
-            checked: false,
-            intervals: [{ from: null as HourValue, to: null as HourValue }],
-          };
+          return { key, checked: false, intervals: [{ from: null, to: null }] };
         }
 
         return {
           key,
           checked: true,
           intervals: dayIntervals.map((slot) => ({
-            from: `${slot.from.toString().padStart(2, "0")}:00` as HourValue,
-            to: `${slot.to.toString().padStart(2, "0")}:00` as HourValue,
+            from: slot.from,
+            to: slot.to,
           })),
         };
       });
@@ -193,19 +181,15 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   );
 
   const handleSubmit = ({ days, ...rest }: ManageOfficeFormValues) => {
-    const parseHourToInt = (hour: HourValue) =>
-      hour ? parseInt(hour.split(":")[0]) : 0;
-
+    // Values are already numbers — just filter unchecked/empty and build the DTO
     const officeHoursTemplate = Object.fromEntries(
       days.map(({ key, checked, intervals }) => [
         key,
         checked
-          ? intervals
-              .filter(({ from, to }) => from && to)
-              .map(({ from, to }) => ({
-                from: parseHourToInt(from),
-                to: parseHourToInt(to),
-              }))
+          ? intervals.filter(
+              (i): i is { from: number; to: number } =>
+                i.from != null && i.to != null
+            )
           : [],
       ])
     ) as CreateOfficeDto["officeHoursTemplate"];

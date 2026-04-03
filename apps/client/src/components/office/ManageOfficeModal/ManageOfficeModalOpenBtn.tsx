@@ -43,7 +43,9 @@ export function ManageOfficeModalOpenBtn({ officeId }: PropsType) {
         {openBtnText}
       </Button>
 
-      <ManageOfficeModal opened={opened} onClose={close} office={office} />
+      {opened && (
+        <ManageOfficeModal opened={opened} onClose={close} office={office} />
+      )}
     </>
   );
 }
