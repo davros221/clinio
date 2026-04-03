@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  Unique,
-} from "typeorm";
+import { Column, Entity, Index, ManyToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { UserRole } from "@clinio/shared";
 import { OfficeEntity } from "../office/office.entity";
 
@@ -19,8 +12,8 @@ export class UserEntity {
   @Column()
   email!: string;
 
-  @Column()
-  password!: string;
+  @Column({ nullable: true, type: "varchar" })
+  password?: string | null;
 
   @Column()
   firstName!: string;

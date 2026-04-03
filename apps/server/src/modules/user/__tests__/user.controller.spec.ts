@@ -35,12 +35,7 @@ const mockUserService = () => ({
 
 describe("UserController", () => {
   let controller: UserController;
-  let service: jest.Mocked<
-    Pick<
-      UserService,
-      "findAll" | "findById" | "findByEmail" | "create" | "remove"
-    >
-  >;
+  let service: jest.Mocked<Pick<UserService, "findAll" | "findById" | "findByEmail" | "create" | "remove">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -77,12 +72,7 @@ describe("UserController", () => {
         limit: 20,
         totalPages: 1,
       });
-      expect(service.findAll).toHaveBeenCalledWith(
-        mockAdmin,
-        [UserRole.DOCTOR],
-        defaultQuery,
-        undefined
-      );
+      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [UserRole.DOCTOR], defaultQuery, undefined);
     });
 
     it("should return empty items when no users exist", async () => {
@@ -100,12 +90,7 @@ describe("UserController", () => {
 
       await controller.getAll(mockAdmin, [UserRole.DOCTOR, UserRole.NURSE]);
 
-      expect(service.findAll).toHaveBeenCalledWith(
-        mockAdmin,
-        [UserRole.DOCTOR, UserRole.NURSE],
-        defaultQuery,
-        undefined
-      );
+      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [UserRole.DOCTOR, UserRole.NURSE], defaultQuery, undefined);
     });
 
     it("should normalize single role to array", async () => {
@@ -113,12 +98,7 @@ describe("UserController", () => {
 
       await controller.getAll(mockAdmin, UserRole.NURSE);
 
-      expect(service.findAll).toHaveBeenCalledWith(
-        mockAdmin,
-        [UserRole.NURSE],
-        defaultQuery,
-        undefined
-      );
+      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [UserRole.NURSE], defaultQuery, undefined);
     });
 
     it("should pass search param to service", async () => {
@@ -126,26 +106,13 @@ describe("UserController", () => {
 
       await controller.getAll(mockAdmin, [UserRole.DOCTOR], "John");
 
-      expect(service.findAll).toHaveBeenCalledWith(
-        mockAdmin,
-        [UserRole.DOCTOR],
-        defaultQuery,
-        "John"
-      );
+      expect(service.findAll).toHaveBeenCalledWith(mockAdmin, [UserRole.DOCTOR], defaultQuery, "John");
     });
 
     it("should pass pagination and sorting params to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockUser], total: 1 });
 
-      await controller.getAll(
-        mockAdmin,
-        [UserRole.DOCTOR],
-        undefined,
-        "2",
-        "10",
-        UserSortField.EMAIL,
-        SortOrder.DESC
-      );
+      await controller.getAll(mockAdmin, [UserRole.DOCTOR], undefined, "2", "10", UserSortField.EMAIL, SortOrder.DESC);
 
       expect(service.findAll).toHaveBeenCalledWith(
         mockAdmin,
@@ -163,27 +130,17 @@ describe("UserController", () => {
     it("should calculate totalPages correctly", async () => {
       service.findAll.mockResolvedValue({ items: [mockUser], total: 45 });
 
-      const result = await controller.getAll(
-        mockAdmin,
-        [UserRole.DOCTOR],
-        undefined,
-        "1",
-        "20"
-      );
+      const result = await controller.getAll(mockAdmin, [UserRole.DOCTOR], undefined, "1", "20");
 
       expect(result.totalPages).toBe(3);
     });
 
     it("should throw BadRequestException when role param is missing", async () => {
-      await expect(controller.getAll(mockAdmin, undefined)).rejects.toThrow(
-        BadRequestException
-      );
+      await expect(controller.getAll(mockAdmin, undefined)).rejects.toThrow(BadRequestException);
     });
 
     it("should throw BadRequestException for invalid role value", async () => {
-      await expect(
-        controller.getAll(mockAdmin, "INVALID" as UserRole)
-      ).rejects.toThrow(BadRequestException);
+      await expect(controller.getAll(mockAdmin, "INVALID" as UserRole)).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -236,12 +193,12 @@ describe("UserController", () => {
   });
 
   describe("delete", () => {
-    it("should call service.remove with id", async () => {
+    it("should call service.remove with id and currentUser", async () => {
       service.remove.mockResolvedValue(undefined);
 
-      await controller.delete(mockUser.id);
+      await controller.delete(mockAdmin, mockUser.id);
 
-      expect(service.remove).toHaveBeenCalledWith(mockUser.id);
+      expect(service.remove).toHaveBeenCalledWith(mockUser.id, mockAdmin);
     });
   });
 });

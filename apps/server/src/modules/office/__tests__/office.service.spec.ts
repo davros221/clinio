@@ -1,19 +1,11 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
 import { UserEntity } from "../../user/user.entity";
-import {
-  ErrorCode,
-  UserRole,
-  OfficeSortField,
-  SortOrder,
-} from "@clinio/shared";
+import { ErrorCode, UserRole, OfficeSortField, SortOrder } from "@clinio/shared";
 import { CreateOfficeDto } from "../dto/create-office.dto";
 import { UpdateOfficeDto } from "../dto/update-office.dto";
 
@@ -65,12 +57,7 @@ const mockUserRepository = () => ({
 
 describe("OfficeService", () => {
   let service: OfficeService;
-  let officeRepository: jest.Mocked<
-    Pick<
-      Repository<OfficeEntity>,
-      "find" | "findAndCount" | "findOne" | "create" | "save" | "delete"
-    >
-  >;
+  let officeRepository: jest.Mocked<Pick<Repository<OfficeEntity>, "find" | "findAndCount" | "findOne" | "create" | "save" | "delete">>;
   let userRepository: jest.Mocked<Pick<Repository<UserEntity>, "findBy">>;
 
   beforeEach(async () => {
@@ -114,9 +101,7 @@ describe("OfficeService", () => {
 
       await service.findAll({ ...defaultQuery, page: 2 });
 
-      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 20, take: 20 })
-      );
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ skip: 20, take: 20 }));
     });
 
     it("should apply sorting parameters", async () => {
@@ -128,9 +113,7 @@ describe("OfficeService", () => {
         sortOrder: SortOrder.DESC,
       });
 
-      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ order: { specialization: "DESC" } })
-      );
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ order: { specialization: "DESC" } }));
     });
 
     it("should search by name and specialization when search provided", async () => {
@@ -140,10 +123,7 @@ describe("OfficeService", () => {
 
       expect(officeRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: [
-            { name: expect.anything() },
-            { specialization: expect.anything() },
-          ],
+          where: [{ name: expect.anything() }, { specialization: expect.anything() }],
         })
       );
     });
@@ -153,9 +133,7 @@ describe("OfficeService", () => {
 
       await service.findAll(defaultQuery);
 
-      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ where: {} })
-      );
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
     });
   });
 
@@ -175,9 +153,7 @@ describe("OfficeService", () => {
     it("should throw NotFoundException when office not found", async () => {
       officeRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.findById("non-existent-id")).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.findById("non-existent-id")).rejects.toThrow(NotFoundException);
     });
 
     it("should throw NotFoundException with OFFICE_NOT_FOUND error code", async () => {
@@ -202,9 +178,7 @@ describe("OfficeService", () => {
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(
-          (error as InternalServerErrorException).getResponse()
-        ).toMatchObject({
+        expect((error as InternalServerErrorException).getResponse()).toMatchObject({
           errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
         });
       }
@@ -318,17 +292,13 @@ describe("OfficeService", () => {
       await service.replace(mockOffice.id, { ...replaceDto, staffIds: [] });
 
       expect(userRepository.findBy).not.toHaveBeenCalled();
-      expect(officeRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining({ staff: [] })
-      );
+      expect(officeRepository.save).toHaveBeenCalledWith(expect.objectContaining({ staff: [] }));
     });
 
     it("should throw NotFoundException when office not found", async () => {
       officeRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.replace("non-existent-id", replaceDto)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.replace("non-existent-id", replaceDto)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -384,9 +354,7 @@ describe("OfficeService", () => {
     it("should throw NotFoundException when office not found", async () => {
       officeRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.update("non-existent-id", updateDto)
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.update("non-existent-id", updateDto)).rejects.toThrow(NotFoundException);
     });
   });
 

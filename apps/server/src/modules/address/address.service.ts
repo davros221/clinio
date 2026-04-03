@@ -12,10 +12,7 @@ export class AddressService {
   private readonly logger = new Logger(AddressService.name);
   private readonly apiKey: string;
 
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService
-  ) {
+  constructor(private readonly httpService: HttpService, private readonly configService: ConfigService) {
     this.apiKey = this.configService.getOrThrow<string>("ruian.api");
   }
 
@@ -38,11 +35,7 @@ export class AddressService {
       );
       return response.data;
     } catch (error: any) {
-      this.logger.error(
-        `Mapy.cz suggest failed: ${error?.response?.status} ${JSON.stringify(
-          error?.response?.data
-        )}`
-      );
+      this.logger.error(`Mapy.cz suggest failed: ${error?.response?.status} ${JSON.stringify(error?.response?.data)}`);
       throw internalError();
     }
   }

@@ -1,10 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { addDays, startOfWeek } from "date-fns";
-import {
-  CalendarAppointment,
-  CalendarDay,
-  CalendarHourState,
-} from "./dto/calendar.dto";
+import { CalendarAppointment, CalendarDay, CalendarHourState } from "./dto/calendar.dto";
 import { AppointmentService } from "../appointment/appointment.service";
 import { AppointmentEntity } from "../appointment/appointment.entity";
 
@@ -38,9 +34,7 @@ export class CalendarService {
     return appointmentMap;
   }
 
-  private mapAppointmentToCalendarAppointment(
-    appointment?: AppointmentEntity
-  ): CalendarAppointment | undefined {
+  private mapAppointmentToCalendarAppointment(appointment?: AppointmentEntity): CalendarAppointment | undefined {
     if (!appointment) return undefined;
     return {
       // ToDO: DRO - when patient module ready, add patient
@@ -52,14 +46,14 @@ export class CalendarService {
     };
   }
 
-  async getWeek(date: Date): Promise<CalendarDay[]> {
+  async getWeek(officeId: string, date: Date): Promise<CalendarDay[]> {
     const monday = startOfWeek(date, { weekStartsOn: 1 });
     const dayLength = this.endingHour - this.startingHour;
 
-    const appointments = await this.appointmentService.findAll();
+    const appointments = await this.appointmentService.findByOfficeAndWeek(officeId, monday);
     const appointmentMap = this.mapAppointments(appointments);
 
-    const days: CalendarDay[] = Array.from({ length: 7 }, (_, i) => {
+    return Array.from({ length: 7 }, (_, i) => {
       const currentDate = addDays(monday, i);
       const dateStr = this.formatDate(currentDate);
 
@@ -71,21 +65,15 @@ export class CalendarService {
           const hour = j + this.startingHour;
           const key = this.buildKey(dateStr, hour);
           const currentHourAppointment = appointmentMap.get(key);
-          const state = currentHourAppointment
-            ? CalendarHourState.BOOKED
-            : CalendarHourState.AVAILABLE;
+          const state = currentHourAppointment ? CalendarHourState.BOOKED : CalendarHourState.AVAILABLE;
 
           return {
             hour,
             state,
-            appointment: this.mapAppointmentToCalendarAppointment(
-              currentHourAppointment
-            ),
+            appointment: this.mapAppointmentToCalendarAppointment(currentHourAppointment),
           };
         }),
       };
     });
-
-    return days;
   }
 }

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { UserEntity } from "../user/user.entity";
 
 @Entity("patients")
 export class PatientEntity {
@@ -6,10 +7,11 @@ export class PatientEntity {
   id!: string;
 
   @Column()
-  firstName!: string;
+  userId!: string;
 
-  @Column()
-  lastName!: string;
+  @ManyToOne(() => UserEntity, { eager: true, onDelete: "CASCADE" })
+  @JoinColumn({ name: "userId" })
+  user!: UserEntity;
 
   @Column()
   birthNumber!: string;
@@ -19,7 +21,4 @@ export class PatientEntity {
 
   @Column()
   phone!: string;
-
-  @Column()
-  email!: string;
 }

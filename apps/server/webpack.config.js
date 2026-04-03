@@ -12,10 +12,7 @@ module.exports = {
   },
   externals: [
     function ({ request }, callback) {
-      if (
-        request === "swagger-ui-dist" ||
-        (request && request.startsWith("swagger-ui-dist/"))
-      ) {
+      if (request === "swagger-ui-dist" || (request && request.startsWith("swagger-ui-dist/"))) {
         return callback(null, "commonjs " + request);
       }
       callback();

@@ -5,10 +5,7 @@
 ```typescript
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { UserService } from "../user.service";
 import { UserEntity } from "../user.entity";
@@ -33,12 +30,7 @@ const mockRepository = () => ({
 
 describe("UserService", () => {
   let service: UserService;
-  let repository: jest.Mocked<
-    Pick<
-      Repository<UserEntity>,
-      "find" | "findOneBy" | "create" | "save" | "delete"
-    >
-  >;
+  let repository: jest.Mocked<Pick<Repository<UserEntity>, "find" | "findOneBy" | "create" | "save" | "delete">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -73,9 +65,7 @@ describe("UserService", () => {
 
     it("should throw NotFoundException when not found", async () => {
       repository.findOneBy.mockResolvedValue(null);
-      await expect(service.findById("non-existent-id")).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(service.findById("non-existent-id")).rejects.toThrow(NotFoundException);
     });
 
     it("should throw NotFoundException with correct error code", async () => {
@@ -93,9 +83,7 @@ describe("UserService", () => {
 
     it("should throw InternalServerErrorException when repository throws", async () => {
       repository.findOneBy.mockRejectedValue(new Error("DB error"));
-      await expect(service.findById(mockUser.id)).rejects.toThrow(
-        InternalServerErrorException
-      );
+      await expect(service.findById(mockUser.id)).rejects.toThrow(InternalServerErrorException);
     });
   });
 });
@@ -131,9 +119,7 @@ const mockUserService = () => ({
 
 describe("UserController", () => {
   let controller: UserController;
-  let service: jest.Mocked<
-    Pick<UserService, "findAll" | "findById" | "create" | "remove">
-  >;
+  let service: jest.Mocked<Pick<UserService, "findAll" | "findById" | "create" | "remove">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

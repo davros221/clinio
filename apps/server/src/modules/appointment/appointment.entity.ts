@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-  ManyToOne,
-  JoinColumn,
-  PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, Index, ManyToOne, JoinColumn, PrimaryGeneratedColumn } from "typeorm";
 import { AppointmentStatus } from "@clinio/shared";
 import { OfficeEntity } from "../office/office.entity";
 

@@ -4,15 +4,38 @@ import { PatientService } from "../patient.service";
 import { PatientMapper } from "../mapper/PatientMapper";
 import { PatientEntity } from "../patient.entity";
 import { UpdatePatientDto } from "../dto/update-patient.dto";
+import { UserEntity } from "../../user/user.entity";
+import { UserRole } from "@clinio/shared";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
+
+const mockUser: UserEntity = {
+  id: "user-uuid-0001",
+  email: "jan.novak@example.com",
+  password: null,
+  firstName: "Jan",
+  lastName: "Novák",
+  role: UserRole.CLIENT,
+};
 
 const mockPatient: PatientEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  firstName: "Jan",
-  lastName: "Novák",
+  userId: mockUser.id,
+  user: mockUser,
   birthNumber: "900101/1234",
   birthdate: new Date("1990-01-01"),
   phone: "+420123456789",
-  email: "jan.novak@example.com",
+};
+
+const clientUser: AuthUser = {
+  id: mockUser.id,
+  email: mockUser.email,
+  role: UserRole.CLIENT,
+};
+
+const doctorUser: AuthUser = {
+  id: "doctor-uuid-0001",
+  email: "doctor@example.com",
+  role: UserRole.DOCTOR,
 };
 
 describe("PatientController", () => {
@@ -26,10 +49,9 @@ describe("PatientController", () => {
         {
           provide: PatientService,
           useValue: {
+            findAll: jest.fn(),
             findById: jest.fn(),
-            create: jest.fn(),
             update: jest.fn(),
-            delete: jest.fn(),
           },
         },
       ],
@@ -42,20 +64,12 @@ describe("PatientController", () => {
   describe("getById", () => {
     it("should return mapped patient DTO", async () => {
       service.findById.mockResolvedValue(mockPatient);
-      const result = await controller.getById(mockPatient.id);
+      const result = await controller.getById(doctorUser, mockPatient.id);
       expect(result).toEqual(PatientMapper.toDto(mockPatient));
+      expect(service.findById).toHaveBeenCalledWith(mockPatient.id, doctorUser);
     });
   });
 
-  describe("create", () => {
-    it("should create and return mapped DTO", async () => {
-      service.create.mockResolvedValue(mockPatient);
-      const result = await controller.create(mockPatient as any);
-      expect(result).toEqual(PatientMapper.toDto(mockPatient));
-    });
-  });
-
-  // ADDED: Update test block
   describe("update", () => {
     it("should update patient and return mapped DTO", async () => {
       const updateDto: UpdatePatientDto = { phone: "+420987654321" };
@@ -63,18 +77,10 @@ describe("PatientController", () => {
 
       service.update.mockResolvedValue(updatedEntity);
 
-      const result = await controller.update(mockPatient.id, updateDto);
+      const result = await controller.update(clientUser, mockPatient.id, updateDto);
 
       expect(result).toEqual(PatientMapper.toDto(updatedEntity));
-      expect(service.update).toHaveBeenCalledWith(mockPatient.id, updateDto);
-    });
-  });
-
-  describe("delete", () => {
-    it("should call service delete", async () => {
-      service.delete.mockResolvedValue(undefined);
-      await controller.delete(mockPatient.id);
-      expect(service.delete).toHaveBeenCalledWith(mockPatient.id);
+      expect(service.update).toHaveBeenCalledWith(mockPatient.id, updateDto, clientUser);
     });
   });
 });

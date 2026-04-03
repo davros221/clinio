@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Post,
-  Query,
-  UsePipes,
-} from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query, UsePipes } from "@nestjs/common";
 import {
   ApiOkResponse,
   ApiCreatedResponse,
@@ -85,19 +76,14 @@ export class AppointmentController {
     @Query("sortBy") sortBy?: string,
     @Query("sortOrder") sortOrder?: string
   ) {
-    const statuses = status
-      ? new ParseEnumArrayPipe(AppointmentStatus).transform(status)
-      : undefined;
+    const statuses = status ? new ParseEnumArrayPipe(AppointmentStatus).transform(status) : undefined;
     const query = appointmentListSchema.parse({
       page,
       limit,
       sortBy,
       sortOrder,
     });
-    const { items, total } = await this.appointmentService.findAll(
-      query,
-      statuses
-    );
+    const { items, total } = await this.appointmentService.findAll(query, statuses);
     return {
       items: AppointmentMapper.toDtoList(items),
       total,

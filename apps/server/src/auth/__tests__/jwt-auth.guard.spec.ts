@@ -26,10 +26,7 @@ describe("JwtAuthGuard", () => {
       reflector.getAllAndOverride.mockReturnValue(true);
       const context = mockExecutionContext() as ExecutionContext;
 
-      const superCanActivate = jest.spyOn(
-        Object.getPrototypeOf(Object.getPrototypeOf(guard)),
-        "canActivate"
-      );
+      const superCanActivate = jest.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), "canActivate");
       superCanActivate.mockRejectedValue(new Error("no token"));
 
       const result = await guard.canActivate(context);
@@ -42,10 +39,7 @@ describe("JwtAuthGuard", () => {
       reflector.getAllAndOverride.mockReturnValue(false);
       const context = mockExecutionContext() as ExecutionContext;
 
-      const superCanActivate = jest.spyOn(
-        Object.getPrototypeOf(Object.getPrototypeOf(guard)),
-        "canActivate"
-      );
+      const superCanActivate = jest.spyOn(Object.getPrototypeOf(Object.getPrototypeOf(guard)), "canActivate");
       superCanActivate.mockResolvedValue(true);
 
       await guard.canActivate(context);
@@ -65,15 +59,11 @@ describe("JwtAuthGuard", () => {
     });
 
     it("should throw UnauthorizedException when error exists", () => {
-      expect(() => guard.handleRequest(new Error("fail"), null)).toThrow(
-        UnauthorizedException
-      );
+      expect(() => guard.handleRequest(new Error("fail"), null)).toThrow(UnauthorizedException);
     });
 
     it("should throw UnauthorizedException when user is falsy", () => {
-      expect(() => guard.handleRequest(null, null)).toThrow(
-        UnauthorizedException
-      );
+      expect(() => guard.handleRequest(null, null)).toThrow(UnauthorizedException);
     });
 
     it("should throw with UNAUTHORIZED error code", () => {

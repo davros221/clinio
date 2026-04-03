@@ -5,6 +5,9 @@ export class Patient {
   id!: string;
 
   @ApiProperty()
+  userId!: string;
+
+  @ApiProperty()
   firstName!: string;
 
   @ApiProperty()

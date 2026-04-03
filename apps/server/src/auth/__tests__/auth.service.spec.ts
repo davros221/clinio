@@ -32,11 +32,7 @@ describe("AuthService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        { provide: UserService, useFactory: mockUserService },
-        { provide: JwtService, useFactory: mockJwtService },
-      ],
+      providers: [AuthService, { provide: UserService, useFactory: mockUserService }, { provide: JwtService, useFactory: mockJwtService }],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
@@ -49,9 +45,7 @@ describe("AuthService", () => {
 
     it("should return access token and auth data on valid credentials", async () => {
       userService.findByEmail.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(true));
+      jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(true));
       jwtService.sign.mockReturnValue("jwt-token");
 
       const result = await service.login(loginDto);
@@ -68,9 +62,7 @@ describe("AuthService", () => {
 
     it("should sign JWT with correct payload", async () => {
       userService.findByEmail.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(true));
+      jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(true));
       jwtService.sign.mockReturnValue("jwt-token");
 
       await service.login(loginDto);
@@ -85,9 +77,7 @@ describe("AuthService", () => {
     it("should throw UnauthorizedException when user not found", async () => {
       userService.findByEmail.mockResolvedValue(null);
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
     it("should throw with INVALID_CREDENTIALS error code when user not found", async () => {
@@ -106,20 +96,36 @@ describe("AuthService", () => {
 
     it("should throw UnauthorizedException when password is wrong", async () => {
       userService.findByEmail.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false));
+      jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(false));
 
-      await expect(service.login(loginDto)).rejects.toThrow(
-        UnauthorizedException
-      );
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
 
     it("should throw with INVALID_CREDENTIALS error code when password is wrong", async () => {
       userService.findByEmail.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false));
+      jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(false));
+
+      try {
+        await service.login(loginDto);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect((error as UnauthorizedException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.INVALID_CREDENTIALS,
+        });
+      }
+    });
+
+    it("should throw UnauthorizedException when user has no password (null)", async () => {
+      const passwordlessUser: UserEntity = { ...mockUser, password: null };
+      userService.findByEmail.mockResolvedValue(passwordlessUser);
+
+      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+    });
+
+    it("should throw INVALID_CREDENTIALS when user has no password", async () => {
+      const passwordlessUser: UserEntity = { ...mockUser, password: null };
+      userService.findByEmail.mockResolvedValue(passwordlessUser);
 
       try {
         await service.login(loginDto);
@@ -142,9 +148,7 @@ describe("AuthService", () => {
       }
 
       userService.findByEmail.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false));
+      jest.spyOn(bcrypt, "compare").mockImplementation(() => Promise.resolve(false));
       let errorBadPass: UnauthorizedException | undefined;
       try {
         await service.login(loginDto);
