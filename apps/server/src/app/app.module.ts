@@ -7,6 +7,7 @@ import {
   UserModule,
   AppointmentModule,
   AddressModule,
+  PatientModule,
 } from "../modules";
 import { AuthModule } from "../auth/auth.module";
 
@@ -20,6 +21,7 @@ import { AuthModule } from "../auth/auth.module";
     OfficeModule,
     AddressModule,
     AppointmentModule,
+    PatientModule,
   ],
 })
 export class AppModule {}
