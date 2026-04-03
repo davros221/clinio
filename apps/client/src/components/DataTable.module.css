@@ -11,6 +11,7 @@
 
 .table {
   font-size: var(--mantine-font-size-sm);
+  border-radius: var(--mantine-radius-md);
 }
 
 .thead {
