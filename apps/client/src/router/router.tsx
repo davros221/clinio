@@ -39,14 +39,6 @@ export const routes: RouteObject[] = [
                 path: ROUTER_PATHS.SETTINGS,
                 element: <div>Settings - placeholder - TBD</div>, // TODO TBD
               },
-              {
-                path: ROUTER_PATHS.OFFICES,
-                element: <OfficeListPage />,
-              },
-              {
-                path: ROUTER_PATHS.PATIENTS,
-                element: <PatientListPage />,
-              },
             ],
           },
         ],
