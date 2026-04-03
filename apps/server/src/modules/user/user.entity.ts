@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
@@ -10,6 +11,7 @@ import { OfficeEntity } from "../office/office.entity";
 
 @Entity("users")
 @Unique(["email"])
+@Index("idx_user_role", ["role"])
 export class UserEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;

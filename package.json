@@ -13,6 +13,7 @@
     "eslint:check": "eslint . --ext .ts,.tsx",
     "eslint:fix": "eslint . --ext .ts,.tsx --fix",
     "codegen:api": "npx openapi-ts",
+    "codegen:remote": "cross-env VITE_API_URL=http://46.36.35.142 npx openapi-ts",
     "prepare": "husky"
   },
   "private": true,
@@ -44,6 +45,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
     "@vitest/ui": "^4.0.0",
+    "cross-env": "^10.1.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "eslint-plugin-import": "2.31.0",
@@ -73,6 +75,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/utilities": "^3.2.2",
     "@nestjs/common": "^11.0.0",
@@ -80,7 +83,7 @@
     "@nestjs/platform-express": "^11.0.0",
     "@tanstack/react-query": "^5.91.0",
     "@tanstack/react-query-devtools": "^5.91.3",
-    "axios": "^1.6.0",
+    "axios": "1.13.6",
     "date-fns": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

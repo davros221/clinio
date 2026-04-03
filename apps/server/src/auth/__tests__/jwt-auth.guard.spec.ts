@@ -22,28 +22,33 @@ describe("JwtAuthGuard", () => {
   });
 
   describe("canActivate", () => {
-    it("should return true for public routes", () => {
+    it("should return true for public routes", async () => {
       reflector.getAllAndOverride.mockReturnValue(true);
       const context = mockExecutionContext() as ExecutionContext;
 
-      const result = guard.canActivate(context);
-
-      expect(result).toBe(true);
-    });
-
-    it("should call super.canActivate for non-public routes", () => {
-      reflector.getAllAndOverride.mockReturnValue(false);
-      const context = mockExecutionContext() as ExecutionContext;
-
-      // super.canActivate returns Observable | boolean | Promise
-      // We just verify it doesn't return true directly (which would mean public bypass)
       const superCanActivate = jest.spyOn(
         Object.getPrototypeOf(Object.getPrototypeOf(guard)),
         "canActivate"
       );
-      superCanActivate.mockReturnValue(true);
+      superCanActivate.mockRejectedValue(new Error("no token"));
 
-      guard.canActivate(context);
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+      superCanActivate.mockRestore();
+    });
+
+    it("should call super.canActivate for non-public routes", async () => {
+      reflector.getAllAndOverride.mockReturnValue(false);
+      const context = mockExecutionContext() as ExecutionContext;
+
+      const superCanActivate = jest.spyOn(
+        Object.getPrototypeOf(Object.getPrototypeOf(guard)),
+        "canActivate"
+      );
+      superCanActivate.mockResolvedValue(true);
+
+      await guard.canActivate(context);
 
       expect(superCanActivate).toHaveBeenCalledWith(context);
       superCanActivate.mockRestore();

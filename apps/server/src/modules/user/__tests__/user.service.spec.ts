@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import {
+  ConflictException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +10,7 @@ import { Repository } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import { UserService } from "../user.service";
 import { UserEntity } from "../user.entity";
-import { UserRole, ErrorCode } from "@clinio/shared";
+import { UserRole, ErrorCode, UserSortField, SortOrder } from "@clinio/shared";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { AuthUser } from "../../../auth/strategies/jwt.strategy";
 
@@ -24,6 +25,7 @@ const mockUser: UserEntity = {
 
 const mockRepository = () => ({
   find: jest.fn(),
+  findAndCount: jest.fn(),
   findOneBy: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
@@ -35,7 +37,7 @@ describe("UserService", () => {
   let repository: jest.Mocked<
     Pick<
       Repository<UserEntity>,
-      "find" | "findOneBy" | "create" | "save" | "delete"
+      "find" | "findAndCount" | "findOneBy" | "create" | "save" | "delete"
     >
   >;
 
@@ -76,69 +78,143 @@ describe("UserService", () => {
       role: UserRole.CLIENT,
     };
 
-    it("should return users filtered by role", async () => {
-      repository.find.mockResolvedValue([mockUser]);
+    const defaultQuery = {
+      page: 1,
+      limit: 20,
+      sortBy: UserSortField.LAST_NAME,
+      sortOrder: SortOrder.ASC,
+    };
 
-      const result = await service.findAll(adminUser, [UserRole.DOCTOR]);
+    it("should return users filtered by role with pagination", async () => {
+      repository.findAndCount.mockResolvedValue([[mockUser], 1]);
 
-      expect(result).toEqual([mockUser]);
-      expect(repository.find).toHaveBeenCalledWith({
+      const result = await service.findAll(
+        adminUser,
+        [UserRole.DOCTOR],
+        defaultQuery
+      );
+
+      expect(result).toEqual({ items: [mockUser], total: 1 });
+      expect(repository.findAndCount).toHaveBeenCalledWith({
         where: { role: expect.anything() },
+        order: { lastName: "ASC" },
+        skip: 0,
+        take: 20,
       });
     });
 
+    it("should apply correct skip for page 2", async () => {
+      repository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(adminUser, [UserRole.DOCTOR], {
+        ...defaultQuery,
+        page: 2,
+      });
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 20 })
+      );
+    });
+
+    it("should apply sorting parameters", async () => {
+      repository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(adminUser, [UserRole.DOCTOR], {
+        ...defaultQuery,
+        sortBy: UserSortField.EMAIL,
+        sortOrder: SortOrder.DESC,
+      });
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ order: { email: "DESC" } })
+      );
+    });
+
     it("should allow admin to request ADMIN, DOCTOR, NURSE roles", async () => {
-      repository.find.mockResolvedValue([]);
+      repository.findAndCount.mockResolvedValue([[], 0]);
 
       await expect(
-        service.findAll(adminUser, [UserRole.ADMIN])
+        service.findAll(adminUser, [UserRole.ADMIN], defaultQuery)
       ).resolves.toBeDefined();
       await expect(
-        service.findAll(adminUser, [UserRole.DOCTOR])
+        service.findAll(adminUser, [UserRole.DOCTOR], defaultQuery)
       ).resolves.toBeDefined();
       await expect(
-        service.findAll(adminUser, [UserRole.NURSE])
+        service.findAll(adminUser, [UserRole.NURSE], defaultQuery)
       ).resolves.toBeDefined();
     });
 
     it("should forbid non-admin from requesting ADMIN role", async () => {
       await expect(
-        service.findAll(doctorUser, [UserRole.ADMIN])
+        service.findAll(doctorUser, [UserRole.ADMIN], defaultQuery)
       ).rejects.toThrow(ForbiddenException);
     });
 
     it("should forbid non-admin from requesting DOCTOR role", async () => {
       await expect(
-        service.findAll(nurseUser, [UserRole.DOCTOR])
+        service.findAll(nurseUser, [UserRole.DOCTOR], defaultQuery)
       ).rejects.toThrow(ForbiddenException);
     });
 
     it("should forbid admin from requesting CLIENT role", async () => {
       await expect(
-        service.findAll(adminUser, [UserRole.CLIENT])
+        service.findAll(adminUser, [UserRole.CLIENT], defaultQuery)
       ).rejects.toThrow(ForbiddenException);
     });
 
     it("should allow doctor to request CLIENT role", async () => {
-      repository.find.mockResolvedValue([]);
+      repository.findAndCount.mockResolvedValue([[], 0]);
 
       await expect(
-        service.findAll(doctorUser, [UserRole.CLIENT])
+        service.findAll(doctorUser, [UserRole.CLIENT], defaultQuery)
       ).resolves.toBeDefined();
     });
 
     it("should allow nurse to request CLIENT role", async () => {
-      repository.find.mockResolvedValue([]);
+      repository.findAndCount.mockResolvedValue([[], 0]);
 
       await expect(
-        service.findAll(nurseUser, [UserRole.CLIENT])
+        service.findAll(nurseUser, [UserRole.CLIENT], defaultQuery)
       ).resolves.toBeDefined();
     });
 
     it("should forbid client from requesting CLIENT role", async () => {
       await expect(
-        service.findAll(clientUser, [UserRole.CLIENT])
+        service.findAll(clientUser, [UserRole.CLIENT], defaultQuery)
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should filter by search term on firstName and lastName", async () => {
+      repository.findAndCount.mockResolvedValue([[mockUser], 1]);
+
+      const result = await service.findAll(
+        doctorUser,
+        [UserRole.CLIENT],
+        defaultQuery,
+        "John"
+      );
+
+      expect(result).toEqual({ items: [mockUser], total: 1 });
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: [
+            { role: expect.anything(), firstName: expect.anything() },
+            { role: expect.anything(), lastName: expect.anything() },
+          ],
+        })
+      );
+    });
+
+    it("should not apply search filter when search is undefined", async () => {
+      repository.findAndCount.mockResolvedValue([[mockUser], 1]);
+
+      await service.findAll(adminUser, [UserRole.DOCTOR], defaultQuery);
+
+      expect(repository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { role: expect.anything() },
+        })
+      );
     });
   });
 
@@ -205,7 +281,18 @@ describe("UserService", () => {
   });
 
   describe("create", () => {
-    const createDto: CreateUserDto = {
+    const adminUser: AuthUser = {
+      id: "admin-id",
+      email: "admin@example.com",
+      role: UserRole.ADMIN,
+    };
+    const doctorUser: AuthUser = {
+      id: "doctor-id",
+      email: "doctor@example.com",
+      role: UserRole.DOCTOR,
+    };
+
+    const clientDto: CreateUserDto = {
       email: "jane@example.com",
       password: "StrongP@ss1",
       firstName: "Jane",
@@ -213,23 +300,147 @@ describe("UserService", () => {
       role: UserRole.CLIENT,
     };
 
+    const doctorDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.DOCTOR,
+    };
+
+    const nurseDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.NURSE,
+    };
+
+    const adminDto: CreateUserDto = {
+      ...clientDto,
+      role: UserRole.ADMIN,
+    };
+
+    // --- Role constraint tests ---
+
+    it("should allow public (no auth) to create CLIENT", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(clientDto)).resolves.toBeDefined();
+    });
+
+    it("should forbid public (no auth) from creating DOCTOR", async () => {
+      await expect(service.create(doctorDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid public (no auth) from creating NURSE", async () => {
+      await expect(service.create(nurseDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid public (no auth) from creating ADMIN", async () => {
+      await expect(service.create(adminDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should allow ADMIN to create CLIENT", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...clientDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(clientDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should allow ADMIN to create DOCTOR", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...doctorDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...doctorDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(doctorDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should allow ADMIN to create NURSE", async () => {
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      repository.create.mockReturnValue({
+        ...nurseDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      repository.save.mockResolvedValue({
+        ...nurseDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(nurseDto, adminUser)).resolves.toBeDefined();
+    });
+
+    it("should forbid ADMIN from creating ADMIN", async () => {
+      await expect(service.create(adminDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid non-ADMIN authenticated user from creating any role", async () => {
+      await expect(service.create(clientDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
+      await expect(service.create(doctorDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    // --- Existing behavior tests ---
+
     it("should hash the password before saving", async () => {
       const hashSpy = jest.spyOn(bcrypt, "hash") as jest.Mock;
       hashSpy.mockResolvedValue("bcrypt-hashed");
       repository.create.mockReturnValue({
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "bcrypt-hashed",
       } as UserEntity);
       repository.save.mockResolvedValue({
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "bcrypt-hashed",
       } as UserEntity);
 
-      await service.create(createDto);
+      await service.create(clientDto);
 
-      expect(hashSpy).toHaveBeenCalledWith(createDto.password, 10);
+      expect(hashSpy).toHaveBeenCalledWith(clientDto.password, 10);
       hashSpy.mockRestore();
     });
 
@@ -241,20 +452,20 @@ describe("UserService", () => {
         Promise.resolve({ ...entity, id: "new-id" } as UserEntity)
       );
 
-      await service.create(createDto);
+      await service.create(clientDto);
 
       expect(repository.create).toHaveBeenCalledWith(
         expect.objectContaining({ password: "bcrypt-hashed" })
       );
       expect(repository.create).not.toHaveBeenCalledWith(
-        expect.objectContaining({ password: createDto.password })
+        expect.objectContaining({ password: clientDto.password })
       );
       hashSpy.mockRestore();
     });
 
     it("should return the saved entity", async () => {
       const saved = {
-        ...createDto,
+        ...clientDto,
         id: "new-id",
         password: "hashed",
       } as UserEntity;
@@ -264,9 +475,17 @@ describe("UserService", () => {
       repository.create.mockReturnValue(saved);
       repository.save.mockResolvedValue(saved);
 
-      const result = await service.create(createDto);
+      const result = await service.create(clientDto);
 
       expect(result).toEqual(saved);
+    });
+
+    it("should throw ConflictException when email already exists", async () => {
+      repository.findOneBy.mockResolvedValue(mockUser);
+
+      await expect(service.create(clientDto)).rejects.toThrow(
+        ConflictException
+      );
     });
   });
 

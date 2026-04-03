@@ -12,7 +12,7 @@ export const AuthenticatedLayout = () => {
         </AppShell.Navbar>
 
         <AppShell.Main>
-          <Box p="md">
+          <Box m="sm">
             <Outlet />
           </Box>
         </AppShell.Main>

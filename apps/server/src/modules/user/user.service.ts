@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { ErrorCode, UserRole } from "@clinio/shared";
+import { ErrorCode, UserRole, type UserListQuery } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
-import { In, Repository } from "typeorm";
+import { In, ILike, Repository, type FindOptionsWhere } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
   emailAlreadyExists,
@@ -27,8 +27,10 @@ export class UserService {
 
   async findAll(
     currentUser: AuthUser,
-    roles: UserRole[]
-  ): Promise<UserEntity[]> {
+    roles: UserRole[],
+    query: UserListQuery,
+    search?: string
+  ): Promise<{ items: UserEntity[]; total: number }> {
     const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
     const requestingPatients = roles.includes(UserRole.CLIENT);
 
@@ -48,8 +50,28 @@ export class UserService {
       throw forbidden();
     }
 
+    const baseWhere: FindOptionsWhere<UserEntity> = { role: In(roles) };
+
+    let where: FindOptionsWhere<UserEntity> | FindOptionsWhere<UserEntity>[];
+    if (search) {
+      const pattern = ILike(`%${search}%`);
+      where = [
+        { ...baseWhere, firstName: pattern },
+        { ...baseWhere, lastName: pattern },
+      ];
+    } else {
+      where = baseWhere;
+    }
+
     // TODO: DOCTOR and NURSE should only see their own patients (via office relation)
-    return this.userRepository.find({ where: { role: In(roles) } });
+    const [items, total] = await this.userRepository.findAndCount({
+      where,
+      order: { [query.sortBy]: query.sortOrder },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
+
+    return { items, total };
   }
 
   async findById(id: string): Promise<UserEntity> {
@@ -72,7 +94,27 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async create(user: CreateUserDto): Promise<UserEntity> {
+  async create(
+    user: CreateUserDto,
+    currentUser?: AuthUser
+  ): Promise<UserEntity> {
+    if (currentUser) {
+      // Authenticated: only ADMIN can create, and only CLIENT/DOCTOR/NURSE
+      if (currentUser.role !== UserRole.ADMIN) {
+        throw forbidden();
+      }
+      if (
+        ![UserRole.CLIENT, UserRole.DOCTOR, UserRole.NURSE].includes(user.role)
+      ) {
+        throw forbidden();
+      }
+    } else {
+      // Public (no auth): can only create CLIENT
+      if (user.role !== UserRole.CLIENT) {
+        throw forbidden();
+      }
+    }
+
     const existingUser = await this.findByEmail(user.email);
     if (existingUser) {
       throw emailAlreadyExists();

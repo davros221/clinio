@@ -28,7 +28,9 @@ export const createOfficeSchema = z
     name: z.string().min(1, "Name is required."),
     specialization: z.string().min(1, "Specialization is required."),
     address: z.string().min(1, "Address is required."),
-    officeHoursTemplate: officeHoursTemplateSchema.nullable().default(null),
+    officeHoursTemplate: officeHoursTemplateSchema,
     staffIds: z.array(z.uuid()).optional().default([]),
   })
   .required();
+
+export const updateOfficeSchema = createOfficeSchema.partial();

@@ -1,7 +1,14 @@
 import { Module } from "@nestjs/common";
 import { DatabaseModule } from "../database/database.module";
 import { ConfigModule } from "../config/config.module";
-import { CalendarModule, OfficeModule, UserModule } from "../modules";
+import {
+  CalendarModule,
+  OfficeModule,
+  UserModule,
+  AppointmentModule,
+  AddressModule,
+  PatientModule,
+} from "../modules";
 import { AuthModule } from "../auth/auth.module";
 
 @Module({
@@ -12,6 +19,9 @@ import { AuthModule } from "../auth/auth.module";
     AuthModule,
     CalendarModule,
     OfficeModule,
+    AddressModule,
+    AppointmentModule,
+    PatientModule,
   ],
 })
 export class AppModule {}
