@@ -1,9 +1,21 @@
+.scrollContainer {
+  overflow: auto;
+}
+
+.wrapper {
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--mantine-color-default-border);
+  min-width: max-content;
+}
+
 .table {
   font-size: var(--mantine-font-size-sm);
+  border-radius: var(--mantine-radius-md);
 }
 
 .thead {
-  background: var(--mantine-color-gray-1);
+  background: var(--mantine-color-blue-2);
 }
 
 [data-mantine-color-scheme="dark"] .thead {

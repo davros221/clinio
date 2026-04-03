@@ -12,6 +12,14 @@ export type User = {
     role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
 };
 
+export type PaginatedUserResponse = {
+    items: Array<User>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
 export type CreateUserDto = {
     email: string;
     password: string;
@@ -92,6 +100,14 @@ export type Appointment = {
     note: string;
 };
 
+export type PaginatedAppointmentResponse = {
+    items: Array<Appointment>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
 export type CreateAppointmentDto = {
     officeId?: string | null;
     patientId?: string | null;
@@ -123,6 +139,14 @@ export type Office = {
     address: string;
     officeHoursTemplate: OfficeHoursTemplateDto;
     staffIds: Array<string>;
+};
+
+export type PaginatedOfficeResponse = {
+    items: Array<Office>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
 };
 
 export type CreateOfficeDto = {
@@ -230,6 +254,22 @@ export type GetData = {
          * Search by first name or last name
          */
         search?: string;
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Sort field (default: lastName)
+         */
+        sortBy?: 'firstName' | 'lastName' | 'email' | 'role';
+        /**
+         * Sort order (default: ASC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
         role: Array<'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT'>;
     };
     url: '/api/users';
@@ -247,7 +287,7 @@ export type GetErrors = {
 };
 
 export type GetResponses = {
-    200: Array<User>;
+    200: PaginatedUserResponse;
 };
 
 export type GetResponse = GetResponses[keyof GetResponses];
@@ -382,7 +422,28 @@ export type GetCalendarResponse = GetCalendarResponses[keyof GetCalendarResponse
 export type GetAppointmentsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Sort field (default: date)
+         */
+        sortBy?: 'date' | 'status';
+        /**
+         * Sort order (default: ASC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
+        /**
+         * Filter by status
+         */
+        status?: Array<'PLANNED' | 'COMPLETED' | 'CANCELLED'>;
+    };
     url: '/api/appointments';
 };
 
@@ -394,7 +455,7 @@ export type GetAppointmentsErrors = {
 };
 
 export type GetAppointmentsResponses = {
-    200: Array<Appointment>;
+    200: PaginatedAppointmentResponse;
 };
 
 export type GetAppointmentsResponse = GetAppointmentsResponses[keyof GetAppointmentsResponses];
@@ -448,7 +509,28 @@ export type GetAppointmentByIdResponse = GetAppointmentByIdResponses[keyof GetAp
 export type GetOfficesData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Search by name or specialization
+         */
+        search?: string;
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Sort field (default: name)
+         */
+        sortBy?: 'name' | 'specialization';
+        /**
+         * Sort order (default: ASC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
+    };
     url: '/api/offices';
 };
 
@@ -460,7 +542,7 @@ export type GetOfficesErrors = {
 };
 
 export type GetOfficesResponses = {
-    200: Array<Office>;
+    200: PaginatedOfficeResponse;
 };
 
 export type GetOfficesResponse = GetOfficesResponses[keyof GetOfficesResponses];
