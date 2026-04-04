@@ -19,12 +19,13 @@ import {
 import { ZodValidationPipe } from "nestjs-zod";
 import {
   updatePatientSchema,
+  patientListSchema,
   UserRole,
   PatientSortField,
   SortOrder,
-  patientListSchema,
 } from "@clinio/shared";
 import { PatientService } from "./patient.service";
+import { PatientListQueryDto } from "./dto/patient-list-query.dto";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { Patient } from "./dto/patient.dto";
 import { PatientMapper } from "./mapper/PatientMapper";
@@ -75,21 +76,19 @@ export class PatientController {
   })
   @ApiOkResponse({ type: PaginatedPatientResponse })
   @ApiForbiddenResponse({ description: "Forbidden" })
-  async getAll(
-    @Query("search") search?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-    @Query("sortBy") sortBy?: string,
-    @Query("sortOrder") sortOrder?: string
-  ) {
-    const query = patientListSchema.parse({ page, limit, sortBy, sortOrder });
-    const { items, total } = await this.patientService.findAll(query, search);
+  @UsePipes(new ZodValidationPipe(patientListSchema))
+  async getAll(@Query() query: PatientListQueryDto) {
+    const { search, ...listQuery } = query;
+    const { items, total } = await this.patientService.findAll(
+      listQuery,
+      search
+    );
     return {
       items: PatientMapper.toDtoList(items),
       total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
+      page: listQuery.page,
+      limit: listQuery.limit,
+      totalPages: Math.ceil(total / listQuery.limit),
     };
   }
 

@@ -1,10 +1,13 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { Controller, Get, Query, UsePipes } from "@nestjs/common";
 import {
+  ApiBadRequestResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
+import { ZodValidationPipe } from "nestjs-zod";
+import { getCalendarQuerySchema } from "@clinio/shared";
 import { CalendarService } from "./calendar.service";
 import { CalendarDay } from "./dto/calendar.dto";
 
@@ -29,11 +32,13 @@ export class CalendarController {
       "Unix timestamp (ms) — calendar returns the week containing this date",
   })
   @ApiOkResponse({ type: [CalendarDay] })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @UsePipes(new ZodValidationPipe(getCalendarQuerySchema))
   async getCalendar(
     @Query("officeId") officeId: string,
-    @Query("timestamp") timestamp: string
+    @Query("timestamp") timestamp: number
   ): Promise<CalendarDay[]> {
-    const date = new Date(Number(timestamp));
+    const date = new Date(timestamp);
     return this.calendarService.getWeek(officeId, date);
   }
 }

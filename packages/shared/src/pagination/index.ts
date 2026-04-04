@@ -63,6 +63,7 @@ export type PatientSortField =
   (typeof PatientSortField)[keyof typeof PatientSortField];
 
 export const patientListSchema = paginationSchema.extend({
+  search: z.string().optional(),
   sortBy: z.nativeEnum(PatientSortField).default(PatientSortField.LAST_NAME),
   sortOrder: sortOrderSchema,
 });

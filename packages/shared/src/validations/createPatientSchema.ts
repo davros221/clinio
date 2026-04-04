@@ -14,7 +14,9 @@ export const createPatientSchema = z
   })
   .required();
 
-export const updatePatientSchema = createPatientSchema.partial();
+export const updatePatientSchema = createPatientSchema
+  .omit({ userId: true })
+  .partial();
 
 export type CreatePatient = z.infer<typeof createPatientSchema>;
 export type UpdatePatient = z.infer<typeof updatePatientSchema>;
