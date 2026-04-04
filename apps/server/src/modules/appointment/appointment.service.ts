@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository, type FindOptionsWhere } from "typeorm";
+import { Between, In, Repository, type FindOptionsWhere } from "typeorm";
 import {
   type AppointmentListQuery,
   type AppointmentStatus,
@@ -47,6 +47,23 @@ export class AppointmentService {
     });
 
     return { items, total };
+  }
+
+  async findByOfficeAndWeek(
+    officeId: string,
+    weekStart: Date
+  ): Promise<AppointmentEntity[]> {
+    const startDate = weekStart.toISOString().slice(0, 10);
+    const endDate = new Date(weekStart.getTime() + 6 * 86400000)
+      .toISOString()
+      .slice(0, 10);
+
+    return this.appointmentRepository.find({
+      where: {
+        officeId,
+        date: Between(startDate, endDate),
+      },
+    });
   }
 
   /**

@@ -53,6 +53,23 @@ export const officeListSchema = paginationSchema.extend({
 
 export type OfficeListQuery = z.infer<typeof officeListSchema>;
 
+export const PatientSortField = {
+  LAST_NAME: "lastName",
+  BIRTH_NUMBER: "birthNumber",
+  BIRTHDATE: "birthdate",
+} as const;
+
+export type PatientSortField =
+  (typeof PatientSortField)[keyof typeof PatientSortField];
+
+export const patientListSchema = paginationSchema.extend({
+  search: z.string().optional(),
+  sortBy: z.nativeEnum(PatientSortField).default(PatientSortField.LAST_NAME),
+  sortOrder: sortOrderSchema,
+});
+
+export type PatientListQuery = z.infer<typeof patientListSchema>;
+
 export const AppointmentSortField = {
   DATE: "date",
   STATUS: "status",

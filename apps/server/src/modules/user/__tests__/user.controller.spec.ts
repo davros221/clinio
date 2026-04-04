@@ -236,12 +236,12 @@ describe("UserController", () => {
   });
 
   describe("delete", () => {
-    it("should call service.remove with id", async () => {
+    it("should call service.remove with id and currentUser", async () => {
       service.remove.mockResolvedValue(undefined);
 
-      await controller.delete(mockUser.id);
+      await controller.delete(mockAdmin, mockUser.id);
 
-      expect(service.remove).toHaveBeenCalledWith(mockUser.id);
+      expect(service.remove).toHaveBeenCalledWith(mockUser.id, mockAdmin);
     });
   });
 });

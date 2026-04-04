@@ -10,8 +10,10 @@ import {
   PatientModule,
 } from "../modules";
 import { AuthModule } from "../auth/auth.module";
+import { AppController } from "./app.controller";
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule,
     DatabaseModule,

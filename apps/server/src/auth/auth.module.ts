@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule, type JwtModuleOptions } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { UserModule } from "../modules/user/user.module";
+import { UserModule } from "../modules";
 import { AuthController } from "./auth.controller";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthService } from "./auth.service";

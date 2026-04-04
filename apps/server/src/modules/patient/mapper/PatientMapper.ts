@@ -5,12 +5,13 @@ export class PatientMapper {
   static toDto(entity: PatientEntity): Patient {
     return {
       id: entity.id,
-      firstName: entity.firstName,
-      lastName: entity.lastName,
+      userId: entity.userId,
+      firstName: entity.user.firstName,
+      lastName: entity.user.lastName,
       birthNumber: entity.birthNumber,
       birthdate: entity.birthdate,
       phone: entity.phone,
-      email: entity.email,
+      email: entity.user.email,
     };
   }
 

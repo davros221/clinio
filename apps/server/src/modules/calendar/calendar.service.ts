@@ -52,14 +52,17 @@ export class CalendarService {
     };
   }
 
-  async getWeek(date: Date): Promise<CalendarDay[]> {
+  async getWeek(officeId: string, date: Date): Promise<CalendarDay[]> {
     const monday = startOfWeek(date, { weekStartsOn: 1 });
     const dayLength = this.endingHour - this.startingHour;
 
-    const appointments = await this.appointmentService.findAll();
+    const appointments = await this.appointmentService.findByOfficeAndWeek(
+      officeId,
+      monday
+    );
     const appointmentMap = this.mapAppointments(appointments);
 
-    const days: CalendarDay[] = Array.from({ length: 7 }, (_, i) => {
+    return Array.from({ length: 7 }, (_, i) => {
       const currentDate = addDays(monday, i);
       const dateStr = this.formatDate(currentDate);
 
@@ -85,7 +88,5 @@ export class CalendarService {
         }),
       };
     });
-
-    return days;
   }
 }

@@ -180,6 +180,23 @@ describe("AppointmentService", () => {
     });
   });
 
+  describe("findByOfficeAndWeek", () => {
+    it("should query by officeId and date range for the week", async () => {
+      repository.find.mockResolvedValue([mockAppointment]);
+
+      const weekStart = new Date("2026-03-30T00:00:00.000Z");
+      const result = await service.findByOfficeAndWeek("office-1", weekStart);
+
+      expect(result).toEqual([mockAppointment]);
+      expect(repository.find).toHaveBeenCalledWith({
+        where: {
+          officeId: "office-1",
+          date: expect.anything(),
+        },
+      });
+    });
+  });
+
   describe("create", () => {
     const createDto: CreateAppointmentDto = {
       officeId: null,

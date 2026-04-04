@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Public } from "../../common/decorators/public.decorator";
+import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
 import {
@@ -136,11 +137,16 @@ export class UserController {
   }
 
   @Delete(":id")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.CLIENT)
   @ApiOperation({ operationId: "delete" })
   @ApiOkResponse({ description: "User deleted successfully" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   @ApiNotFoundResponse({ description: "User not found" })
-  async delete(@Param("id") id: string) {
-    return this.userService.remove(id);
+  async delete(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string
+  ) {
+    return this.userService.remove(id, currentUser);
   }
 }
