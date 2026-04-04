@@ -24,6 +24,13 @@ RUN pnpm nx build server
 # ── Runner ───────────────────────────────────────────────
 FROM node:20-alpine AS runner
 
+ARG GIT_COMMIT=unknown
+ARG BUILD_TIME=unknown
+ARG APP_VERSION=unknown
+ENV GIT_COMMIT=$GIT_COMMIT
+ENV BUILD_TIME=$BUILD_TIME
+ENV APP_VERSION=$APP_VERSION
+
 RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 WORKDIR /app

@@ -19,4 +19,7 @@ jobs:
             cd /var/www/clinio
             git pull
             cd infra
+            export GIT_COMMIT=$(git -C .. rev-parse --short HEAD)
+            export BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            export APP_VERSION=$(git -C .. describe --tags --always)
             docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
