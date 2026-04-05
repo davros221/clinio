@@ -1,13 +1,13 @@
 import { useState } from "react";
 import type { CreatePatientDto } from "../types/patient";
 import { createPatient } from "../api/patients";
+import { notifySuccess, handleError } from "../utils/notification";
 
 type FormErrors = Partial<Record<keyof CreatePatientDto, string>>;
 
-type Status = "idle" | "loading" | "success" | "error";
-
 export const useCreatePatient = () => {
-  const [status, setStatus] = useState<Status>("idle");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const validate = (data: CreatePatientDto): FormErrors => {
@@ -21,7 +21,8 @@ export const useCreatePatient = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
       errors.email = "Email není platný";
     if (!data.phone.trim()) errors.phone = "Telefon je povinný";
-    if (!data.password?.trim()) errors.password = "Heslo je povinné";
+    if (data.password !== undefined && data.password.trim() === "")
+      errors.password = "Heslo je povinné";
 
     return errors;
   };
@@ -35,14 +36,18 @@ export const useCreatePatient = () => {
     }
 
     try {
-      setStatus("loading");
+      setIsLoading(true);
+      setIsSuccess(false);
       setErrors({});
       await createPatient(data);
-      setStatus("success");
-    } catch {
-      setStatus("error");
+      notifySuccess("Hotovo!", "Pacient byl úspěšně založen.");
+      setIsSuccess(true);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { status, errors, submit };
+  return { isLoading, isSuccess, errors, submit };
 };

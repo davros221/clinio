@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { TextInput, Button, Stack, Title, Alert } from "@mantine/core";
+import { useState, useEffect } from "react";
+import { TextInput, Button, Stack, Title } from "@mantine/core";
 import type { CreatePatientDto } from "../../types/patient";
 import { useCreatePatient } from "../../hooks/useCreatePatient";
+import { useAuthStore } from "../../stores/authStore";
 
 const emptyForm: CreatePatientDto = {
   firstName: "",
@@ -10,28 +11,31 @@ const emptyForm: CreatePatientDto = {
   birthdate: "",
   email: "",
   phone: "",
-  password: "", // ← přidej
+  password: "",
 };
 
 export const PatientForm = () => {
   const [form, setForm] = useState<CreatePatientDto>(emptyForm);
-  const { status, errors, submit } = useCreatePatient();
+  const { isLoading, isSuccess, errors, submit } = useCreatePatient();
+  const { user } = useAuthStore();
+  const canSetPassword = user === null || user.role === "ADMIN";
+
+  useEffect(() => {
+    if (isSuccess) {
+      setForm(emptyForm);
+    }
+  }, [isSuccess]);
 
   const handleChange = (field: keyof CreatePatientDto, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = () => {
-    submit(form);
+    const dataToSubmit = canSetPassword
+      ? form
+      : { ...form, password: undefined };
+    submit(dataToSubmit);
   };
-
-  if (status === "success") {
-    return (
-      <Alert color="green" title="Hotovo!">
-        Pacient byl úspěšně založen.
-      </Alert>
-    );
-  }
 
   return (
     <Stack gap="md" maw={480}>
@@ -75,28 +79,24 @@ export const PatientForm = () => {
         required
       />
       <TextInput
-        label="Heslo"
-        type="password"
-        value={form.password ?? ""}
-        onChange={(e) => handleChange("password", e.target.value)}
-        error={errors.password}
-        required
-      />
-      <TextInput
         label="Telefon"
         value={form.phone}
         onChange={(e) => handleChange("phone", e.target.value)}
         error={errors.phone}
         required
       />
-
-      {status === "error" && (
-        <Alert color="red" title="Chyba">
-          Nepodařilo se založit pacienta. Zkuste to znovu.
-        </Alert>
+      {canSetPassword && (
+        <TextInput
+          label="Heslo"
+          type="password"
+          value={form.password ?? ""}
+          onChange={(e) => handleChange("password", e.target.value)}
+          error={errors.password}
+          required
+        />
       )}
 
-      <Button onClick={handleSubmit} loading={status === "loading"} fullWidth>
+      <Button onClick={handleSubmit} loading={isLoading} fullWidth>
         Založit pacienta
       </Button>
     </Stack>
