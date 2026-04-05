@@ -16,11 +16,12 @@ export const useCreatePatient = () => {
     if (!data.firstName.trim()) errors.firstName = "Jméno je povinné";
     if (!data.lastName.trim()) errors.lastName = "Příjmení je povinné";
     if (!data.birthNumber.trim()) errors.birthNumber = "Rodné číslo je povinné";
-    if (!data.dateOfBirth) errors.dateOfBirth = "Datum narození je povinné";
+    if (!data.birthdate) errors.birthdate = "Datum narození je povinné";
     if (!data.email.trim()) errors.email = "Email je povinný";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
       errors.email = "Email není platný";
     if (!data.phone.trim()) errors.phone = "Telefon je povinný";
+    if (!data.password?.trim()) errors.password = "Heslo je povinné";
 
     return errors;
   };

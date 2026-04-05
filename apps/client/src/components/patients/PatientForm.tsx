@@ -7,9 +7,10 @@ const emptyForm: CreatePatientDto = {
   firstName: "",
   lastName: "",
   birthNumber: "",
-  dateOfBirth: "",
+  birthdate: "",
   email: "",
   phone: "",
+  password: "", // ← přidej
 };
 
 export const PatientForm = () => {
@@ -60,9 +61,9 @@ export const PatientForm = () => {
       <TextInput
         label="Datum narození"
         type="date"
-        value={form.dateOfBirth}
-        onChange={(e) => handleChange("dateOfBirth", e.target.value)}
-        error={errors.dateOfBirth}
+        value={form.birthdate}
+        onChange={(e) => handleChange("birthdate", e.target.value)}
+        error={errors.birthdate}
         required
       />
       <TextInput
@@ -71,6 +72,14 @@ export const PatientForm = () => {
         value={form.email}
         onChange={(e) => handleChange("email", e.target.value)}
         error={errors.email}
+        required
+      />
+      <TextInput
+        label="Heslo"
+        type="password"
+        value={form.password ?? ""}
+        onChange={(e) => handleChange("password", e.target.value)}
+        error={errors.password}
         required
       />
       <TextInput
