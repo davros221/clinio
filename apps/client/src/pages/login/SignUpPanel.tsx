@@ -31,6 +31,9 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [birthNumber, setBirthNumber] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const { mutateAsync } = useLogin();
 
@@ -54,7 +57,10 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
     password &&
     !passwordError &&
     passwordConfirm &&
-    password === passwordConfirm;
+    password === passwordConfirm &&
+    birthNumber &&
+    birthdate &&
+    phone;
 
   const handleSignUp = async (event: FormEvent) => {
     event.preventDefault();
@@ -68,7 +74,10 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
           lastName,
           password,
           role: USER_ROLES.CLIENT,
-        },
+          birthNumber,
+          birthdate,
+          phone,
+        } as any,
       });
 
       if (error && typeof error === "object") {
@@ -121,6 +130,34 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
               onChange={(e) => setLastName(e.currentTarget.value)}
             />
           </Group>
+
+          <TextInput
+            placeholder={t("signUp.birthNumberPlaceholder")}
+            label={t("signUp.birthNumberLabel")}
+            radius="md"
+            size="md"
+            value={birthNumber}
+            onChange={(e) => setBirthNumber(e.currentTarget.value)}
+          />
+
+          <TextInput
+            placeholder={t("signUp.birthdatePlaceholder")}
+            label={t("signUp.birthdateLabel")}
+            type="date"
+            radius="md"
+            size="md"
+            value={birthdate}
+            onChange={(e) => setBirthdate(e.currentTarget.value)}
+          />
+
+          <TextInput
+            placeholder={t("signUp.phonePlaceholder")}
+            label={t("signUp.phoneLabel")}
+            radius="md"
+            size="md"
+            value={phone}
+            onChange={(e) => setPhone(e.currentTarget.value)}
+          />
 
           <PasswordInput
             placeholder={t("signUp.passwordPlaceholder")}

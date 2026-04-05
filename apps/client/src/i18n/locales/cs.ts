@@ -24,6 +24,7 @@ const cs: TranslationKeys = {
         [ErrorCode.OFFICE_NOT_FOUND]: "Ordinace nebyla nalezena",
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Schůzka nebyla nalezena",
         [ErrorCode.BAD_REQUEST]: "Neplatný požadavek",
+        [ErrorCode.PATIENT_NOT_FOUND]: "Pacient nebyl nalezen",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Zakázáno",
@@ -141,6 +142,12 @@ const cs: TranslationKeys = {
     backToLogin: "Zpět na přihlášení",
     successTitle: "Účet vytvořen!",
     successMessage: "Přihlašujeme vás automaticky, vítejte v Clinio!",
+    birthNumberLabel: "Rodné číslo",
+    birthNumberPlaceholder: "Rodné číslo",
+    birthdateLabel: "Datum narození",
+    birthdatePlaceholder: "Datum narození",
+    phoneLabel: "Telefon",
+    phonePlaceholder: "Telefonní číslo",
   },
 } as const;
 

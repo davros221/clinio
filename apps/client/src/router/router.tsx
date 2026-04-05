@@ -6,7 +6,6 @@ import { AppLayout } from "../components/AppLayout";
 import { AuthenticatedLayout } from "../pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
-import { CreatePatientPage } from "../pages/patients/CreatePatientPage";
 import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
 
 export const routes: RouteObject[] = [
@@ -39,10 +38,6 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.SETTINGS,
                 element: <div>Settings - placeholder - TBD</div>, // TODO TBD
-              },
-              {
-                path: ROUTER_PATHS.CREATE_PATIENT,
-                element: <CreatePatientPage />,
               },
             ],
           },

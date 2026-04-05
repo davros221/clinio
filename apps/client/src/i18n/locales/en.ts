@@ -23,6 +23,7 @@ const en = {
         [ErrorCode.OFFICE_NOT_FOUND]: "Office not found",
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Appointment not found",
         [ErrorCode.BAD_REQUEST]: "Invalid request",
+        [ErrorCode.PATIENT_NOT_FOUND]: "Patient not found",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Forbidden",
@@ -141,6 +142,12 @@ const en = {
     backToLogin: "Back to Login",
     successTitle: "Account created!",
     successMessage: "Logging you in automatically, welcome to Clinio!",
+    birthNumberLabel: "Birth Number",
+    birthNumberPlaceholder: "Birth number",
+    birthdateLabel: "Date of Birth",
+    birthdatePlaceholder: "Date of birth",
+    phoneLabel: "Phone",
+    phonePlaceholder: "Phone number",
   },
 } as const;
 
