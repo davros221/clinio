@@ -149,6 +149,18 @@ const cs: TranslationKeys = {
     phoneLabel: "Telefon",
     phonePlaceholder: "Telefonní číslo",
   },
+  patient: {
+    form: {
+      title: "Nový pacient",
+      firstName: "Jméno",
+      lastName: "Příjmení",
+      email: "Email",
+      birthNumber: "Rodné číslo",
+      birthdate: "Datum narození",
+      phone: "Telefon",
+      submit: "Založit pacienta",
+    },
+  },
 } as const;
 
 export default cs;

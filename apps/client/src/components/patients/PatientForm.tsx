@@ -2,23 +2,21 @@ import { useState, useEffect } from "react";
 import { TextInput, Button, Stack, Title } from "@mantine/core";
 import type { CreatePatientDto } from "../../types/patient";
 import { useCreatePatient } from "../../hooks/useCreatePatient";
-import { useAuthStore } from "../../stores/authStore";
+import { useT } from "../../hooks/useT";
 
 const emptyForm: CreatePatientDto = {
   firstName: "",
   lastName: "",
+  email: "",
   birthNumber: "",
   birthdate: "",
-  email: "",
   phone: "",
-  password: "",
 };
 
 export const PatientForm = () => {
+  const t = useT();
   const [form, setForm] = useState<CreatePatientDto>(emptyForm);
   const { isLoading, isSuccess, errors, submit } = useCreatePatient();
-  const { user } = useAuthStore();
-  const canSetPassword = user === null || user.role === "ADMIN";
 
   useEffect(() => {
     if (isSuccess) {
@@ -31,47 +29,29 @@ export const PatientForm = () => {
   };
 
   const handleSubmit = () => {
-    const dataToSubmit = canSetPassword
-      ? form
-      : { ...form, password: undefined };
-    submit(dataToSubmit);
+    submit(form);
   };
 
   return (
     <Stack gap="md" maw={480}>
-      <Title order={2}>Nový pacient</Title>
+      <Title order={2}>{t("patient.form.title")}</Title>
 
       <TextInput
-        label="Jméno"
+        label={t("patient.form.firstName")}
         value={form.firstName}
         onChange={(e) => handleChange("firstName", e.target.value)}
         error={errors.firstName}
         required
       />
       <TextInput
-        label="Příjmení"
+        label={t("patient.form.lastName")}
         value={form.lastName}
         onChange={(e) => handleChange("lastName", e.target.value)}
         error={errors.lastName}
         required
       />
       <TextInput
-        label="Rodné číslo"
-        value={form.birthNumber}
-        onChange={(e) => handleChange("birthNumber", e.target.value)}
-        error={errors.birthNumber}
-        required
-      />
-      <TextInput
-        label="Datum narození"
-        type="date"
-        value={form.birthdate}
-        onChange={(e) => handleChange("birthdate", e.target.value)}
-        error={errors.birthdate}
-        required
-      />
-      <TextInput
-        label="Email"
+        label={t("patient.form.email")}
         type="email"
         value={form.email}
         onChange={(e) => handleChange("email", e.target.value)}
@@ -79,25 +59,30 @@ export const PatientForm = () => {
         required
       />
       <TextInput
-        label="Telefon"
-        value={form.phone}
+        label={t("patient.form.birthNumber")}
+        value={form.birthNumber ?? ""}
+        onChange={(e) => handleChange("birthNumber", e.target.value)}
+        error={errors.birthNumber}
+        required
+      />
+      <TextInput
+        label={t("patient.form.birthdate")}
+        type="date"
+        value={form.birthdate ?? ""}
+        onChange={(e) => handleChange("birthdate", e.target.value)}
+        error={errors.birthdate}
+        required
+      />
+      <TextInput
+        label={t("patient.form.phone")}
+        value={form.phone ?? ""}
         onChange={(e) => handleChange("phone", e.target.value)}
         error={errors.phone}
         required
       />
-      {canSetPassword && (
-        <TextInput
-          label="Heslo"
-          type="password"
-          value={form.password ?? ""}
-          onChange={(e) => handleChange("password", e.target.value)}
-          error={errors.password}
-          required
-        />
-      )}
 
       <Button onClick={handleSubmit} loading={isLoading} fullWidth>
-        Založit pacienta
+        {t("patient.form.submit")}
       </Button>
     </Stack>
   );

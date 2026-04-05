@@ -149,6 +149,18 @@ const en = {
     phoneLabel: "Phone",
     phonePlaceholder: "Phone number",
   },
+  patient: {
+    form: {
+      title: "New Patient",
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+      birthNumber: "Birth Number",
+      birthdate: "Date of Birth",
+      phone: "Phone",
+      submit: "Create Patient",
+    },
+  },
 } as const;
 
 export default en;

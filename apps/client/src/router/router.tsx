@@ -7,6 +7,7 @@ import { AuthenticatedLayout } from "../pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
 import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
+import { CreatePatientPage } from "../pages/patients/CreatePatientPage";
 
 export const routes: RouteObject[] = [
   {
@@ -21,6 +22,10 @@ export const routes: RouteObject[] = [
         element: <Login />,
       },
       // Protected Routes
+      {
+        path: ROUTER_PATHS.CREATE_PATIENT,
+        element: <CreatePatientPage />,
+      },
       {
         element: <RequireAuth />,
         children: [
