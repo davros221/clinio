@@ -132,6 +132,30 @@ describe("AuthService", () => {
       }
     });
 
+    it("should throw UnauthorizedException when user has no password (null)", async () => {
+      const passwordlessUser: UserEntity = { ...mockUser, password: null };
+      userService.findByEmail.mockResolvedValue(passwordlessUser);
+
+      await expect(service.login(loginDto)).rejects.toThrow(
+        UnauthorizedException
+      );
+    });
+
+    it("should throw INVALID_CREDENTIALS when user has no password", async () => {
+      const passwordlessUser: UserEntity = { ...mockUser, password: null };
+      userService.findByEmail.mockResolvedValue(passwordlessUser);
+
+      try {
+        await service.login(loginDto);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect((error as UnauthorizedException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.INVALID_CREDENTIALS,
+        });
+      }
+    });
+
     it("should not leak whether email or password was wrong", async () => {
       userService.findByEmail.mockResolvedValue(null);
       let errorNoUser: UnauthorizedException | undefined;

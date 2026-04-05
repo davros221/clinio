@@ -1,4 +1,5 @@
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { RouterProvider } from "react-router";
 import "./App.css";
 import { router } from "./router/router.tsx";
@@ -13,9 +14,11 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
-        <Notifications />
+        <ModalsProvider>
+          <Notifications />
 
-        <RouterProvider router={router} />
+          <RouterProvider router={router} />
+        </ModalsProvider>
       </MantineProvider>
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>

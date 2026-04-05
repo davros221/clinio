@@ -1,9 +1,60 @@
+import { ErrorCode } from "@clinio/shared";
+
 const en = {
   common: {
+    action: {
+      save: "Save",
+      delete: "Delete",
+    },
     appName: "ClinIO",
+    error: {
+      noData: "No data available",
+      createFailed: "Failed to create",
+      deleteFailed: "Failed to delete",
+      updateFailed: "Failed to update",
+      ...({
+        [ErrorCode.INTERNAL_SERVER_ERROR]: "A server error occurred",
+        [ErrorCode.INVALID_CREDENTIALS]: "Invalid email or password",
+        [ErrorCode.UNAUTHORIZED]: "You need to log in",
+        [ErrorCode.FORBIDDEN]: "You don't have permission",
+        [ErrorCode.NOT_FOUND]: "Resource not found",
+        [ErrorCode.USER_NOT_FOUND]: "User could not be found",
+        [ErrorCode.EMAIL_ALREADY_EXISTS]: "This email is already in use",
+        [ErrorCode.OFFICE_NOT_FOUND]: "Office not found",
+        [ErrorCode.APPOINTMENT_NOT_FOUND]: "Appointment not found",
+        [ErrorCode.BAD_REQUEST]: "Invalid request",
+      } satisfies Record<ErrorCode, string>),
+    },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
     returnHome: "Go Back Home",
+    time: {
+      daysShort: {
+        monday: "MON",
+        tuesday: "TUE",
+        wednesday: "WED",
+        thursday: "THU",
+        friday: "FRI",
+        saturday: "SAT",
+        sunday: "SUN",
+      },
+    },
+    validation: {
+      required: "required",
+    },
+  },
+  component: {
+    dataTable: {
+      emptyText: "No data available",
+      errorFallback: "An error occurred while loading data",
+      actionsColumn: "Actions",
+    },
+  },
+  nav: {
+    dashboard: "Dashboard",
+    offices: "Offices",
+    settings: "Settings",
+    logout: "Logout",
   },
   login: {
     welcome: "WELCOME!",
@@ -14,6 +65,62 @@ const en = {
     submitButton: "Let me In",
     forgotPassword: "Forgot password",
     signUp: "Sign Up",
+  },
+  office: {
+    createOfficeModal: {
+      title: {
+        create: "Create new office",
+        detail: "Office details",
+      },
+      sections: {
+        basicInfo: "Basic Information",
+        hours: "Office Hours",
+        personnel: "Personnel",
+      },
+      fields: {
+        name: "Name",
+        namePlaceholder: "Nováková Dental Clinic",
+        specialization: "Specialization",
+        specializationPlaceholder: "Stomatology",
+        address: "Address",
+        addressPlaceholder: "Corner Street 616/1, Prague",
+        user: "User",
+        userPlaceholder: "email@example.com",
+        role: "Role",
+        rolePlaceholder: "Nurse / Doctor",
+      },
+      table: {
+        open: "Open",
+        day: "Day",
+        from: "From",
+        to: "To",
+        role: "Role",
+        actions: "Actions",
+        remove: "Remove",
+        add: "Add",
+      },
+      buttons: {
+        cancel: "Cancel",
+        submit: "Create",
+      },
+    },
+    deleteModal: {
+      title: "Delete office",
+      message:
+        "Are you sure you want to delete this office? This action is permanent and cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
+    },
+    overview: {
+      officesListHeader: {
+        action: "Action",
+        name: "Name",
+        specialization: "Specialization",
+        address: "Address",
+        officeHours: "Office Hours",
+      },
+      title: "Offices Overview",
+    },
   },
   signUp: {
     title: "CREATE ACCOUNT",
@@ -38,4 +145,9 @@ const en = {
 } as const;
 
 export default en;
-export type TranslationKeys = typeof en;
+
+type DeepString<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
+};
+
+export type TranslationKeys = DeepString<typeof en>;

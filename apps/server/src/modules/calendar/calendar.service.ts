@@ -1,77 +1,92 @@
 import { Injectable } from "@nestjs/common";
-import { faker } from "@faker-js/faker";
 import { addDays, startOfWeek } from "date-fns";
 import {
-  AppointmentStatus,
-  AppointmentType,
+  CalendarAppointment,
   CalendarDay,
   CalendarHourState,
 } from "./dto/calendar.dto";
+import { AppointmentService } from "../appointment/appointment.service";
+import { AppointmentEntity } from "../appointment/appointment.entity";
+
+type AppointmentMapKey = string & { __brand: "AppointmentMapKey" };
 
 @Injectable()
 export class CalendarService {
-  async getWeek(date: Date): Promise<CalendarDay[]> {
-    const monday = startOfWeek(date, { weekStartsOn: 1 });
-    const days: CalendarDay[] = Array.from({ length: 7 }, (_, i) => ({
-      date: addDays(monday, i),
-      day: i,
-      hours: Array.from({ length: 10 }, (_, j) => {
-        const availability = faker.helpers.weightedArrayElement([
-          { value: CalendarHourState.AVAILABLE, weight: 3 },
-          { value: CalendarHourState.NOT_AVAILABLE, weight: 4 },
-          { value: CalendarHourState.BOOKED, weight: 2 },
-        ]);
-        return {
-          hour: j + 8,
-          state: availability,
-          appointment:
-            availability !== CalendarHourState.BOOKED
-              ? undefined
-              : {
-                  id: faker.string.uuid(),
-                  isOwned: faker.datatype.boolean(),
-                  type: faker.helpers.enumValue(AppointmentType),
-                  status: faker.helpers.weightedArrayElement([
-                    { value: AppointmentStatus.CONFIRMED, weight: 5 },
-                    { value: AppointmentStatus.PENDING, weight: 3 },
-                    { value: AppointmentStatus.CANCELLED, weight: 1 },
-                    { value: AppointmentStatus.NO_SHOW, weight: 1 },
-                  ]),
-                  note: faker.helpers.maybe(() => faker.lorem.sentence(), {
-                    probability: 0.3,
-                  }),
-                  doctor: {
-                    firstName: faker.person.firstName(),
-                    lastName: faker.person.lastName(),
-                    id: faker.string.uuid(),
-                    specialization: faker.helpers.arrayElement([
-                      "generalPractitioner",
-                      "dermatologist",
-                      "cardiologist",
-                      "neurologist",
-                      "orthopedist",
-                      "entSpecialist",
-                    ]),
-                  },
-                  patient: {
-                    firstName: faker.person.firstName(),
-                    lastName: faker.person.lastName(),
-                    id: faker.string.uuid(),
-                    phone: faker.phone.number({ style: "international" }),
-                    insuranceCode: faker.helpers.arrayElement([
-                      "111",
-                      "201",
-                      "205",
-                      "207",
-                      "211",
-                      "213",
-                    ]),
-                  },
-                },
-        };
-      }),
-    }));
+  // ToDo: This will be fetched from office settings
+  private readonly startingHour = 6;
+  private readonly endingHour = 20;
 
-    return days;
+  constructor(private readonly appointmentService: AppointmentService) {}
+
+  private buildKey(date: string, hour: number): AppointmentMapKey {
+    return `${date}-${hour}` as AppointmentMapKey;
+  }
+
+  /**
+   * Format Date to "yyyy-MM-dd" string in UTC to avoid timezone shifts
+   */
+  private formatDate(date: Date): string {
+    return date.toISOString().slice(0, 10);
+  }
+
+  private mapAppointments(appointments: AppointmentEntity[]) {
+    const appointmentMap: Map<AppointmentMapKey, AppointmentEntity> = new Map();
+    appointments.forEach((appointment) => {
+      const key = this.buildKey(appointment.date, appointment.hour);
+      appointmentMap.set(key, appointment);
+    });
+    return appointmentMap;
+  }
+
+  private mapAppointmentToCalendarAppointment(
+    appointment?: AppointmentEntity
+  ): CalendarAppointment | undefined {
+    if (!appointment) return undefined;
+    return {
+      // ToDO: DRO - when patient module ready, add patient
+      patient: undefined,
+      id: appointment.id,
+      doctor: undefined,
+      isOwned: true,
+      note: appointment.note,
+    };
+  }
+
+  async getWeek(officeId: string, date: Date): Promise<CalendarDay[]> {
+    const monday = startOfWeek(date, { weekStartsOn: 1 });
+    const dayLength = this.endingHour - this.startingHour;
+
+    const appointments = await this.appointmentService.findByOfficeAndWeek(
+      officeId,
+      monday
+    );
+    const appointmentMap = this.mapAppointments(appointments);
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const currentDate = addDays(monday, i);
+      const dateStr = this.formatDate(currentDate);
+
+      return {
+        date: dateStr,
+        day: i,
+        hours: Array.from({ length: dayLength }, (_, j) => {
+          // ToDo: DRO: first check office.officeHourSchema, if date slot is available
+          const hour = j + this.startingHour;
+          const key = this.buildKey(dateStr, hour);
+          const currentHourAppointment = appointmentMap.get(key);
+          const state = currentHourAppointment
+            ? CalendarHourState.BOOKED
+            : CalendarHourState.AVAILABLE;
+
+          return {
+            hour,
+            state,
+            appointment: this.mapAppointmentToCalendarAppointment(
+              currentHourAppointment
+            ),
+          };
+        }),
+      };
+    });
   }
 }

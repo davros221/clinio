@@ -18,7 +18,11 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResponse> {
     const user = await this.userService.findByEmail(dto.email);
 
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(dto.password, user.password))
+    ) {
       throw invalidCredentials();
     }
 

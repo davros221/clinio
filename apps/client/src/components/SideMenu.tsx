@@ -4,6 +4,8 @@ import { NavLink as RouterNavLink } from "react-router";
 import { ROUTER_PATHS } from "../router/routes.ts";
 import { useUser } from "../hooks/useUser.ts";
 import classes from "./SideMenu.module.css";
+import { AuthData } from "@clinio/api";
+import { useT } from "../hooks/useT";
 
 type NavBtnProps = {
   to: string;
@@ -29,18 +31,31 @@ const mapNavItem = (
   return { to, label };
 };
 
-const topNavItems = [mapNavItem(ROUTER_PATHS.HOME, "Dashboard")];
-
-const bottomNavItems = [
-  mapNavItem(ROUTER_PATHS.SETTINGS, "Settings"),
-  mapNavItem(ROUTER_PATHS.LOGIN, "Logout"),
-];
-
 export const SideMenu = () => {
+  const t = useT();
   const user = useUser();
   const initials = user
     ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
     : "";
+
+  const getRoleNavItems = (role: AuthData["role"]) => {
+    switch (role) {
+      case "ADMIN":
+        return [mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices"))];
+      default:
+        return [];
+    }
+  };
+
+  const topNavItems = [
+    mapNavItem(ROUTER_PATHS.HOME, t("nav.dashboard")),
+    ...(user ? getRoleNavItems(user.role) : []),
+  ];
+
+  const bottomNavItems = [
+    mapNavItem(ROUTER_PATHS.SETTINGS, t("nav.settings")),
+    mapNavItem(ROUTER_PATHS.LOGIN, t("nav.logout")),
+  ];
 
   return (
     <Stack gap="xs" h="100%">

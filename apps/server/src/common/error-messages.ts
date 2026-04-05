@@ -56,3 +56,10 @@ export function forbidden(): ForbiddenException {
     message: "Forbidden",
   });
 }
+
+export function appointmentNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
+    message: "Appointment not found",
+  });
+}
