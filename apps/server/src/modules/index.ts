@@ -4,3 +4,4 @@ export * from "./office/office.module";
 export * from "./address/address.module";
 export * from "./appointment/appointment.module";
 export * from "./patient/patient.module";
+export * from "./mail/mail.module";

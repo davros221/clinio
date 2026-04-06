@@ -12,6 +12,7 @@ import {
 } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
+  accountNotActive,
   badRequest,
   emailAlreadyExists,
   forbidden,
@@ -102,6 +103,10 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
+  async findByActivationToken(token: string): Promise<UserEntity | null> {
+    return this.userRepository.findOneBy({ activationToken: token });
+  }
+
   /**
    * CREATE USER
    *
@@ -121,6 +126,9 @@ export class UserService {
     // Unique email is checked by database, but system should return a standardized error message
     const existingUser = await this.findByEmail(user.email);
     if (existingUser) {
+      if (!existingUser.password) {
+        throw accountNotActive();
+      }
       throw emailAlreadyExists();
     }
 
@@ -234,5 +242,13 @@ export class UserService {
     }
 
     await this.userRepository.delete(id);
+  }
+
+  /**
+   * Do not expose to controller
+   * @param user
+   */
+  public async update(user: UserEntity): Promise<UserEntity> {
+    return await this.userRepository.save(user);
   }
 }
