@@ -14,7 +14,8 @@ module.exports = {
     function ({ request }, callback) {
       if (
         request === "swagger-ui-dist" ||
-        (request && request.startsWith("swagger-ui-dist/"))
+        (request && request.startsWith("swagger-ui-dist/")) ||
+        (request && request.startsWith("@css-inline/"))
       ) {
         return callback(null, "commonjs " + request);
       }
@@ -47,6 +48,7 @@ module.exports = {
           /^bufferutil$/,
           /^utf-8-validate$/,
           /^ts-morph/,
+          /^bullmq/,
         ];
         return ignoredPatterns.some((p) => p.test(resource));
       },
@@ -56,7 +58,14 @@ module.exports = {
       compiler: "tsc",
       main: "./src/main.ts",
       tsConfig: "./tsconfig.app.json",
-      assets: ["./src/assets"],
+      assets: [
+        "./src/assets",
+        {
+          input: "./src/modules/mail/templates",
+          glob: "**/*.hbs",
+          output: "templates",
+        },
+      ],
       optimization: false,
       outputHashing: "none",
       generatePackageJson: false,

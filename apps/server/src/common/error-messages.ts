@@ -63,3 +63,31 @@ export function appointmentNotFound(): NotFoundException {
     message: "Appointment not found",
   });
 }
+
+export function accountNotActive(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.ACCOUNT_NOT_ACTIVE,
+    message: "Account not active",
+  });
+}
+
+export function accountAlreadyActivated(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.ACCOUNT_ALREADY_ACTIVATED,
+    message: "Account already activated",
+  });
+}
+
+export function invalidActivationToken(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.INVALID_ACTIVATION_TOKEN,
+    message: "Invalid activation token",
+  });
+}
+
+export function activationTokenExpired(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.ACTIVATION_TOKEN_EXPIRED,
+    message: "Activation token has expired",
+  });
+}

@@ -17,4 +17,12 @@ export default () => ({
   ruian: {
     api: process.env.RUIAN_API_KEY,
   },
+  mail: {
+    host: process.env.MAIL_HOST,
+    port: parseInt(process.env.MAIL_PORT || "587", 10),
+    secure: process.env.MAIL_SECURE === "true",
+    user: process.env.MAIL_USER,
+    password: process.env.MAIL_PASSWORD,
+    from: process.env.MAIL_FROM || "ClinIO <noreply@example.com>",
+  },
 });
