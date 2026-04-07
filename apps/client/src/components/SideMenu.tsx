@@ -41,7 +41,14 @@ export const SideMenu = () => {
   const getRoleNavItems = (role: AuthData["role"]) => {
     switch (role) {
       case "ADMIN":
+      case "DOCTOR":
+      case "NURSE":
         return [mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices"))];
+      case "CLIENT":
+        return [
+          mapNavItem(ROUTER_PATHS.OFFICES, t("nav.offices")),
+          mapNavItem(ROUTER_PATHS.APPOINTMENTS, t("nav.appointments")),
+        ];
       default:
         return [];
     }
