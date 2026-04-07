@@ -9,15 +9,30 @@ import {
   AppointmentSortField,
   SortOrder,
   ErrorCode,
+  UserRole,
 } from "@clinio/shared";
-import { NotFoundException } from "@nestjs/common";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { appointmentNotFound } from "../../../common/error-messages";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
+
+const adminUser: AuthUser = {
+  id: "admin-1",
+  email: "admin@test.com",
+  role: UserRole.ADMIN,
+};
+
+const doctorUser: AuthUser = {
+  id: "doctor-1",
+  email: "doctor@test.com",
+  role: UserRole.DOCTOR,
+};
 
 const mockAppointment: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  officeId: null,
+  officeId: "office-1",
   office: null,
   patientId: "patient-1",
+  patient: null,
   date: "2026-04-01",
   hour: 10,
   status: AppointmentStatus.PLANNED,
@@ -64,7 +79,7 @@ describe("AppointmentController", () => {
     it("should return paginated appointment DTOs", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      const result = await controller.getAll();
+      const result = await controller.getAll(adminUser);
 
       expect(result).toEqual({
         items: [mockAppointmentDto],
@@ -73,13 +88,18 @@ describe("AppointmentController", () => {
         limit: 20,
         totalPages: 1,
       });
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, undefined);
+      expect(service.findAll).toHaveBeenCalledWith(
+        defaultQuery,
+        adminUser,
+        undefined,
+        undefined
+      );
     });
 
     it("should return empty items when no appointments exist", async () => {
       service.findAll.mockResolvedValue({ items: [], total: 0 });
 
-      const result = await controller.getAll();
+      const result = await controller.getAll(adminUser);
 
       expect(result.items).toEqual([]);
       expect(result.total).toBe(0);
@@ -90,6 +110,8 @@ describe("AppointmentController", () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
       await controller.getAll(
+        adminUser,
+        undefined,
         undefined,
         "2",
         "10",
@@ -104,6 +126,8 @@ describe("AppointmentController", () => {
           sortBy: AppointmentSortField.STATUS,
           sortOrder: SortOrder.DESC,
         },
+        adminUser,
+        undefined,
         undefined
       );
     });
@@ -111,25 +135,27 @@ describe("AppointmentController", () => {
     it("should filter by status when provided", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      await controller.getAll(AppointmentStatus.PLANNED);
+      await controller.getAll(adminUser, AppointmentStatus.PLANNED);
 
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
-        AppointmentStatus.PLANNED,
-      ]);
+      expect(service.findAll).toHaveBeenCalledWith(
+        defaultQuery,
+        adminUser,
+        [AppointmentStatus.PLANNED],
+        undefined
+      );
     });
 
-    it("should filter by multiple statuses", async () => {
+    it("should pass officeId to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      await controller.getAll([
-        AppointmentStatus.PLANNED,
-        AppointmentStatus.COMPLETED,
-      ]);
+      await controller.getAll(adminUser, undefined, "office-1");
 
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, [
-        AppointmentStatus.PLANNED,
-        AppointmentStatus.COMPLETED,
-      ]);
+      expect(service.findAll).toHaveBeenCalledWith(
+        defaultQuery,
+        adminUser,
+        undefined,
+        "office-1"
+      );
     });
 
     it("should calculate totalPages correctly", async () => {
@@ -138,7 +164,13 @@ describe("AppointmentController", () => {
         total: 45,
       });
 
-      const result = await controller.getAll(undefined, "1", "20");
+      const result = await controller.getAll(
+        adminUser,
+        undefined,
+        undefined,
+        "1",
+        "20"
+      );
 
       expect(result.totalPages).toBe(3);
     });
@@ -148,25 +180,28 @@ describe("AppointmentController", () => {
     it("should return mapped appointment DTO", async () => {
       service.findById.mockResolvedValue(mockAppointment);
 
-      const result = await controller.getById(mockAppointment.id);
+      const result = await controller.getById(mockAppointment.id, adminUser);
 
       expect(result).toEqual(mockAppointmentDto);
-      expect(service.findById).toHaveBeenCalledWith(mockAppointment.id);
+      expect(service.findById).toHaveBeenCalledWith(
+        mockAppointment.id,
+        adminUser
+      );
     });
 
     it("should throw NotFoundException when appointment not found", async () => {
       service.findById.mockRejectedValue(appointmentNotFound());
 
-      await expect(controller.getById("non-existent-id")).rejects.toThrow(
-        NotFoundException
-      );
+      await expect(
+        controller.getById("non-existent-id", adminUser)
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("should throw NotFoundException with APPOINTMENT_NOT_FOUND error code", async () => {
       service.findById.mockRejectedValue(appointmentNotFound());
 
       try {
-        await controller.getById("non-existent-id");
+        await controller.getById("non-existent-id", adminUser);
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
@@ -179,8 +214,7 @@ describe("AppointmentController", () => {
 
   describe("create", () => {
     const createDto: CreateAppointmentDto = {
-      officeId: null,
-      patientId: "patient-1",
+      officeId: "office-1",
       date: "2026-04-01",
       hour: 10,
       status: AppointmentStatus.PLANNED,
@@ -190,10 +224,10 @@ describe("AppointmentController", () => {
     it("should create appointment and return mapped DTO", async () => {
       service.create.mockResolvedValue(mockAppointment);
 
-      const result = await controller.create(createDto);
+      const result = await controller.create(createDto, doctorUser);
 
       expect(result).toEqual(mockAppointmentDto);
-      expect(service.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledWith(createDto, doctorUser);
     });
   });
 });

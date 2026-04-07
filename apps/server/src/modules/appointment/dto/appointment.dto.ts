@@ -5,8 +5,8 @@ export class Appointment {
   @ApiProperty()
   id!: string;
 
-  @ApiPropertyOptional({ nullable: true })
-  officeId!: string | null;
+  @ApiProperty()
+  officeId!: string;
 
   @ApiPropertyOptional({ nullable: true })
   patientId!: string | null;
