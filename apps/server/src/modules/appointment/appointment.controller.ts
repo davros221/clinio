@@ -14,6 +14,8 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
+  ApiForbiddenResponse,
+  ApiConflictResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
@@ -29,6 +31,8 @@ import {
 } from "@clinio/shared";
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
 import { Roles } from "../../common/decorators/roles.decorator";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AppointmentService } from "./appointment.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { Appointment } from "./dto/appointment.dto";
@@ -76,10 +80,20 @@ export class AppointmentController {
     enum: SortOrder,
     description: "Sort order (default: ASC)",
   })
+  @ApiQuery({
+    name: "officeId",
+    required: false,
+    type: String,
+    description: "Filter by office (required for DOCTOR/NURSE)",
+  })
   @ApiOkResponse({ type: PaginatedAppointmentResponse })
+  @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
+    @CurrentUser() currentUser: AuthUser,
     @Query("status") status?: AppointmentStatus | AppointmentStatus[],
+    @Query("officeId", new ParseUUIDPipe({ optional: true }))
+    officeId?: string,
     @Query("page") page?: string,
     @Query("limit") limit?: string,
     @Query("sortBy") sortBy?: string,
@@ -96,7 +110,9 @@ export class AppointmentController {
     });
     const { items, total } = await this.appointmentService.findAll(
       query,
-      statuses
+      currentUser,
+      statuses,
+      officeId
     );
     return {
       items: AppointmentMapper.toDtoList(items),
@@ -110,10 +126,14 @@ export class AppointmentController {
   @Get(":id")
   @ApiOperation({ operationId: "getAppointmentById" })
   @ApiOkResponse({ type: Appointment })
+  @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   @ApiNotFoundResponse({ description: "Appointment not found" })
-  async getById(@Param("id", ParseUUIDPipe) id: string) {
-    const entity = await this.appointmentService.findById(id);
+  async getById(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: AuthUser
+  ) {
+    const entity = await this.appointmentService.findById(id, currentUser);
     return AppointmentMapper.toDto(entity);
   }
 
@@ -121,9 +141,14 @@ export class AppointmentController {
   @ApiOperation({ operationId: "createAppointment" })
   @ApiCreatedResponse({ type: Appointment })
   @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiConflictResponse({ description: "Appointment slot already taken" })
   @UsePipes(new ZodValidationPipe(createAppointmentSchema))
-  async create(@Body() dto: CreateAppointmentDto) {
-    const entity = await this.appointmentService.create(dto);
+  async create(
+    @Body() dto: CreateAppointmentDto,
+    @CurrentUser() currentUser: AuthUser
+  ) {
+    const entity = await this.appointmentService.create(dto, currentUser);
     return AppointmentMapper.toDto(entity);
   }
 }
