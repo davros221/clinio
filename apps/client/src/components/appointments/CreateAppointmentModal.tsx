@@ -9,12 +9,18 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMemo } from "react";
+import { z } from "zod";
 import {
   AppointmentStatus,
   UserRole,
   createAppointmentSchema,
   days,
 } from "@clinio/shared";
+
+const formSchema = createAppointmentSchema.omit({ status: true }).extend({
+  officeId: createAppointmentSchema.shape.officeId.nullable(),
+  hour: createAppointmentSchema.shape.hour.nullable(),
+});
 import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useCreateAppointmentMutation } from "../../api/appointmentService";
 import { useGetOfficeListQuery } from "../../api/officeService";
@@ -39,13 +45,7 @@ function getHoursForDate(
   return hours;
 }
 
-type FormValues = {
-  officeId: string | null;
-  patientId: string | null;
-  date: string;
-  hour: number | null;
-  note: string;
-};
+type FormValues = z.infer<typeof formSchema>;
 
 type Props = {
   opened: boolean;
@@ -62,7 +62,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
     useCreateAppointmentMutation();
   const { data: offices = [] } = useGetOfficeListQuery();
   const { data: clientUsers = [] } = useGetUsersQuery(
-    isStaff ? [UserRole.CLIENT] : []
+    [UserRole.CLIENT],
+    isStaff
   );
 
   const form = useForm<FormValues>({
@@ -75,41 +76,34 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       note: "",
     },
     validate: (values) => {
-      const officeIdError = values.officeId
-        ? null
-        : t("common.validation.required");
-
       const schemaResult = createAppointmentSchema.safeParse({
         ...values,
         hour: values.hour ?? undefined,
         status: AppointmentStatus.PLANNED,
       });
 
-      const schemaErrors: Record<string, string> = {};
+      const errors: Record<string, string> = {};
       if (!schemaResult.success) {
         for (const issue of schemaResult.error.issues) {
           const key = String(issue.path[0]);
-          if (key && !schemaErrors[key]) schemaErrors[key] = issue.message;
+          if (key && !errors[key]) errors[key] = issue.message;
         }
       }
 
-      return { ...schemaErrors, officeId: officeIdError };
+      if (isStaff && !values.patientId) {
+        errors.patientId = t("common.validation.required");
+      }
+
+      return errors;
     },
   });
 
-  const officeSelectData = useMemo(
-    () => offices.map((o) => ({ value: o.id, label: o.name })),
-    [offices]
-  );
+  const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));
 
-  const patientSelectData = useMemo(
-    () =>
-      clientUsers.map((u) => ({
-        value: u.id,
-        label: `${u.firstName} ${u.lastName}`,
-      })),
-    [clientUsers]
-  );
+  const patientSelectData = clientUsers.map((u) => ({
+    value: u.id,
+    label: `${u.firstName} ${u.lastName}`,
+  }));
 
   const availableHours = useMemo(() => {
     const values = form.getValues();
