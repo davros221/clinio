@@ -16,17 +16,17 @@ import {
   createAppointmentSchema,
   days,
 } from "@clinio/shared";
-
-const formSchema = createAppointmentSchema.omit({ status: true }).extend({
-  officeId: createAppointmentSchema.shape.officeId.nullable(),
-  hour: createAppointmentSchema.shape.hour.nullable(),
-});
 import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useCreateAppointmentMutation } from "../../api/appointmentService";
 import { useGetOfficeListQuery } from "../../api/officeService";
 import { useGetUsersQuery } from "../../api/userService";
 import { useUser } from "../../hooks/useUser";
 import { useT } from "../../hooks/useT";
+
+const formSchema = createAppointmentSchema.omit({ status: true }).extend({
+  officeId: createAppointmentSchema.shape.officeId.nullable(),
+  hour: createAppointmentSchema.shape.hour.nullable(),
+});
 
 function getHoursForDate(
   officeHoursTemplate: OfficeHoursTemplateDto | null,
@@ -76,24 +76,25 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       note: "",
     },
     validate: (values) => {
-      const schemaResult = createAppointmentSchema.safeParse({
+      const schema = isStaff
+        ? formSchema.refine((d) => !!d.patientId, {
+            path: ["patientId"],
+            message: t("common.validation.required"),
+          })
+        : formSchema;
+
+      const result = schema.safeParse({
         ...values,
         hour: values.hour ?? undefined,
-        status: AppointmentStatus.PLANNED,
       });
 
+      if (result.success) return {};
+
       const errors: Record<string, string> = {};
-      if (!schemaResult.success) {
-        for (const issue of schemaResult.error.issues) {
-          const key = String(issue.path[0]);
-          if (key && !errors[key]) errors[key] = issue.message;
-        }
+      for (const issue of result.error.issues) {
+        const key = String(issue.path[0]);
+        if (key && !errors[key]) errors[key] = issue.message;
       }
-
-      if (isStaff && !values.patientId) {
-        errors.patientId = t("common.validation.required");
-      }
-
       return errors;
     },
   });
@@ -123,8 +124,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
   const handleSubmit = (values: FormValues) => {
     createAppointment(
       {
-        officeId: values.officeId ?? null,
-        patientId: values.patientId ?? null,
+        officeId: values.officeId,
+        patientId: values.patientId,
         date: values.date,
         hour: values.hour!,
         status: AppointmentStatus.PLANNED,
