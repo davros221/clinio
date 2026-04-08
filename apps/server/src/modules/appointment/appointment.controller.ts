@@ -6,7 +6,6 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
@@ -143,9 +142,9 @@ export class AppointmentController {
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiConflictResponse({ description: "Appointment slot already taken" })
-  @UsePipes(new ZodValidationPipe(createAppointmentSchema))
   async create(
-    @Body() dto: CreateAppointmentDto,
+    @Body(new ZodValidationPipe(createAppointmentSchema))
+    dto: CreateAppointmentDto,
     @CurrentUser() currentUser: AuthUser
   ) {
     const entity = await this.appointmentService.create(dto, currentUser);

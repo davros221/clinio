@@ -112,11 +112,10 @@ export class PatientController {
   @ApiOkResponse({ type: Patient })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiNotFoundResponse({ description: "Patient not found" })
-  @UsePipes(new ZodValidationPipe(updatePatientSchema))
   async update(
     @CurrentUser() currentUser: AuthUser,
     @Param("id", ParseUUIDPipe) id: string,
-    @Body() dto: UpdatePatientDto
+    @Body(new ZodValidationPipe(updatePatientSchema)) dto: UpdatePatientDto
   ) {
     const entity = await this.patientService.update(id, dto, currentUser);
     return PatientMapper.toDto(entity);
