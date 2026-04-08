@@ -368,17 +368,26 @@ describe("AppointmentService", () => {
     });
 
     it("should validate staff belongs to office when doctor creates", async () => {
+      const staffDto = { ...createDto, patientId: "patient-1" };
       officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(null);
       appointmentRepo.create.mockReturnValue(mockAppointment);
       appointmentRepo.save.mockResolvedValue(mockAppointment);
 
-      await service.create(createDto, doctorUser);
+      await service.create(staffDto, doctorUser);
 
       expect(officeRepo.findOne).toHaveBeenCalledWith({
         where: { id: "office-1" },
         relations: ["staff"],
       });
+    });
+
+    it("should throw BadRequestException when staff creates without patientId", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      await expect(service.create(createDto, doctorUser)).rejects.toThrow(
+        BadRequestException
+      );
     });
 
     it("should throw ForbiddenException when doctor does not belong to office", async () => {
@@ -394,6 +403,7 @@ describe("AppointmentService", () => {
 
     it("should allow client to create appointment for any office", async () => {
       appointmentRepo.findOne.mockResolvedValue(null);
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
       appointmentRepo.create.mockReturnValue(mockAppointment);
       appointmentRepo.save.mockResolvedValue(mockAppointment);
 
@@ -401,6 +411,18 @@ describe("AppointmentService", () => {
 
       expect(result).toEqual(mockAppointment);
       expect(officeRepo.findOne).not.toHaveBeenCalled();
+      expect(patientRepo.findOne).toHaveBeenCalledWith({
+        where: { userId: clientUser.id },
+      });
+    });
+
+    it("should throw NotFoundException when client has no patient record", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+      patientRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.create(createDto, clientUser)).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("should throw BadRequestException when hour is outside opening hours", async () => {

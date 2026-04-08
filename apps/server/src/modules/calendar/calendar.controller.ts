@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UsePipes } from "@nestjs/common";
+import { Controller, Get, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiForbiddenResponse,
@@ -7,7 +7,6 @@ import {
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
-import { ZodValidationPipe } from "nestjs-zod";
 import { getCalendarQuerySchema, UserRole } from "@clinio/shared";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
@@ -39,12 +38,12 @@ export class CalendarController {
   @ApiOkResponse({ type: [CalendarDay] })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiForbiddenResponse({ description: "Forbidden" })
-  @UsePipes(new ZodValidationPipe(getCalendarQuerySchema))
   async getCalendar(
     @CurrentUser() currentUser: AuthUser,
     @Query("officeId") officeId: string,
     @Query("timestamp") timestamp: number
   ): Promise<CalendarDay[]> {
+    getCalendarQuerySchema.parse({ officeId, timestamp: Number(timestamp) });
     const date = new Date(timestamp);
     return this.calendarService.getWeek(officeId, date, currentUser);
   }
