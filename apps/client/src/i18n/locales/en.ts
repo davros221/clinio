@@ -41,6 +41,7 @@ const en = {
     },
     validation: {
       required: "required",
+      datePast: "date cannot be in the past",
     },
   },
   component: {

@@ -76,12 +76,16 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       note: "",
     },
     validate: (values) => {
+      const today = new Date().toISOString().slice(0, 10);
       const schema = isStaff
         ? formSchema.refine((d) => !!d.patientId, {
             path: ["patientId"],
             message: t("common.validation.required"),
           })
-        : formSchema;
+        : formSchema.refine((d) => !d.date || d.date >= today, {
+            path: ["date"],
+            message: t("common.validation.datePast"),
+          });
 
       const result = schema.safeParse({
         ...values,
