@@ -5,7 +5,7 @@ const timeSlotSchema = z.object({
   to: z.number().int().min(0).max(23),
 });
 
-const days = [
+export const days = [
   "monday",
   "tuesday",
   "wednesday",
