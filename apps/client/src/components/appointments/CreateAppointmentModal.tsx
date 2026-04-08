@@ -15,6 +15,7 @@ import {
   createAppointmentSchema,
   days,
 } from "@clinio/shared";
+import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useCreateAppointmentMutation } from "../../api/appointmentService";
 import { useGetOfficeListQuery } from "../../api/officeService";
 import { useGetUsersQuery } from "../../api/userService";
@@ -22,10 +23,7 @@ import { useUser } from "../../hooks/useUser";
 import { useT } from "../../hooks/useT";
 
 function getHoursForDate(
-  officeHoursTemplate: Record<
-    string,
-    Array<{ from: number; to: number }>
-  > | null,
+  officeHoursTemplate: OfficeHoursTemplateDto | null,
   date: string
 ): number[] {
   if (!officeHoursTemplate || !date) return [];
@@ -118,17 +116,14 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
     const selectedOffice = offices.find((o) => o.id === values.officeId);
     if (!selectedOffice) return [];
     const hours = getHoursForDate(
-      selectedOffice.officeHoursTemplate as unknown as Record<
-        string,
-        Array<{ from: number; to: number }>
-      >,
+      selectedOffice.officeHoursTemplate,
       values.date
     );
     return hours.map((h) => ({ value: String(h), label: `${h}:00` }));
   }, [form.getValues().officeId, form.getValues().date, offices]);
 
   const handleOfficeOrDateChange = () => {
-    form.setFieldValue("hour", null as unknown as number);
+    form.setFieldValue("hour", null);
   };
 
   const handleSubmit = (values: FormValues) => {
@@ -141,7 +136,12 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
         status: AppointmentStatus.PLANNED,
         note: values.note,
       },
-      { onSuccess: onClose }
+      {
+        onSuccess: () => {
+          form.reset();
+          onClose();
+        },
+      }
     );
   };
 
@@ -210,10 +210,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
                 : null
             }
             onChange={(v) =>
-              form.setFieldValue(
-                "hour",
-                v !== null ? Number(v) : (null as unknown as number)
-              )
+              form.setFieldValue("hour", v !== null ? Number(v) : null)
             }
           />
 

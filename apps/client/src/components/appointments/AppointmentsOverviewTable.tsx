@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Badge } from "@mantine/core";
 import { Appointment } from "@clinio/api";
 import { DataTable } from "../DataTable";
@@ -6,6 +5,7 @@ import { useGetAppointmentListQuery } from "../../api/appointmentService";
 import { useGetOfficeListQuery } from "../../api/officeService";
 import { AppointmentStatus } from "@clinio/shared";
 import { useT } from "../../hooks/useT";
+import { formatDate } from "../utils/dateUtils";
 
 const STATUS_COLOR: Record<AppointmentStatus, string> = {
   [AppointmentStatus.PLANNED]: "blue",
@@ -23,51 +23,46 @@ export function AppointmentsOverviewTable() {
   } = useGetAppointmentListQuery();
   const { data: offices = [] } = useGetOfficeListQuery();
 
-  const officeMap = useMemo(
-    () => Object.fromEntries(offices.map((o) => [o.id, o.name])),
-    [offices]
-  );
+  const officeMap = Object.fromEntries(offices.map((o) => [o.id, o.name]));
 
-  const columns = useMemo(
-    () => [
-      {
-        key: "date",
-        header: t("appointment.overview.table.date"),
+  const columns = [
+    {
+      key: "date",
+      header: t("appointment.overview.table.date"),
+      render: (row: Appointment) => formatDate(row.date),
+    },
+    {
+      key: "hour",
+      header: t("appointment.overview.table.time"),
+      render: (row: Appointment) => `${row.hour}:00`,
+    },
+    {
+      key: "status",
+      header: t("appointment.overview.table.status"),
+      render: (row: Appointment) => (
+        <Badge color={STATUS_COLOR[row.status] ?? "gray"} variant="light">
+          {t(
+            `appointment.status.${
+              row.status.toLowerCase() as Lowercase<AppointmentStatus>
+            }`
+          )}
+        </Badge>
+      ),
+    },
+    {
+      key: "officeId",
+      header: t("appointment.overview.table.office"),
+      render: (row: Appointment) => {
+        const id = typeof row.officeId === "string" ? row.officeId : null;
+        return id ? officeMap[id] ?? id : "—";
       },
-      {
-        key: "hour",
-        header: t("appointment.overview.table.time"),
-        render: (row: Appointment) => `${row.hour}:00`,
-      },
-      {
-        key: "status",
-        header: t("appointment.overview.table.status"),
-        render: (row: Appointment) => (
-          <Badge color={STATUS_COLOR[row.status] ?? "gray"} variant="light">
-            {t(
-              `appointment.status.${
-                row.status.toLowerCase() as Lowercase<AppointmentStatus>
-              }`
-            )}
-          </Badge>
-        ),
-      },
-      {
-        key: "officeId",
-        header: t("appointment.overview.table.office"),
-        render: (row: Appointment) => {
-          const id = row.officeId as unknown as string | null;
-          return id ? officeMap[id] ?? id : "—";
-        },
-      },
-      {
-        key: "note",
-        header: t("appointment.overview.table.note"),
-        render: (row: Appointment) => row.note || "—",
-      },
-    ],
-    [t, officeMap]
-  );
+    },
+    {
+      key: "note",
+      header: t("appointment.overview.table.note"),
+      render: (row: Appointment) => row.note || "—",
+    },
+  ];
 
   return (
     <DataTable<Appointment>

@@ -1,10 +1,10 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { useT } from "../../hooks/useT";
 
-function AppointmentsOverviewComponent() {
+export function AppointmentsOverview() {
   const t = useT();
   const [modalOpened, setModalOpened] = useState(false);
 
@@ -28,5 +28,3 @@ function AppointmentsOverviewComponent() {
     </Box>
   );
 }
-
-export const AppointmentsOverview = memo(AppointmentsOverviewComponent);
