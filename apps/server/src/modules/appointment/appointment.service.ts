@@ -11,8 +11,10 @@ import {
   appointmentNotFound,
   appointmentOutsideHours,
   appointmentSlotTaken,
+  badRequest,
   forbidden,
   internalError,
+  notFound,
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
@@ -104,7 +106,7 @@ export class AppointmentService {
     dto: CreateAppointmentDto,
     currentUser: AuthUser
   ): Promise<AppointmentEntity> {
-    const { isStaff } = AuthHelper.getRoles(currentUser);
+    const { isStaff, isPatient } = AuthHelper.getRoles(currentUser);
 
     if (isStaff) {
       await AuthHelper.assertStaffBelongsToOffice(
@@ -112,10 +114,26 @@ export class AppointmentService {
         currentUser.id,
         dto.officeId
       );
+
+      if (!dto.patientId) {
+        throw badRequest("patientId is required for staff");
+      }
     }
 
     await this.assertWithinOpeningHours(dto.hour);
     await this.assertSlotAvailable(dto.officeId, dto.date, dto.hour);
+
+    if (isPatient) {
+      const patient = await this.patientRepository.findOne({
+        where: { userId: currentUser.id },
+      });
+
+      if (!patient) {
+        throw notFound("Patient");
+      }
+
+      dto.patientId = patient.id;
+    }
 
     const entity = this.appointmentRepository.create(dto);
     return this.appointmentRepository.save(entity);
