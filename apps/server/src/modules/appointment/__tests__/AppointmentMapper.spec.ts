@@ -4,9 +4,10 @@ import { AppointmentStatus } from "@clinio/shared";
 
 const mockEntity: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  officeId: null,
+  officeId: "office-1",
   office: null,
   patientId: "patient-1",
+  patient: null,
   date: "2026-04-01",
   hour: 10,
   status: AppointmentStatus.PLANNED,
@@ -36,7 +37,11 @@ describe("AppointmentMapper", () => {
     });
 
     it("should handle null patientId", () => {
-      const entity: AppointmentEntity = { ...mockEntity, patientId: null };
+      const entity: AppointmentEntity = {
+        ...mockEntity,
+        patientId: null,
+        patient: null,
+      };
       const dto = AppointmentMapper.toDto(entity);
 
       expect(dto.patientId).toBeNull();

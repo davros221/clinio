@@ -1,5 +1,8 @@
+import { Repository } from "typeorm";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { UserRole } from "@clinio/shared";
+import { OfficeEntity } from "../../modules/office/office.entity";
+import { forbidden } from "../error-messages";
 
 export class AuthHelper {
   static getRoles(user?: AuthUser) {
@@ -11,5 +14,25 @@ export class AuthHelper {
       isPatient: Boolean(user?.role === UserRole.CLIENT),
       isPublic: !user,
     };
+  }
+
+  static async assertStaffBelongsToOffice(
+    officeRepository: Repository<OfficeEntity>,
+    userId: string,
+    officeId: string
+  ): Promise<void> {
+    const office = await officeRepository.findOne({
+      where: { id: officeId },
+      relations: ["staff"],
+    });
+
+    if (!office) {
+      throw forbidden();
+    }
+
+    const isMember = office.staff.some((s) => s.id === userId);
+    if (!isMember) {
+      throw forbidden();
+    }
   }
 }

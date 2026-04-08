@@ -1,22 +1,33 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { addDays, startOfWeek } from "date-fns";
 import {
   CalendarAppointment,
+  CalendarAppointmentPatient,
   CalendarDay,
   CalendarHourState,
 } from "./dto/calendar.dto";
 import { AppointmentService } from "../appointment/appointment.service";
 import { AppointmentEntity } from "../appointment/appointment.entity";
+import { PatientEntity } from "../patient/patient.entity";
+import { OfficeEntity } from "../office/office.entity";
+import { AuthUser } from "../../auth/strategies/jwt.strategy";
+import { AuthHelper } from "../../common/helpers/AuthHelper";
+import { SettingsService } from "../../common/services/settings.service";
 
 type AppointmentMapKey = string & { __brand: "AppointmentMapKey" };
 
 @Injectable()
 export class CalendarService {
-  // ToDo: This will be fetched from office settings
-  private readonly startingHour = 6;
-  private readonly endingHour = 20;
-
-  constructor(private readonly appointmentService: AppointmentService) {}
+  constructor(
+    private readonly appointmentService: AppointmentService,
+    @InjectRepository(PatientEntity)
+    private readonly patientRepository: Repository<PatientEntity>,
+    @InjectRepository(OfficeEntity)
+    private readonly officeRepository: Repository<OfficeEntity>,
+    private readonly settingsService: SettingsService
+  ) {}
 
   private buildKey(date: string, hour: number): AppointmentMapKey {
     return `${date}-${hour}` as AppointmentMapKey;
@@ -38,29 +49,76 @@ export class CalendarService {
     return appointmentMap;
   }
 
-  private mapAppointmentToCalendarAppointment(
-    appointment?: AppointmentEntity
-  ): CalendarAppointment | undefined {
-    if (!appointment) return undefined;
+  private mapPatientToDto(patient: PatientEntity): CalendarAppointmentPatient {
     return {
-      // ToDO: DRO - when patient module ready, add patient
-      patient: undefined,
-      id: appointment.id,
-      doctor: undefined,
-      isOwned: true,
-      note: appointment.note,
+      id: patient.id,
+      firstName: patient.user.firstName,
+      lastName: patient.user.lastName,
+      email: patient.user.email,
+      phone: patient.phone,
+      birthNumber: patient.birthNumber,
     };
   }
 
-  async getWeek(officeId: string, date: Date): Promise<CalendarDay[]> {
+  private mapAppointmentForStaff(
+    appointment: AppointmentEntity
+  ): CalendarAppointment {
+    return {
+      id: appointment.id,
+      note: appointment.note,
+      patient: appointment.patient
+        ? this.mapPatientToDto(appointment.patient)
+        : undefined,
+    };
+  }
+
+  private mapAppointmentForPatient(
+    appointment: AppointmentEntity,
+    patientId: string
+  ): CalendarAppointment | undefined {
+    if (appointment.patientId !== patientId) return undefined;
+
+    return {
+      id: appointment.id,
+      note: appointment.note,
+      patient: appointment.patient
+        ? this.mapPatientToDto(appointment.patient)
+        : undefined,
+    };
+  }
+
+  async getWeek(
+    officeId: string,
+    date: Date,
+    currentUser: AuthUser
+  ): Promise<CalendarDay[]> {
+    const { isStaff, isPatient } = AuthHelper.getRoles(currentUser);
+    const { startingHour, endingHour } = this.settingsService.getOpeningHours();
+
+    if (isStaff) {
+      await AuthHelper.assertStaffBelongsToOffice(
+        this.officeRepository,
+        currentUser.id,
+        officeId
+      );
+    }
+
     const monday = startOfWeek(date, { weekStartsOn: 1 });
-    const dayLength = this.endingHour - this.startingHour;
+    const dayLength = endingHour - startingHour;
 
     const appointments = await this.appointmentService.findByOfficeAndWeek(
       officeId,
       monday
     );
     const appointmentMap = this.mapAppointments(appointments);
+
+    let patientId: string | undefined;
+    if (isPatient) {
+      const patient = await this.patientRepository.findOne({
+        where: { userId: currentUser.id },
+      });
+      patientId = patient?.id;
+    }
 
     return Array.from({ length: 7 }, (_, i) => {
       const currentDate = addDays(monday, i);
@@ -71,20 +129,27 @@ export class CalendarService {
         day: i,
         hours: Array.from({ length: dayLength }, (_, j) => {
           // ToDo: DRO: first check office.officeHourSchema, if date slot is available
-          const hour = j + this.startingHour;
+          const hour = j + startingHour;
           const key = this.buildKey(dateStr, hour);
           const currentHourAppointment = appointmentMap.get(key);
           const state = currentHourAppointment
             ? CalendarHourState.BOOKED
             : CalendarHourState.AVAILABLE;
 
-          return {
-            hour,
-            state,
-            appointment: this.mapAppointmentToCalendarAppointment(
-              currentHourAppointment
-            ),
-          };
+          let appointment: CalendarAppointment | undefined;
+          if (currentHourAppointment) {
+            if (isPatient && patientId) {
+              appointment = this.mapAppointmentForPatient(
+                currentHourAppointment,
+                patientId
+              );
+            } else if (!isPatient) {
+              // Staff and admin see full data
+              appointment = this.mapAppointmentForStaff(currentHourAppointment);
+            }
+          }
+
+          return { hour, state, appointment };
         }),
       };
     });

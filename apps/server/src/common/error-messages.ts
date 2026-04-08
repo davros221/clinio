@@ -91,3 +91,17 @@ export function activationTokenExpired(): BadRequestException {
     message: "Activation token has expired",
   });
 }
+
+export function appointmentSlotTaken(): ConflictException {
+  return new ConflictException({
+    errorCode: ErrorCode.APPOINTMENT_SLOT_TAKEN,
+    message: "Appointment slot is already taken",
+  });
+}
+
+export function appointmentOutsideHours(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.APPOINTMENT_OUTSIDE_HOURS,
+    message: "Appointment hour is outside of opening hours",
+  });
+}
