@@ -4,5 +4,4 @@ export const ROUTER_PATHS = {
   FORBIDDEN: "/forbidden",
   SETTINGS: "/settings",
   OFFICES: "/offices",
-  APPOINTMENTS: "/appointments",
 } as const;

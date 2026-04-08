@@ -8,4 +8,3 @@ const createQueryKeys = (entity: string) => ({
 
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
-export const appointmentKeys = createQueryKeys("appointments");

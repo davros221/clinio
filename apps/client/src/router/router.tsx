@@ -7,7 +7,6 @@ import { AuthenticatedLayout } from "../pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
 import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
-import { AppointmentsOverview } from "../components/appointments/AppointmentsOverview.tsx";
 
 export const routes: RouteObject[] = [
   {
@@ -35,10 +34,6 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.OFFICES,
                 element: <OfficesOverview />,
-              },
-              {
-                path: ROUTER_PATHS.APPOINTMENTS,
-                element: <AppointmentsOverview />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,

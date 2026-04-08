@@ -54,47 +54,8 @@ const cs: TranslationKeys = {
   nav: {
     dashboard: "Přehled",
     offices: "Ordinace",
-    appointments: "Rezervace",
     settings: "Nastavení",
     logout: "Odhlásit se",
-  },
-  appointment: {
-    createModal: {
-      title: "Nová rezervace",
-      fields: {
-        office: "Ordinace",
-        officePlaceholder: "Vyberte ordinaci",
-        patient: "Pacient",
-        patientPlaceholder: "Vyberte pacienta",
-        date: "Datum",
-        time: "Čas",
-        timePlaceholder: "Vyberte časový slot",
-        note: "Poznámka",
-        notePlaceholder: "Volitelná poznámka",
-      },
-      buttons: {
-        cancel: "Zrušit",
-        submit: "Rezervovat",
-      },
-    },
-    overview: {
-      title: "Rezervace",
-      table: {
-        date: "Datum",
-        time: "Čas",
-        status: "Stav",
-        office: "Ordinace",
-        note: "Poznámka",
-      },
-    },
-    status: {
-      planned: "Naplánováno",
-      completed: "Uskutečněno",
-      cancelled: "Zrušeno",
-    },
-    notification: {
-      createSuccess: "Rezervace byla vytvořena",
-    },
   },
   login: {
     welcome: "VÍTEJTE!",
