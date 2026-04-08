@@ -4,7 +4,7 @@ import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 
 // TODO: API returns paginated response — expose pagination metadata when needed.
-export const useGetUsersQuery = (roles: Array<UserRole>) => {
+export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
   return useQuery<User[]>({
     queryKey: userKeys.list({ roles }),
     queryFn: async () => {
@@ -14,5 +14,6 @@ export const useGetUsersQuery = (roles: Array<UserRole>) => {
       });
       return data?.items ?? [];
     },
+    enabled,
   });
 };

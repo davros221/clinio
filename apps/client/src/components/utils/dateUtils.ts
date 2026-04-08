@@ -24,6 +24,12 @@ export function fmt(d: Date): string {
   return format(d, "d.M.");
 }
 
+// Formats a date to "d.M.yyyy"
+export function formatDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return format(new Date(year, month - 1, day), "d.M.yyyy");
+}
+
 // Converts "HH:MM" to minutes since midnight
 export function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
