@@ -2,19 +2,22 @@
 
 ## Scripts
 
-| Script                | Description                              |
-| --------------------- | ---------------------------------------- |
-| `pnpm server:dev`     | Run backend server in development mode   |
-| `pnpm server:build`   | Create backend production build          |
-| `pnpm client:dev`     | Run frontend server in development mode  |
-| `pnpm client:build`   | Create frontend production build         |
-| `pnpm prettier:check` | Check if code is formatted with prettier |
-| `pnpm prettier:fix`   | Fix code formatting with prettier        |
-| `pnpm eslint:check`   | Check code with eslint                   |
-| `pnpm eslint:fix`     | Fix code with eslint                     |
-| `pnpm codegen:api`    | Generate client code from OpenAPI spec   |
+| Script                | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `pnpm server:dev`     | Run backend server in development mode        |
+| `pnpm server:build`   | Create backend production build               |
+| `pnpm client:dev`     | Run frontend server in development mode       |
+| `pnpm client:build`   | Create frontend production build              |
+| `pnpm prettier:check` | Check if code is formatted with prettier      |
+| `pnpm prettier:fix`   | Fix code formatting with prettier             |
+| `pnpm eslint:check`   | Check code with eslint                        |
+| `pnpm eslint:fix`     | Fix code with eslint                          |
+| `pnpm codegen:api`    | Generate client code from OpenAPI spec        |
+| `pnpm codegen:remote` | Generate client code from remote OpenAPI spec |
 
 ## Installation
+
+### Option A: Full local setup (BE + DB + FE)
 
 - clone the repository
 - run `pnpm install` to install dependencies
@@ -23,6 +26,20 @@
   - `docker-compose up -d`
 - Run backend server `pnpm server:dev`
 - Run frontend server `pnpm client:dev`
+
+### Option B: Local frontend connected to remote server
+
+If you only need to work on the frontend and don't want to run BE and DB locally, you can connect your local client to the remote server instead.
+
+1. Copy `apps/client/.env.example` to `apps/client/.env`
+2. Uncomment the `VITE_API_URL` line pointing to the remote server:
+
+```env
+# VITE_API_URL=http://localhost:8000   # local BE
+VITE_API_URL=http://46.36.35.142       # remote BE
+```
+
+3. Run frontend server `pnpm client:dev`
 
 ## Formatting and linting
 
@@ -44,9 +61,12 @@ After running the server
 
 ### Generating client code:
 
-- run `pnpm codegen:api` to generate client code from OpenAPI spec,
+- run `pnpm codegen:api` to generate client code from your **local** server's OpenAPI spec
+- run `pnpm codegen:remote` to generate client code from the **remote** server's OpenAPI spec (useful when not running BE locally)
 - The code is generated in `packages/api` package
 - You can import generated code from `@clinio/api` package in your frontend code
+
+> In practice, using `codegen:remote` is preferred when working on the frontend only, since the remote environment is almost always up to date.
 
 #### Naming convention
 
