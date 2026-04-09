@@ -8,6 +8,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useMemo } from "react";
 import { z } from "zod";
 import {
@@ -25,7 +26,10 @@ import { useT } from "../../hooks/useT";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
   officeId: createAppointmentSchema.shape.officeId.nullable(),
-  hour: createAppointmentSchema.shape.hour.nullable(),
+  hour: z.preprocess(
+    (v) => (v === null ? undefined : v),
+    createAppointmentSchema.shape.hour
+  ),
 });
 
 function getHoursForDate(
@@ -45,7 +49,9 @@ function getHoursForDate(
   return hours;
 }
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = Omit<z.infer<typeof formSchema>, "hour"> & {
+  hour: number | null;
+};
 
 type Props = {
   opened: boolean;
@@ -75,28 +81,17 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       hour: null,
       note: "",
     },
-    validate: (values) => {
-      const schema = isStaff
+    validate: zod4Resolver(
+      isStaff
         ? formSchema.refine((d) => !!d.patientId, {
             path: ["patientId"],
             message: t("common.validation.required"),
           })
-        : formSchema;
-
-      const result = schema.safeParse({
-        ...values,
-        hour: values.hour ?? undefined,
-      });
-
-      if (result.success) return {};
-
-      const errors: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        const key = String(issue.path[0]);
-        if (key && !errors[key]) errors[key] = issue.message;
-      }
-      return errors;
-    },
+        : formSchema.refine(
+            (d) => !d.date || d.date >= new Date().toISOString().slice(0, 10),
+            { path: ["date"], message: t("common.validation.datePast") }
+          )
+    ),
   });
 
   const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));

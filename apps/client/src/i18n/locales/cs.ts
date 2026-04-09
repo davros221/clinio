@@ -42,6 +42,7 @@ const cs: TranslationKeys = {
     },
     validation: {
       required: "povinné pole",
+      datePast: "datum nemůže být v minulosti",
     },
   },
   component: {
