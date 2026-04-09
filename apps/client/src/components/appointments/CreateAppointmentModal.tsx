@@ -15,7 +15,7 @@ import {
   AppointmentStatus,
   UserRole,
   createAppointmentSchema,
-  days,
+  DAYS,
 } from "@clinio/shared";
 import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useCreateAppointmentMutation } from "../../api/appointmentService";
@@ -38,7 +38,7 @@ function getHoursForDate(
 ): number[] {
   if (!officeHoursTemplate || !date) return [];
   const [year, month, day] = date.split("-").map(Number);
-  const dayName = days[(new Date(year, month - 1, day).getDay() + 6) % 7];
+  const dayName = DAYS[(new Date(year, month - 1, day).getDay() + 6) % 7];
   const intervals = officeHoursTemplate[dayName] ?? [];
   const hours: number[] = [];
   for (const { from, to } of intervals) {
