@@ -8,7 +8,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { zodResolver } from "mantine-form-zod-resolver";
+import { zod4Resolver } from "mantine-form-zod-resolver";
 import { useMemo } from "react";
 import { z } from "zod";
 import {
@@ -81,7 +81,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       hour: null,
       note: "",
     },
-    validate: zodResolver(
+    validate: zod4Resolver(
       isStaff
         ? formSchema.refine((d) => !!d.patientId, {
             path: ["patientId"],
