@@ -1,7 +1,7 @@
 import { Text } from "@mantine/core";
 import { useMemo } from "react";
 import { getWeekDay, fmt } from "../utils/dateUtils";
-import { DAYS } from "../utils/types";
+import { CAP_WORK_DAYS } from "../utils/types";
 
 type Props = {
   weekStart: Date;
@@ -17,7 +17,7 @@ export const CalendarHeader = ({
     () =>
       visibleDayIndices.map((dayIdx) => ({
         dayIdx,
-        name: DAYS[dayIdx],
+        name: CAP_WORK_DAYS[dayIdx],
         date: getWeekDay(weekStart, dayIdx),
       })),
     [weekStart, visibleDayIndices]

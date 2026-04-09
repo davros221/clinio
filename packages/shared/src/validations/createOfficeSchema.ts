@@ -5,7 +5,7 @@ const timeSlotSchema = z.object({
   to: z.number().int().min(0).max(23),
 });
 
-export const days = [
+export const DAYS = [
   "monday",
   "tuesday",
   "wednesday",
@@ -16,8 +16,8 @@ export const days = [
 ] as const;
 
 export const officeHoursTemplateSchema = z.object(
-  Object.fromEntries(days.map((day) => [day, z.array(timeSlotSchema)])) as {
-    [K in (typeof days)[number]]: z.ZodArray<typeof timeSlotSchema>;
+  Object.fromEntries(DAYS.map((day) => [day, z.array(timeSlotSchema)])) as {
+    [K in (typeof DAYS)[number]]: z.ZodArray<typeof timeSlotSchema>;
   }
 );
 

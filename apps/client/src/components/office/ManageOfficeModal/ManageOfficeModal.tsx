@@ -11,8 +11,8 @@ import {
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "../../../api/userService.ts";
-import { UserRole } from "@clinio/shared";
-import { DAYS, WEEK_DAYS } from "../../utils/types.ts";
+import { DAYS, UserRole } from "@clinio/shared";
+import { CAP_WORK_DAYS, CAP_DAYS } from "../../utils/types.ts";
 import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,
@@ -35,9 +35,9 @@ type PropsType = {
   office?: Office | null;
 };
 
-const INITIAL_DAYS: DayEntryType[] = WEEK_DAYS.map((day) => ({
+const INITIAL_DAYS: DayEntryType[] = CAP_DAYS.map((day) => ({
   key: day.toLowerCase(),
-  checked: DAYS.includes(day),
+  checked: CAP_WORK_DAYS.includes(day),
   intervals: [{ ...DEFAULT_INTERVAL }],
 }));
 
@@ -108,8 +108,8 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
         Array<{ from: number; to: number }>
       > | null;
 
-      const mappedDays = WEEK_DAYS.map((day) => {
-        const key = day.toLowerCase();
+      const mappedDays = DAYS.map((day) => {
+        const key = day;
         const dayIntervals = hours?.[key] ?? [];
 
         if (dayIntervals.length === 0) {

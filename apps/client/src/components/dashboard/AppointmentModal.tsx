@@ -1,5 +1,5 @@
 import { Modal, Stack, Badge, Group, Text } from "@mantine/core";
-import { Appointment, DAYS, ROOM_COLORS } from "../utils/types";
+import { Appointment, CAP_WORK_DAYS, ROOM_COLORS } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 
@@ -37,7 +37,7 @@ export const AppointmentModal = ({ appt, onClose }: Props) => (
 
         <Group gap="xs">
           <IoCalendarNumberOutline />
-          <Text size="sm">{DAYS[appt.day - 1]}</Text>
+          <Text size="sm">{CAP_WORK_DAYS[appt.day - 1]}</Text>
         </Group>
 
         <Group gap="xs">

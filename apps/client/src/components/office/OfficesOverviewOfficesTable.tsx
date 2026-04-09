@@ -13,16 +13,7 @@ import { Button, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
 import { useT } from "../../hooks/useT";
-
-const DAYS_ORDER = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
-] as const;
+import { DAYS } from "@clinio/shared";
 
 const TOP_ALIGN_LEFT: React.CSSProperties = {
   verticalAlign: "top",
@@ -36,7 +27,7 @@ function OfficeHoursCell({ template }: { template: OfficeHoursTemplateDto }) {
 
   return (
     <Stack gap={2} align="center">
-      {DAYS_ORDER.map((day) => {
+      {DAYS.map((day) => {
         const intervals = template[day];
         if (!intervals) return null;
 

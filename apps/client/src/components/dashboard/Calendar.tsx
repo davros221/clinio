@@ -17,7 +17,7 @@ import { CalendarLegend } from "./CalendarLegend";
 import { DroppableSlot } from "./DroppableSlot";
 import {
   Appointment,
-  DAYS,
+  CAP_WORK_DAYS,
   HOURS,
   SLOT_HEIGHT,
   ROOM_COLORS,
@@ -155,7 +155,7 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
               ←
             </Button>
             <Text size="sm" fw={500} w={170} ta="center">
-              {DAYS[mobileDayIdx]}
+              {CAP_WORK_DAYS[mobileDayIdx]}
             </Text>
             <Button
               variant="default"
