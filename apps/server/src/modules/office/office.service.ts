@@ -1,12 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ILike, In, Repository, type FindOptionsWhere } from "typeorm";
-import { ErrorCode, type OfficeListQuery } from "@clinio/shared";
+import { ErrorCode, UserRole, type OfficeListQuery } from "@clinio/shared";
 import { OfficeEntity } from "./office.entity";
 import { UserEntity } from "../user/user.entity";
 import { CreateOfficeDto } from "./dto/create-office.dto";
 import { UpdateOfficeDto } from "./dto/update-office.dto";
-import { internalError, notFound } from "../../common/error-messages";
+import { AuthUser } from "../../auth/strategies/jwt.strategy";
+import {
+  forbidden,
+  internalError,
+  notFound,
+} from "../../common/error-messages";
 
 @Injectable()
 export class OfficeService {
@@ -73,8 +78,24 @@ export class OfficeService {
     return this.officeRepository.save(entity);
   }
 
-  async replace(id: string, dto: CreateOfficeDto): Promise<OfficeEntity> {
+  private verifyStaffMembership(office: OfficeEntity, user: AuthUser): void {
+    if (user.role === UserRole.ADMIN) {
+      return;
+    }
+
+    const isStaff = office.staff.some((member) => member.id === user.id);
+    if (!isStaff) {
+      throw forbidden();
+    }
+  }
+
+  async replace(
+    id: string,
+    dto: CreateOfficeDto,
+    user: AuthUser
+  ): Promise<OfficeEntity> {
     const office = await this.findById(id);
+    this.verifyStaffMembership(office, user);
 
     const { staffIds, ...rest } = dto;
 
@@ -89,8 +110,13 @@ export class OfficeService {
     return this.officeRepository.save(office);
   }
 
-  async update(id: string, dto: UpdateOfficeDto): Promise<OfficeEntity> {
+  async update(
+    id: string,
+    dto: UpdateOfficeDto,
+    user: AuthUser
+  ): Promise<OfficeEntity> {
     const office = await this.findById(id);
+    this.verifyStaffMembership(office, user);
 
     const { staffIds, ...rest } = dto;
 
