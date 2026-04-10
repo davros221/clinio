@@ -28,7 +28,11 @@ import {
   OfficeSortField,
   SortOrder,
   officeListSchema,
+  UserRole,
 } from "@clinio/shared";
+import { Roles } from "../../common/decorators/roles.decorator";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 import { OfficeService } from "./office.service";
 import { CreateOfficeDto } from "./dto/create-office.dto";
 import { UpdateOfficeDto } from "./dto/update-office.dto";
@@ -106,6 +110,7 @@ export class OfficeController {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ operationId: "createOffice" })
   @ApiCreatedResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
@@ -116,32 +121,37 @@ export class OfficeController {
   }
 
   @Put(":id")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE)
   @ApiOperation({ operationId: "replaceOffice" })
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
   async replace(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto
+    @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto,
+    @CurrentUser() user: AuthUser
   ) {
-    const entity = await this.officeService.replace(id, dto);
+    const entity = await this.officeService.replace(id, dto, user);
     return OfficeMapper.toDto(entity);
   }
 
   @Patch(":id")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE)
   @ApiOperation({ operationId: "updateOffice" })
   @ApiOkResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiNotFoundResponse({ description: "Office not found" })
   async update(
     @Param("id", ParseUUIDPipe) id: string,
-    @Body(new ZodValidationPipe(updateOfficeSchema)) dto: UpdateOfficeDto
+    @Body(new ZodValidationPipe(updateOfficeSchema)) dto: UpdateOfficeDto,
+    @CurrentUser() user: AuthUser
   ) {
-    const entity = await this.officeService.update(id, dto);
+    const entity = await this.officeService.update(id, dto, user);
     return OfficeMapper.toDto(entity);
   }
 
   @Delete(":id")
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ operationId: "deleteOffice" })
   @ApiOkResponse({ description: "Office deleted successfully" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })

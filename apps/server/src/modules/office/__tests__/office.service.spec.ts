@@ -14,8 +14,28 @@ import {
   OfficeSortField,
   SortOrder,
 } from "@clinio/shared";
+import { ForbiddenException } from "@nestjs/common";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
 import { CreateOfficeDto } from "../dto/create-office.dto";
 import { UpdateOfficeDto } from "../dto/update-office.dto";
+
+const adminUser: AuthUser = {
+  id: "admin-1",
+  email: "admin@example.com",
+  role: UserRole.ADMIN,
+};
+
+const staffDoctorUser: AuthUser = {
+  id: "staff-1",
+  email: "doc@example.com",
+  role: UserRole.DOCTOR,
+};
+
+const nonStaffDoctorUser: AuthUser = {
+  id: "other-doc",
+  email: "other@example.com",
+  role: UserRole.DOCTOR,
+};
 
 const mockStaff: UserEntity = {
   id: "staff-1",
@@ -279,7 +299,7 @@ describe("OfficeService", () => {
       staffIds: ["staff-1"],
     };
 
-    it("should replace all fields on the office entity", async () => {
+    it("should replace all fields on the office entity for admin", async () => {
       officeRepository.findOne.mockResolvedValue({ ...mockOffice });
       userRepository.findBy.mockResolvedValue([mockStaff]);
       const saved = {
@@ -292,7 +312,11 @@ describe("OfficeService", () => {
       };
       officeRepository.save.mockResolvedValue(saved);
 
-      const result = await service.replace(mockOffice.id, replaceDto);
+      const result = await service.replace(
+        mockOffice.id,
+        replaceDto,
+        adminUser
+      );
 
       expect(result).toEqual(saved);
       expect(officeRepository.save).toHaveBeenCalledWith(
@@ -305,6 +329,35 @@ describe("OfficeService", () => {
       );
     });
 
+    it("should allow staff member to replace their office", async () => {
+      officeRepository.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [mockStaff],
+      });
+      userRepository.findBy.mockResolvedValue([mockStaff]);
+      const saved = { ...mockOffice, staff: [mockStaff] };
+      officeRepository.save.mockResolvedValue(saved);
+
+      const result = await service.replace(
+        mockOffice.id,
+        replaceDto,
+        staffDoctorUser
+      );
+
+      expect(result).toEqual(saved);
+    });
+
+    it("should throw ForbiddenException for non-staff member", async () => {
+      officeRepository.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [mockStaff],
+      });
+
+      await expect(
+        service.replace(mockOffice.id, replaceDto, nonStaffDoctorUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
     it("should clear staff when staffIds is empty", async () => {
       officeRepository.findOne.mockResolvedValue({
         ...mockOffice,
@@ -315,7 +368,11 @@ describe("OfficeService", () => {
         staff: [],
       });
 
-      await service.replace(mockOffice.id, { ...replaceDto, staffIds: [] });
+      await service.replace(
+        mockOffice.id,
+        { ...replaceDto, staffIds: [] },
+        adminUser
+      );
 
       expect(userRepository.findBy).not.toHaveBeenCalled();
       expect(officeRepository.save).toHaveBeenCalledWith(
@@ -327,7 +384,7 @@ describe("OfficeService", () => {
       officeRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.replace("non-existent-id", replaceDto)
+        service.replace("non-existent-id", replaceDto, adminUser)
       ).rejects.toThrow(NotFoundException);
     });
   });
@@ -338,7 +395,7 @@ describe("OfficeService", () => {
       specialization: "Cardiology",
     };
 
-    it("should update office fields and return updated entity", async () => {
+    it("should update office fields for admin", async () => {
       officeRepository.findOne.mockResolvedValue({ ...mockOffice });
       const saved = {
         ...mockOffice,
@@ -347,10 +404,38 @@ describe("OfficeService", () => {
       };
       officeRepository.save.mockResolvedValue(saved);
 
-      const result = await service.update(mockOffice.id, updateDto);
+      const result = await service.update(mockOffice.id, updateDto, adminUser);
 
       expect(result).toEqual(saved);
       expect(officeRepository.save).toHaveBeenCalled();
+    });
+
+    it("should allow staff member to update their office", async () => {
+      officeRepository.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [mockStaff],
+      });
+      const saved = { ...mockOffice, name: "Updated Office" };
+      officeRepository.save.mockResolvedValue(saved);
+
+      const result = await service.update(
+        mockOffice.id,
+        updateDto,
+        staffDoctorUser
+      );
+
+      expect(result).toEqual(saved);
+    });
+
+    it("should throw ForbiddenException for non-staff member", async () => {
+      officeRepository.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [mockStaff],
+      });
+
+      await expect(
+        service.update(mockOffice.id, updateDto, nonStaffDoctorUser)
+      ).rejects.toThrow(ForbiddenException);
     });
 
     it("should update staff when staffIds is provided", async () => {
@@ -359,9 +444,11 @@ describe("OfficeService", () => {
       const saved = { ...mockOffice, staff: [mockStaff] };
       officeRepository.save.mockResolvedValue(saved);
 
-      const result = await service.update(mockOffice.id, {
-        staffIds: ["staff-1"],
-      });
+      const result = await service.update(
+        mockOffice.id,
+        { staffIds: ["staff-1"] },
+        adminUser
+      );
 
       expect(result.staff).toEqual([mockStaff]);
       expect(userRepository.findBy).toHaveBeenCalledWith({
@@ -376,7 +463,11 @@ describe("OfficeService", () => {
         name: "Updated Office",
       });
 
-      await service.update(mockOffice.id, { name: "Updated Office" });
+      await service.update(
+        mockOffice.id,
+        { name: "Updated Office" },
+        adminUser
+      );
 
       expect(userRepository.findBy).not.toHaveBeenCalled();
     });
@@ -385,7 +476,7 @@ describe("OfficeService", () => {
       officeRepository.findOne.mockResolvedValue(null);
 
       await expect(
-        service.update("non-existent-id", updateDto)
+        service.update("non-existent-id", updateDto, adminUser)
       ).rejects.toThrow(NotFoundException);
     });
   });
