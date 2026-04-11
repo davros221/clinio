@@ -7,7 +7,7 @@ import { CreateUserModal } from "../user/CreateUserModal/CreateUserModal.tsx";
 
 export function PatientsOverview() {
   const t = useT();
-  const user = useUser();
+  const { user } = useUser();
   const [modalOpened, setModalOpened] = useState(false);
   const isAdmin = user?.role === "ADMIN";
   const mode = isAdmin ? "staff" : "patient";

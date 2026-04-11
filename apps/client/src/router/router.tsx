@@ -1,14 +1,20 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
-import { Login } from "../pages/login";
-import { RequireAuth } from "../components/RequireAuth.tsx";
-import { DashboardSwitch } from "../components/DashboardSwitch.tsx";
-import { AppLayout } from "../components/AppLayout";
-import { AuthenticatedLayout } from "../pages";
+import {
+  AppLayout,
+  AppointmentsOverview,
+  AuthLayout,
+  DashboardSwitch,
+  OfficesOverview,
+  PatientsOverview,
+  RequireAuth,
+} from "@components";
+import {
+  ForbiddenPage,
+  AuthenticatedLayout,
+  SignUpPage,
+  LoginPage,
+} from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
-import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
-import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
-import { PatientsOverview } from "../components/patients/PatientsOverview";
-import { AppointmentsOverview } from "../components/appointments/AppointmentsOverview.tsx";
 
 export const routes: RouteObject[] = [
   {
@@ -19,8 +25,17 @@ export const routes: RouteObject[] = [
         element: <ForbiddenPage />,
       },
       {
-        path: ROUTER_PATHS.LOGIN,
-        element: <Login />,
+        element: <AuthLayout />,
+        children: [
+          {
+            path: ROUTER_PATHS.LOGIN,
+            element: <LoginPage />,
+          },
+          {
+            path: ROUTER_PATHS.SIGN_UP,
+            element: <SignUpPage />,
+          },
+        ],
       },
       {
         element: <RequireAuth />,

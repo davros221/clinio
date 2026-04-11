@@ -1,7 +1,7 @@
 import { User } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { DataTable } from "../DataTable";
-import { useGetUsersQuery } from "../../api/userService";
+import { useGetUsersQuery } from "@api";
 import { useT } from "../../hooks/useT";
 import { useUser } from "../../hooks/useUser";
 
@@ -13,7 +13,7 @@ const mapColumn = (key: keyof User, headerKey: string) => ({
 
 export function PatientsOverviewTable() {
   const t = useT();
-  const currentUser = useUser();
+  const { user: currentUser } = useUser();
   const isAdmin = currentUser?.role === UserRole.ADMIN;
   const {
     data: users = [],

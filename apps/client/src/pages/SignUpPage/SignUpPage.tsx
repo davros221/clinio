@@ -2,17 +2,18 @@ import { Anchor, Title, Center, Group } from "@mantine/core";
 import { UserFormProvider } from "../../form/createUserForm/CreateUserFormContext.ts";
 import { CreateUserForm } from "../../form/createUserForm/CreateUserForm.tsx";
 import { useT } from "../../hooks/useT.ts";
-import { useSignUpPanel } from "./useSignUpPanel.ts";
+import { useSignUpPage } from "./useSignUpPage.ts";
 
 const FORM_ID = "createUserForm";
 
+// ToDo
 interface Props {
   onSuccess?: (email: string) => void;
 }
 
-export const SignUpPanel = (props: Props) => {
+export const SignUpPage = (props: Props) => {
   const t = useT();
-  const { handleSubmit, form, isPending } = useSignUpPanel(props);
+  const { handleSubmit, form, isPending, handleLogin } = useSignUpPage();
 
   return (
     <>
@@ -40,7 +41,13 @@ export const SignUpPanel = (props: Props) => {
           </Anchor>
 
           {/* ToDo: Back link will be fixed in login panels refactor commit */}
-          <Anchor component="button" size="sm" c="dimmed" type={"button"}>
+          <Anchor
+            component="button"
+            size="sm"
+            c="dimmed"
+            type={"button"}
+            onClick={handleLogin}
+          >
             {t("signUp.backToLogin")}
           </Anchor>
         </Group>

@@ -3,6 +3,12 @@ import { Outlet } from "react-router";
 import classes from "./index.module.css";
 import { SideMenu } from "../components/SideMenu.tsx";
 
+export * from "./LoginPage/LoginPage.tsx";
+export * from "./SignUpPage/SignUpPage.tsx";
+export * from "./ForbiddenPage.tsx";
+export * from "./dashboards";
+
+// ToDo: Rename
 export const AuthenticatedLayout = () => {
   return (
     <div className={classes.card}>
