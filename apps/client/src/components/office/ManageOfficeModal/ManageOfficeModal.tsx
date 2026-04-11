@@ -8,12 +8,14 @@ import {
   Select,
   Button,
   Box,
+  Autocomplete,
   Fieldset,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "../../../api/userService.ts";
 import { DAYS, UserRole } from "@clinio/shared";
 import { CAP_WORK_DAYS, CAP_DAYS } from "../../utils/types.ts";
+import { MapPreview } from "../../MapPreview";
 import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,
@@ -30,6 +32,9 @@ import {
   type DayEntryType,
   type ManageOfficeFormValues,
 } from "./ManageOfficeFormContext";
+import { useDebouncedValue } from "@mantine/hooks";
+import { useAddressSuggestQuery } from "../../../api/addressService.ts";
+import { DEBOUNCE_MS } from "../../../constants.ts";
 
 type PropsType = {
   opened: boolean;
@@ -48,6 +53,11 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   const { isClient } = useUserRole();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [addressValue, setAddressValue] = useState("");
+  const [mapPosition, setMapPosition] = useState<{
+    lon: number;
+    lat: number;
+  } | null>(null);
   const { data: users = [] } = useGetUsersQuery([
     UserRole.NURSE,
     UserRole.DOCTOR,
@@ -102,6 +112,15 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       },
     },
   });
+
+  form.watch("address", ({ value }) => setAddressValue(value));
+  const [debouncedAddress] = useDebouncedValue(addressValue, DEBOUNCE_MS);
+  const { data: suggestions = [] } = useAddressSuggestQuery(debouncedAddress);
+
+  const handleAddressSelect = (value: string) => {
+    const match = suggestions.find((s) => `${s.name}, ${s.location}` === value);
+    setMapPosition(match?.position ?? null);
+  };
 
   // Populate form when office data arrives or modal opens for editing
   useEffect(() => {
@@ -244,14 +263,29 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                   {...form.getInputProps("specialization")}
                   mb="xs"
                 />
-                <TextInput
+                <Autocomplete
                   key={form.key("address")}
                   label={t("office.createOfficeModal.fields.address")}
                   placeholder={t(
                     "office.createOfficeModal.fields.addressPlaceholder"
                   )}
                   {...form.getInputProps("address")}
+                  data={suggestions.map((s) => `${s.name}, ${s.location}`)}
+                  onOptionSubmit={handleAddressSelect}
                 />
+
+                {mapPosition ? (
+                  <MapPreview
+                    lon={mapPosition.lon}
+                    lat={mapPosition.lat}
+                    style={{ borderRadius: 8, marginTop: 8 }}
+                  />
+                ) : addressValue.length >= 3 ? (
+                  <MapPreview
+                    address={addressValue}
+                    style={{ borderRadius: 8, marginTop: 8 }}
+                  />
+                ) : null}
               </Box>
 
               {/* Office Hours */}

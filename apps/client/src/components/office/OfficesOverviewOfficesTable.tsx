@@ -1,5 +1,6 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
+import { MapPreview } from "../MapPreview";
 import {
   useDeleteOfficeMutation,
   useGetOfficeListQuery,
@@ -63,11 +64,6 @@ function OfficeCard({
   const t = useT();
   const { isAdmin } = useUserRole();
 
-  const mapSrc = useMemo(() => {
-    const query = encodeURIComponent(office.address);
-    return `https://maps.google.com/maps?q=${query}&output=embed`;
-  }, [office.address]);
-
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Stack justify="space-between" h="100%" className={classes.cardContent}>
@@ -78,45 +74,40 @@ function OfficeCard({
           </Badge>
         </Group>
 
+        <Stack>
+          <Group>
+            <ManageOfficeModalOpenBtn officeId={office.id} />
+            {isAdmin && (
+              <Button
+                size="xs"
+                variant="outline"
+                color="red"
+                onClick={() => onDelete(office.id)}
+              >
+                {t("common.action.delete")}
+              </Button>
+            )}
+          </Group>
+
+          <Stack gap="none">
+            <Text size="sm" c="dimmed">
+              Address:
+            </Text>
+            <Text size="md">{office.address}</Text>
+          </Stack>
+        </Stack>
         <Group h="100%" align="stretch" className={classes.body}>
-          <Stack>
-            <Group>
-              <ManageOfficeModalOpenBtn officeId={office.id} />
-              {isAdmin && (
-                <Button
-                  size="xs"
-                  variant="outline"
-                  color="red"
-                  onClick={() => onDelete(office.id)}
-                >
-                  {t("common.action.delete")}
-                </Button>
-              )}
-            </Group>
-
-            <Stack>
-              <Stack gap="none">
-                <Text size="sm" c="dimmed">
-                  Address:
-                </Text>
-                <Text size="md">{office.address}</Text>
-              </Stack>
-
-              <Stack gap="4xs">
-                <Text size="sm" c="dimmed">
-                  office hours:
-                </Text>
-                <OfficeHoursSummary template={office.officeHoursTemplate} />
-              </Stack>
-            </Stack>
+          <Stack gap="4xs">
+            <Text size="sm" c="dimmed">
+              office hours:
+            </Text>
+            <OfficeHoursSummary template={office.officeHoursTemplate} />
           </Stack>
 
-          <iframe
-            src={mapSrc}
+          <MapPreview
+            address={office.address}
             title={`Map: ${office.address}`}
             className={classes.map}
-            loading="lazy"
-            referrerPolicy="no-referrer"
           />
         </Group>
       </Stack>

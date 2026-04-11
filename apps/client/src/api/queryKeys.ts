@@ -6,6 +6,8 @@ const createQueryKeys = (entity: string) => ({
   detail: (id: string) => [entity, "detail", id] as const,
 });
 
+export const addressKeys = createQueryKeys("addresses");
+export const suggestKeys = createQueryKeys("suggest");
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
 export const appointmentKeys = createQueryKeys("appointments");
