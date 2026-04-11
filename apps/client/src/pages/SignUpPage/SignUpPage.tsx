@@ -1,4 +1,4 @@
-import { Anchor, Title, Center, Group } from "@mantine/core";
+import { Anchor, Title, Center, Group, Box, Button } from "@mantine/core";
 import { UserFormProvider } from "../../form/createUserForm/CreateUserFormContext.ts";
 import { CreateUserForm } from "../../form/createUserForm/CreateUserForm.tsx";
 import { useT } from "../../hooks/useT.ts";
@@ -6,17 +6,12 @@ import { useSignUpPage } from "./useSignUpPage.ts";
 
 const FORM_ID = "createUserForm";
 
-// ToDo
-interface Props {
-  onSuccess?: (email: string) => void;
-}
-
-export const SignUpPage = (props: Props) => {
+export const SignUpPage = () => {
   const t = useT();
   const { handleSubmit, form, isPending, handleLogin } = useSignUpPage();
 
   return (
-    <>
+    <Box miw={450}>
       <Title ta="center" c="blue" order={1} mb="xl">
         {t("signUp.title")}
       </Title>
@@ -27,20 +22,21 @@ export const SignUpPage = (props: Props) => {
         </UserFormProvider>
       </form>
 
+      <Button
+        fullWidth
+        mt={"xl"}
+        variant={"outlint"}
+        radius={"xl"}
+        size={"md"}
+        type={"submit"}
+        form={FORM_ID}
+        loading={isPending}
+      >
+        {t("signUp.submitButton")}
+      </Button>
+
       <Center mt="md">
         <Group gap="xs">
-          <Anchor
-            component="button"
-            size="sm"
-            c="dimmed"
-            type={"submit"}
-            form={FORM_ID}
-            disabled={isPending}
-          >
-            {t("login.signUp")}
-          </Anchor>
-
-          {/* ToDo: Back link will be fixed in login panels refactor commit */}
           <Anchor
             component="button"
             size="sm"
@@ -52,6 +48,6 @@ export const SignUpPage = (props: Props) => {
           </Anchor>
         </Group>
       </Center>
-    </>
+    </Box>
   );
 };

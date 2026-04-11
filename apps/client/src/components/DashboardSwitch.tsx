@@ -2,7 +2,7 @@ import { USER_ROLES } from "../types/user";
 import { useUser } from "../hooks/useUser.ts";
 import { JSX } from "react";
 import { Navigate } from "react-router";
-import { ROUTER_PATHS } from "../router/routes.ts";
+import { ROUTER_PATHS } from "@router";
 import {
   AdminDashboard,
   ClientDashboard,

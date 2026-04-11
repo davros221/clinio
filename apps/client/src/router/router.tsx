@@ -1,20 +1,14 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import {
-  AppLayout,
   AppointmentsOverview,
-  AuthLayout,
   DashboardSwitch,
   OfficesOverview,
   PatientsOverview,
   RequireAuth,
 } from "@components";
-import {
-  ForbiddenPage,
-  AuthenticatedLayout,
-  SignUpPage,
-  LoginPage,
-} from "@pages";
+import { ForbiddenPage, SignUpPage, LoginPage } from "@pages";
 import { ROUTER_PATHS } from "@router";
+import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
 
 export const routes: RouteObject[] = [
   {
@@ -25,7 +19,7 @@ export const routes: RouteObject[] = [
         element: <ForbiddenPage />,
       },
       {
-        element: <AuthLayout />,
+        element: <PublicLayout />,
         children: [
           {
             path: ROUTER_PATHS.LOGIN,
