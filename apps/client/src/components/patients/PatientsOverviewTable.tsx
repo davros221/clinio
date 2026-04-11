@@ -5,6 +5,12 @@ import { useGetUsersQuery } from "../../api/userService";
 import { useT } from "../../hooks/useT";
 import { useUser } from "../../hooks/useUser";
 
+const mapColumn = (key: keyof User, headerKey: string) => ({
+  key,
+  header: headerKey,
+  render: (row: User) => row[key],
+});
+
 export function PatientsOverviewTable() {
   const t = useT();
   const currentUser = useUser();
@@ -18,31 +24,11 @@ export function PatientsOverviewTable() {
     isAdmin ? [UserRole.DOCTOR, UserRole.NURSE] : [UserRole.CLIENT]
   );
 
-  const baseColumns = [
-    {
-      key: "firstName",
-      header: t("patient.form.firstName"),
-      render: (row: User) => row.firstName,
-    },
-    {
-      key: "lastName",
-      header: t("patient.form.lastName"),
-      render: (row: User) => row.lastName,
-    },
-    {
-      key: "email",
-      header: t("patient.form.email"),
-      render: (row: User) => row.email,
-    },
-  ];
-
-  const adminColumns = [
-    ...baseColumns,
-    {
-      key: "role",
-      header: t("user.form.role"),
-      render: (row: User) => row.role,
-    },
+  const columns = [
+    mapColumn("firstName", t("patient.form.firstName")),
+    mapColumn("lastName", t("patient.form.lastName")),
+    mapColumn("email", t("patient.form.email")),
+    ...(isAdmin ? [mapColumn("role", t("user.form.role"))] : []),
   ];
 
   return (
@@ -52,7 +38,7 @@ export function PatientsOverviewTable() {
       isLoading={isLoading}
       isError={isError}
       error={error}
-      columns={isAdmin ? adminColumns : baseColumns}
+      columns={columns}
       highlightOnHover={false}
     />
   );
