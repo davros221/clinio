@@ -24,6 +24,14 @@ const en = {
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Appointment not found",
         [ErrorCode.BAD_REQUEST]: "Invalid request",
         [ErrorCode.PATIENT_NOT_FOUND]: "Patient not found",
+        [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Account is not active",
+        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Account is already activated",
+        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Invalid activation token",
+        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]: "Activation token has expired",
+        [ErrorCode.APPOINTMENT_SLOT_TAKEN]:
+          "This appointment slot is already taken",
+        [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
+          "Appointment is outside office hours",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Forbidden",
@@ -43,6 +51,7 @@ const en = {
     validation: {
       required: "required",
       datePast: "date cannot be in the past",
+      birthNumberLength: "Birth number must be exactly 10 digits",
     },
   },
   component: {
@@ -199,6 +208,10 @@ const en = {
       birthdate: "Date of Birth",
       phone: "Phone",
       submit: "Create Patient",
+    },
+    notification: {
+      createSuccessTitle: "Done!",
+      createSuccessMessage: "Patient was successfully created.",
     },
   },
 } as const;

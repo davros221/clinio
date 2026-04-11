@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { User, UserService } from "@clinio/api";
 import { t } from "../i18n";
 import { notifyError } from "../utils/notification";
+import { notifySuccess } from "../utils/notification";
 import { patientKeys } from "./queryKeys";
 
 export type CreatePatientDto = {
@@ -29,6 +30,10 @@ export const useCreatePatientMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
+      notifySuccess(
+        t("patient.notification.createSuccessTitle"),
+        t("patient.notification.createSuccessMessage")
+      );
     },
     onError: (error) =>
       notifyError(t("common.error.createFailed"), error.message),

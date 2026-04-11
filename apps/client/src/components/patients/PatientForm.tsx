@@ -65,7 +65,15 @@ export const PatientForm = () => {
       <TextInput
         label={t("patient.form.birthNumber")}
         value={form.birthNumber ?? ""}
-        onChange={(e) => handleChange("birthNumber", e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+          handleChange("birthNumber", value);
+        }}
+        error={
+          form.birthNumber && form.birthNumber.length < 10
+            ? t("common.validation.birthNumberLength")
+            : undefined
+        }
         required
       />
       <DatePickerInput

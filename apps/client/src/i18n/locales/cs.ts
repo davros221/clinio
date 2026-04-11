@@ -25,6 +25,14 @@ const cs: TranslationKeys = {
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Schůzka nebyla nalezena",
         [ErrorCode.BAD_REQUEST]: "Neplatný požadavek",
         [ErrorCode.PATIENT_NOT_FOUND]: "Pacient nebyl nalezen",
+        [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Účet není aktivní",
+        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Účet je již aktivován",
+        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Neplatný aktivační token",
+        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]:
+          "Platnost aktivačního tokenu vypršela",
+        [ErrorCode.APPOINTMENT_SLOT_TAKEN]: "Tento termín je již obsazen",
+        [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
+          "Termín je mimo ordinační hodiny",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Zakázáno",
@@ -44,6 +52,7 @@ const cs: TranslationKeys = {
     validation: {
       required: "povinné pole",
       datePast: "datum nemůže být v minulosti",
+      birthNumberLength: "Rodné číslo musí mít přesně 10 číslic",
     },
   },
   component: {
@@ -199,6 +208,10 @@ const cs: TranslationKeys = {
       birthdate: "Datum narození",
       phone: "Telefon",
       submit: "Založit pacienta",
+    },
+    notification: {
+      createSuccessTitle: "Hotovo!",
+      createSuccessMessage: "Pacient byl úspěšně vytvořen.",
     },
   },
 } as const;
