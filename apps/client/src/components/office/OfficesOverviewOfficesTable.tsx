@@ -1,8 +1,4 @@
-import {
-  Office,
-  OfficeHoursInterval,
-  OfficeHoursTemplateDto,
-} from "@clinio/api";
+import { Office, OfficeHoursTemplateDto } from "@clinio/api";
 import { useCallback, useMemo } from "react";
 import {
   useDeleteOfficeMutation,
@@ -18,12 +14,14 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  Title,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
 import { useT } from "../../hooks/useT";
 import { DAYS } from "@clinio/shared";
 import { useUserRole } from "../../hooks/useUserRole.ts";
+import classes from "./OfficesOverviewOfficesTable.module.css";
 
 function OfficeHoursSummary({
   template,
@@ -32,33 +30,22 @@ function OfficeHoursSummary({
 }) {
   const t = useT();
 
-  if (!template || typeof template !== "object") return null;
-
   return (
     <Stack gap={2}>
       {DAYS.map((day) => {
         const intervals = template[day];
-        if (!intervals) return null;
+        if (!intervals?.length) return null;
 
         const timeString = intervals
-          .filter(
-            (interval): interval is OfficeHoursInterval =>
-              !!interval &&
-              typeof interval === "object" &&
-              "from" in interval &&
-              "to" in interval
-          )
           .map((slot) => `${slot.from}:00\u2013${slot.to}:00`)
           .join(", ");
 
-        if (!timeString) return null;
-
         return (
           <Group key={day} gap={4} wrap="nowrap">
-            <Text fw={700} size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+            <Text fw={700} size="sm" c="dimmed" className={classes.dayLabel}>
               {t(`common.time.daysShort.${day}`)}
             </Text>
-            <Text size="xs">{timeString}</Text>
+            <Text size="sm">{timeString}</Text>
           </Group>
         );
       })}
@@ -82,55 +69,57 @@ function OfficeCard({
   }, [office.address]);
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
-      <Group wrap="nowrap" align="stretch" h="100%" gap="lg">
-        <Stack justify="space-between" style={{ flex: 1, minWidth: 0 }}>
-          <Stack gap="sm">
-            <Group justify="space-between" align="flex-start">
-              <Text fw={600} size="lg">
-                {office.name}
-              </Text>
-              <Badge variant="light" color="blue">
-                {office.specialization}
-              </Badge>
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Stack justify="space-between" h="100%" className={classes.cardContent}>
+        <Group>
+          <Title size="lg">{office.name}</Title>
+          <Badge variant="light" color="blue">
+            {office.specialization}
+          </Badge>
+        </Group>
+
+        <Group h="100%" align="stretch" className={classes.body}>
+          <Stack>
+            <Group>
+              <ManageOfficeModalOpenBtn officeId={office.id} />
+              {isAdmin && (
+                <Button
+                  size="xs"
+                  variant="outline"
+                  color="red"
+                  onClick={() => onDelete(office.id)}
+                >
+                  {t("common.action.delete")}
+                </Button>
+              )}
             </Group>
 
-            <Text size="sm" c="dimmed">
-              {office.address}
-            </Text>
+            <Stack>
+              <Stack gap="none">
+                <Text size="sm" c="dimmed">
+                  Address:
+                </Text>
+                <Text size="md">{office.address}</Text>
+              </Stack>
 
-            <OfficeHoursSummary template={office.officeHoursTemplate} />
+              <Stack gap="4xs">
+                <Text size="sm" c="dimmed">
+                  office hours:
+                </Text>
+                <OfficeHoursSummary template={office.officeHoursTemplate} />
+              </Stack>
+            </Stack>
           </Stack>
 
-          <Group mt="md">
-            <ManageOfficeModalOpenBtn officeId={office.id} />
-            {isAdmin && (
-              <Button
-                size="xs"
-                variant="outline"
-                color="red"
-                onClick={() => onDelete(office.id)}
-              >
-                {t("common.action.delete")}
-              </Button>
-            )}
-          </Group>
-        </Stack>
-
-        <iframe
-          src={mapSrc}
-          title={`Map: ${office.address}`}
-          style={{
-            border: 0,
-            borderRadius: 8,
-            width: 250,
-            minHeight: 200,
-            flexShrink: 0,
-          }}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-        />
-      </Group>
+          <iframe
+            src={mapSrc}
+            title={`Map: ${office.address}`}
+            className={classes.map}
+            loading="lazy"
+            referrerPolicy="no-referrer"
+          />
+        </Group>
+      </Stack>
     </Card>
   );
 }
@@ -175,7 +164,7 @@ export function OfficesOverviewOfficesTable() {
   }
 
   return (
-    <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="lg">
+    <SimpleGrid cols={{ base: 2 }} spacing="lg">
       {offices.map((office) => (
         <OfficeCard key={office.id} office={office} onDelete={handleDelete} />
       ))}

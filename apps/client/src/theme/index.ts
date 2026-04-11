@@ -42,4 +42,13 @@ export const theme = createTheme({
   fontSizes,
   radius,
   spacing,
+  components: {
+    Badge: {
+      styles: {
+        // overrides for badge defaults, mantine clips the text from top
+        root: { overflow: "visible" },
+        label: { overflow: "visible", lineHeight: "normal" },
+      },
+    },
+  },
 });
