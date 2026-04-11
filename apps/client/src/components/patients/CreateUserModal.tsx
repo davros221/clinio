@@ -18,7 +18,10 @@ const baseSchema = z.object({
 });
 
 const patientSchema = baseSchema.extend({
-  birthNumber: z.string().length(10, "common.validation.birthNumberLength"),
+  birthNumber: z
+    .string()
+    .min(9, "common.validation.birthNumberLength")
+    .max(10, "common.validation.birthNumberLength"),
   birthdate: z
     .string()
     .min(1)
