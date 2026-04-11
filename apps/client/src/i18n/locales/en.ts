@@ -5,6 +5,7 @@ const en = {
     action: {
       save: "Save",
       delete: "Delete",
+      cancel: "Cancel",
     },
     appName: "ClinIO",
     error: {
@@ -50,7 +51,10 @@ const en = {
     },
     validation: {
       required: "required",
+      email: "invalid email address",
+      phone: "invalid phone number format (+420111222333)",
       datePast: "date cannot be in the past",
+      dateFuture: "date cannot be in the future",
       birthNumberLength: "Birth number must be exactly 10 digits",
     },
   },
@@ -65,6 +69,8 @@ const en = {
     dashboard: "Dashboard",
     offices: "Offices",
     appointments: "Appointments",
+    patients: "Patients",
+    staff: "Staff",
     settings: "Settings",
     logout: "Logout",
   },
@@ -198,7 +204,22 @@ const en = {
     phoneLabel: "Phone",
     phonePlaceholder: "Phone number",
   },
+  user: {
+    form: {
+      title: "New User",
+      role: "Role",
+      password: "Password",
+      submit: "Create User",
+    },
+    notification: {
+      createSuccessTitle: "Done!",
+      createSuccessMessage: "User was successfully created.",
+    },
+  },
   patient: {
+    overview: {
+      title: "Patients",
+    },
     form: {
       title: "New Patient",
       firstName: "First Name",

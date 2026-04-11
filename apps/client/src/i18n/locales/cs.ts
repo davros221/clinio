@@ -6,6 +6,7 @@ const cs: TranslationKeys = {
     action: {
       save: "Uložit",
       delete: "Smazat",
+      cancel: "Zrušit",
     },
     appName: "ClinIO",
     error: {
@@ -51,7 +52,10 @@ const cs: TranslationKeys = {
     },
     validation: {
       required: "povinné pole",
+      email: "neplatná e-mailová adresa",
+      phone: "neplatný formát telefonního čísla (+420111222333)",
       datePast: "datum nemůže být v minulosti",
+      dateFuture: "datum nemůže být v budoucnosti",
       birthNumberLength: "Rodné číslo musí mít přesně 10 číslic",
     },
   },
@@ -66,6 +70,8 @@ const cs: TranslationKeys = {
     dashboard: "Přehled",
     offices: "Ordinace",
     appointments: "Rezervace",
+    patients: "Pacienti",
+    staff: "Personál",
     settings: "Nastavení",
     logout: "Odhlásit se",
   },
@@ -198,7 +204,22 @@ const cs: TranslationKeys = {
     phoneLabel: "Telefon",
     phonePlaceholder: "Telefonní číslo",
   },
+  user: {
+    form: {
+      title: "Nový uživatel",
+      role: "Role",
+      password: "Heslo",
+      submit: "Vytvořit uživatele",
+    },
+    notification: {
+      createSuccessTitle: "Hotovo!",
+      createSuccessMessage: "Uživatel byl úspěšně vytvořen.",
+    },
+  },
   patient: {
+    overview: {
+      title: "Pacienti",
+    },
     form: {
       title: "Nový pacient",
       firstName: "Jméno",

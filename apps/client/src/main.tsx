@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import "./api/clientService.ts";
 import "./i18n"; // initialize i18next before rendering
+import { setupZodErrorMap } from "./i18n/zodErrorMap";
+setupZodErrorMap();
 import "./index.css";
 import App from "./App.tsx";
 import "@mantine/core/styles.css";
