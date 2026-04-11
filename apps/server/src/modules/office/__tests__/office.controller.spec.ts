@@ -6,7 +6,14 @@ import { OfficeMapper } from "../mapper/OfficeMapper";
 import { CreateOfficeDto } from "../dto/create-office.dto";
 import { UpdateOfficeDto } from "../dto/update-office.dto";
 import { UserRole, OfficeSortField, SortOrder } from "@clinio/shared";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
 import { UserEntity } from "../../user/user.entity";
+
+const mockUser: AuthUser = {
+  id: "admin-1",
+  email: "admin@example.com",
+  role: UserRole.ADMIN,
+};
 
 const mockStaff: UserEntity = {
   id: "staff-1",
@@ -197,10 +204,18 @@ describe("OfficeController", () => {
       };
       service.replace.mockResolvedValue(replaced);
 
-      const result = await controller.replace(mockOffice.id, replaceDto);
+      const result = await controller.replace(
+        mockOffice.id,
+        replaceDto,
+        mockUser
+      );
 
       expect(result).toEqual(OfficeMapper.toDto(replaced));
-      expect(service.replace).toHaveBeenCalledWith(mockOffice.id, replaceDto);
+      expect(service.replace).toHaveBeenCalledWith(
+        mockOffice.id,
+        replaceDto,
+        mockUser
+      );
     });
   });
 
@@ -216,10 +231,18 @@ describe("OfficeController", () => {
       };
       service.update.mockResolvedValue(updated);
 
-      const result = await controller.update(mockOffice.id, updateDto);
+      const result = await controller.update(
+        mockOffice.id,
+        updateDto,
+        mockUser
+      );
 
       expect(result).toEqual(OfficeMapper.toDto(updated));
-      expect(service.update).toHaveBeenCalledWith(mockOffice.id, updateDto);
+      expect(service.update).toHaveBeenCalledWith(
+        mockOffice.id,
+        updateDto,
+        mockUser
+      );
     });
   });
 

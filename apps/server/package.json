@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "@clinio/shared": "workspace:*",
+    "@css-inline/css-inline": "^0.20.2",
     "@faker-js/faker": "^10.3.0",
+    "@nestjs-modules/mailer": "^2.3.4",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.0",
@@ -12,9 +14,12 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.2.6",
+    "@nestjs/throttler": "^6.5.0",
     "@nestjs/typeorm": "^11.0.0",
     "bcryptjs": "^3.0.3",
+    "handlebars": "^4.7.9",
     "nestjs-zod": "^5.1.1",
+    "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.13.3",
@@ -27,6 +32,7 @@
   "devDependencies": {
     "@nestjs/testing": "^11.0.0",
     "@types/bcryptjs": "^3.0.0",
+    "@types/nodemailer": "^8.0.0",
     "@types/passport-jwt": "^4.0.1"
   }
 }

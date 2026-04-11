@@ -42,6 +42,7 @@ const en = {
     },
     validation: {
       required: "required",
+      datePast: "date cannot be in the past",
     },
   },
   component: {
@@ -54,8 +55,47 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     offices: "Offices",
+    appointments: "Appointments",
     settings: "Settings",
     logout: "Logout",
+  },
+  appointment: {
+    createModal: {
+      title: "New Appointment",
+      fields: {
+        office: "Office",
+        officePlaceholder: "Select office",
+        patient: "Patient",
+        patientPlaceholder: "Select patient",
+        date: "Date",
+        time: "Time",
+        timePlaceholder: "Select time slot",
+        note: "Note",
+        notePlaceholder: "Optional note",
+      },
+      buttons: {
+        cancel: "Cancel",
+        submit: "Book",
+      },
+    },
+    overview: {
+      title: "Appointments",
+      table: {
+        date: "Date",
+        time: "Time",
+        status: "Status",
+        office: "Office",
+        note: "Note",
+      },
+    },
+    status: {
+      planned: "Planned",
+      completed: "Completed",
+      cancelled: "Cancelled",
+    },
+    notification: {
+      createSuccess: "Appointment created",
+    },
   },
   login: {
     welcome: "WELCOME!",

@@ -1,7 +1,7 @@
 import { Table, Loader, Alert, Button, Group, Text, Box } from "@mantine/core";
 import { MdErrorOutline } from "react-icons/md";
+import { ApiError } from "@clinio/shared";
 import { useT } from "../hooks/useT";
-import { extractErrorCode } from "../utils/error";
 import classes from "./DataTable.module.css";
 
 export type DataTableColumn<T> = {
@@ -25,6 +25,7 @@ type Props<T> = {
   keyExtractor: (row: T) => string;
   actions?: DataTableAction<T>[];
   isLoading?: boolean;
+  isFetching?: boolean;
   isError?: boolean;
   error?: unknown;
   emptyMessage?: string;
@@ -37,6 +38,7 @@ export const DataTable = <T,>({
   keyExtractor,
   actions,
   isLoading,
+  isFetching,
   isError,
   error,
   emptyMessage,
@@ -54,9 +56,11 @@ export const DataTable = <T,>({
     );
 
   if (isError) {
-    const errorCode = extractErrorCode(error);
-    const errorMessage = errorCode
-      ? t(`common.error.${errorCode}`)
+    const isApiError = (e: unknown): e is ApiError =>
+      typeof e === "object" && e !== null && "errorCode" in e && "message" in e;
+
+    const errorMessage = isApiError(error)
+      ? error.message
       : t("component.dataTable.errorFallback");
 
     return (

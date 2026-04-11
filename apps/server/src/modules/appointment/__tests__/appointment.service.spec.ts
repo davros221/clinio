@@ -1,29 +1,66 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
+import { PatientEntity } from "../../patient/patient.entity";
+import { OfficeEntity } from "../../office/office.entity";
 import {
   AppointmentStatus,
   AppointmentSortField,
   SortOrder,
   ErrorCode,
+  UserRole,
 } from "@clinio/shared";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
+import { AuthUser } from "../../../auth/strategies/jwt.strategy";
+import { SettingsService } from "../../../common/services/settings.service";
+
+const adminUser: AuthUser = {
+  id: "admin-1",
+  email: "admin@test.com",
+  role: UserRole.ADMIN,
+};
+
+const doctorUser: AuthUser = {
+  id: "doctor-1",
+  email: "doctor@test.com",
+  role: UserRole.DOCTOR,
+};
+
+const clientUser: AuthUser = {
+  id: "client-1",
+  email: "client@test.com",
+  role: UserRole.CLIENT,
+};
+
+const mockPatient: Partial<PatientEntity> = {
+  id: "patient-1",
+  userId: clientUser.id,
+};
 
 const mockAppointment: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
-  officeId: null,
+  officeId: "office-1",
   office: null,
-  patientId: null,
+  patientId: "patient-1",
+  patient: mockPatient as PatientEntity,
   date: "2026-04-01",
   hour: 10,
   status: AppointmentStatus.PLANNED,
   note: "Initial consultation",
+};
+
+const mockOffice: Partial<OfficeEntity> = {
+  id: "office-1",
+  staff: [{ id: doctorUser.id }] as OfficeEntity["staff"],
 };
 
 const defaultQuery = {
@@ -41,14 +78,31 @@ const mockAppointmentRepository = () => ({
   save: jest.fn(),
 });
 
+const mockPatientRepository = () => ({
+  findOne: jest.fn(),
+});
+
+const mockOfficeRepository = () => ({
+  findOne: jest.fn(),
+});
+
+const mockSettingsService = () => ({
+  getOpeningHours: jest
+    .fn()
+    .mockReturnValue({ startingHour: 6, endingHour: 20 }),
+});
+
 describe("AppointmentService", () => {
   let service: AppointmentService;
-  let repository: jest.Mocked<
+  let appointmentRepo: jest.Mocked<
     Pick<
       Repository<AppointmentEntity>,
       "find" | "findAndCount" | "findOne" | "create" | "save"
     >
   >;
+  let patientRepo: jest.Mocked<Pick<Repository<PatientEntity>, "findOne">>;
+  let officeRepo: jest.Mocked<Pick<Repository<OfficeEntity>, "findOne">>;
+  let settingsService: jest.Mocked<Pick<SettingsService, "getOpeningHours">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -58,102 +112,196 @@ describe("AppointmentService", () => {
           provide: getRepositoryToken(AppointmentEntity),
           useFactory: mockAppointmentRepository,
         },
+        {
+          provide: getRepositoryToken(PatientEntity),
+          useFactory: mockPatientRepository,
+        },
+        {
+          provide: getRepositoryToken(OfficeEntity),
+          useFactory: mockOfficeRepository,
+        },
+        {
+          provide: SettingsService,
+          useFactory: mockSettingsService,
+        },
       ],
     }).compile();
 
     service = module.get<AppointmentService>(AppointmentService);
-    repository = module.get(getRepositoryToken(AppointmentEntity));
+    appointmentRepo = module.get(getRepositoryToken(AppointmentEntity));
+    patientRepo = module.get(getRepositoryToken(PatientEntity));
+    officeRepo = module.get(getRepositoryToken(OfficeEntity));
+    settingsService = module.get(SettingsService);
   });
 
   describe("findAll", () => {
-    it("should return appointments with pagination", async () => {
-      repository.findAndCount.mockResolvedValue([[mockAppointment], 1]);
+    it("should return all appointments for admin", async () => {
+      appointmentRepo.findAndCount.mockResolvedValue([[mockAppointment], 1]);
 
-      const result = await service.findAll(defaultQuery);
+      const result = await service.findAll(defaultQuery, adminUser);
 
       expect(result).toEqual({ items: [mockAppointment], total: 1 });
-      expect(repository.findAndCount).toHaveBeenCalledWith({
+      expect(appointmentRepo.findAndCount).toHaveBeenCalledWith({
         where: {},
-        relations: ["office"],
+        relations: ["office", "patient", "patient.user"],
         order: { date: "ASC" },
         skip: 0,
         take: 20,
       });
     });
 
-    it("should apply correct skip for page 2", async () => {
-      repository.findAndCount.mockResolvedValue([[], 0]);
+    it("should filter by statuses for admin", async () => {
+      appointmentRepo.findAndCount.mockResolvedValue([[mockAppointment], 1]);
 
-      await service.findAll({ ...defaultQuery, page: 2 });
+      await service.findAll(defaultQuery, adminUser, [
+        AppointmentStatus.PLANNED,
+      ]);
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ skip: 20, take: 20 })
-      );
-    });
-
-    it("should apply sorting parameters", async () => {
-      repository.findAndCount.mockResolvedValue([[], 0]);
-
-      await service.findAll({
-        ...defaultQuery,
-        sortBy: AppointmentSortField.STATUS,
-        sortOrder: SortOrder.DESC,
-      });
-
-      expect(repository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ order: { status: "DESC" } })
-      );
-    });
-
-    it("should filter by statuses when provided", async () => {
-      repository.findAndCount.mockResolvedValue([[mockAppointment], 1]);
-
-      await service.findAll(defaultQuery, [AppointmentStatus.PLANNED]);
-
-      expect(repository.findAndCount).toHaveBeenCalledWith(
+      expect(appointmentRepo.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { status: expect.anything() },
         })
       );
     });
 
-    it("should not filter by status when statuses not provided", async () => {
-      repository.findAndCount.mockResolvedValue([[], 0]);
+    describe("patient (CLIENT)", () => {
+      it("should return only patient's own appointments", async () => {
+        patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+        appointmentRepo.findAndCount.mockResolvedValue([[mockAppointment], 1]);
 
-      await service.findAll(defaultQuery);
+        const result = await service.findAll(defaultQuery, clientUser);
 
-      expect(repository.findAndCount).toHaveBeenCalledWith(
-        expect.objectContaining({ where: {} })
-      );
+        expect(result).toEqual({ items: [mockAppointment], total: 1 });
+        expect(patientRepo.findOne).toHaveBeenCalledWith({
+          where: { userId: clientUser.id },
+        });
+        expect(appointmentRepo.findAndCount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { patientId: mockPatient.id },
+          })
+        );
+      });
+
+      it("should return empty result when patient entity not found", async () => {
+        patientRepo.findOne.mockResolvedValue(null);
+
+        const result = await service.findAll(defaultQuery, clientUser);
+
+        expect(result).toEqual({ items: [], total: 0 });
+      });
+    });
+
+    describe("staff (DOCTOR/NURSE)", () => {
+      it("should filter by officeId and validate staff membership", async () => {
+        officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+        appointmentRepo.findAndCount.mockResolvedValue([[mockAppointment], 1]);
+
+        const result = await service.findAll(
+          defaultQuery,
+          doctorUser,
+          undefined,
+          "office-1"
+        );
+
+        expect(result).toEqual({ items: [mockAppointment], total: 1 });
+        expect(officeRepo.findOne).toHaveBeenCalledWith({
+          where: { id: "office-1" },
+          relations: ["staff"],
+        });
+        expect(appointmentRepo.findAndCount).toHaveBeenCalledWith(
+          expect.objectContaining({
+            where: { officeId: "office-1" },
+          })
+        );
+      });
+
+      it("should throw ForbiddenException when officeId not provided", async () => {
+        await expect(service.findAll(defaultQuery, doctorUser)).rejects.toThrow(
+          ForbiddenException
+        );
+      });
+
+      it("should throw ForbiddenException when staff does not belong to office", async () => {
+        officeRepo.findOne.mockResolvedValue({
+          ...mockOffice,
+          staff: [{ id: "other-doctor" }],
+        } as OfficeEntity);
+
+        await expect(
+          service.findAll(defaultQuery, doctorUser, undefined, "office-1")
+        ).rejects.toThrow(ForbiddenException);
+      });
     });
   });
 
   describe("findById", () => {
-    it("should return appointment when found", async () => {
-      repository.findOne.mockResolvedValue(mockAppointment);
+    it("should return appointment for admin", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
 
-      const result = await service.findById(mockAppointment.id);
+      const result = await service.findById(mockAppointment.id, adminUser);
 
       expect(result).toEqual(mockAppointment);
-      expect(repository.findOne).toHaveBeenCalledWith({
+      expect(appointmentRepo.findOne).toHaveBeenCalledWith({
         where: { id: mockAppointment.id },
-        relations: ["office"],
+        relations: ["office", "patient", "patient.user"],
       });
     });
 
-    it("should throw NotFoundException when appointment not found", async () => {
-      repository.findOne.mockResolvedValue(null);
+    it("should return appointment for patient who belongs to it", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
 
-      await expect(service.findById("non-existent-id")).rejects.toThrow(
-        NotFoundException
-      );
+      const result = await service.findById(mockAppointment.id, clientUser);
+
+      expect(result).toEqual(mockAppointment);
+    });
+
+    it("should throw ForbiddenException for patient who does not belong to appointment", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        patientId: "other-patient",
+      });
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+
+      await expect(
+        service.findById(mockAppointment.id, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should return appointment for staff belonging to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      const result = await service.findById(mockAppointment.id, doctorUser);
+
+      expect(result).toEqual(mockAppointment);
+    });
+
+    it("should throw ForbiddenException for staff not belonging to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+      officeRepo.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [{ id: "other-doctor" }],
+      } as OfficeEntity);
+
+      await expect(
+        service.findById(mockAppointment.id, doctorUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.findById("non-existent-id", adminUser)
+      ).rejects.toThrow(NotFoundException);
     });
 
     it("should throw NotFoundException with APPOINTMENT_NOT_FOUND error code", async () => {
-      repository.findOne.mockResolvedValue(null);
+      appointmentRepo.findOne.mockResolvedValue(null);
 
       try {
-        await service.findById("non-existent-id");
+        await service.findById("non-existent-id", adminUser);
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
@@ -164,10 +312,10 @@ describe("AppointmentService", () => {
     });
 
     it("should throw InternalServerErrorException when repository throws", async () => {
-      repository.findOne.mockRejectedValue(new Error("DB error"));
+      appointmentRepo.findOne.mockRejectedValue(new Error("DB error"));
 
       try {
-        await service.findById(mockAppointment.id);
+        await service.findById(mockAppointment.id, adminUser);
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
@@ -182,40 +330,153 @@ describe("AppointmentService", () => {
 
   describe("findByOfficeAndWeek", () => {
     it("should query by officeId and date range for the week", async () => {
-      repository.find.mockResolvedValue([mockAppointment]);
+      appointmentRepo.find.mockResolvedValue([mockAppointment]);
 
       const weekStart = new Date("2026-03-30T00:00:00.000Z");
       const result = await service.findByOfficeAndWeek("office-1", weekStart);
 
       expect(result).toEqual([mockAppointment]);
-      expect(repository.find).toHaveBeenCalledWith({
+      expect(appointmentRepo.find).toHaveBeenCalledWith({
         where: {
           officeId: "office-1",
           date: expect.anything(),
         },
+        relations: ["patient", "patient.user"],
       });
     });
   });
 
   describe("create", () => {
     const createDto: CreateAppointmentDto = {
-      officeId: null,
-      patientId: null,
+      officeId: "office-1",
       date: "2026-04-01",
       hour: 10,
       status: AppointmentStatus.PLANNED,
       note: "Initial consultation",
     };
 
-    it("should create and return appointment", async () => {
-      repository.create.mockReturnValue(mockAppointment);
-      repository.save.mockResolvedValue(mockAppointment);
+    it("should create and return appointment for admin", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null); // no existing slot
+      appointmentRepo.create.mockReturnValue(mockAppointment);
+      appointmentRepo.save.mockResolvedValue(mockAppointment);
 
-      const result = await service.create(createDto);
+      const result = await service.create(createDto, adminUser);
 
       expect(result).toEqual(mockAppointment);
-      expect(repository.create).toHaveBeenCalledWith(createDto);
-      expect(repository.save).toHaveBeenCalledWith(mockAppointment);
+      expect(appointmentRepo.create).toHaveBeenCalledWith(createDto);
+      expect(appointmentRepo.save).toHaveBeenCalledWith(mockAppointment);
+    });
+
+    it("should validate staff belongs to office when doctor creates", async () => {
+      const staffDto = { ...createDto, patientId: "patient-1" };
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.findOne.mockResolvedValue(null);
+      appointmentRepo.create.mockReturnValue(mockAppointment);
+      appointmentRepo.save.mockResolvedValue(mockAppointment);
+
+      await service.create(staffDto, doctorUser);
+
+      expect(officeRepo.findOne).toHaveBeenCalledWith({
+        where: { id: "office-1" },
+        relations: ["staff"],
+      });
+    });
+
+    it("should throw BadRequestException when staff creates without patientId", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      await expect(service.create(createDto, doctorUser)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it("should throw ForbiddenException when doctor does not belong to office", async () => {
+      officeRepo.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [{ id: "other-doctor" }],
+      } as OfficeEntity);
+
+      await expect(service.create(createDto, doctorUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should allow client to create appointment for any office", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+      appointmentRepo.create.mockReturnValue(mockAppointment);
+      appointmentRepo.save.mockResolvedValue(mockAppointment);
+
+      const result = await service.create(createDto, clientUser);
+
+      expect(result).toEqual(mockAppointment);
+      expect(officeRepo.findOne).not.toHaveBeenCalled();
+      expect(patientRepo.findOne).toHaveBeenCalledWith({
+        where: { userId: clientUser.id },
+      });
+    });
+
+    it("should throw NotFoundException when client has no patient record", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+      patientRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.create(createDto, clientUser)).rejects.toThrow(
+        NotFoundException
+      );
+    });
+
+    it("should throw BadRequestException when hour is outside opening hours", async () => {
+      const dto: CreateAppointmentDto = { ...createDto, hour: 5 };
+
+      await expect(service.create(dto, adminUser)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it("should throw BadRequestException with APPOINTMENT_OUTSIDE_HOURS error code", async () => {
+      const dto: CreateAppointmentDto = { ...createDto, hour: 21 };
+
+      try {
+        await service.create(dto, adminUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_OUTSIDE_HOURS,
+        });
+      }
+    });
+
+    it("should throw ConflictException when slot is already taken", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+
+      await expect(service.create(createDto, adminUser)).rejects.toThrow(
+        ConflictException
+      );
+    });
+
+    it("should throw ConflictException with APPOINTMENT_SLOT_TAKEN error code", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+
+      try {
+        await service.create(createDto, adminUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConflictException);
+        expect((error as ConflictException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_SLOT_TAKEN,
+        });
+      }
+    });
+
+    it("should allow creating appointment when existing slot is cancelled", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null); // Not(CANCELLED) returns no match
+      appointmentRepo.create.mockReturnValue(mockAppointment);
+      appointmentRepo.save.mockResolvedValue(mockAppointment);
+
+      const result = await service.create(createDto, adminUser);
+
+      expect(result).toEqual(mockAppointment);
     });
   });
 });

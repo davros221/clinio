@@ -8,6 +8,7 @@ import { ROUTER_PATHS } from "./routes.ts";
 import { ForbiddenPage } from "../pages/ForbiddenPage.tsx";
 import { OfficesOverview } from "../components/office/OfficesOverview.tsx";
 import { CreatePatientPage } from "../pages/patients/CreatePatientPage";
+import { AppointmentsOverview } from "../components/appointments/AppointmentsOverview.tsx";
 
 export const routes: RouteObject[] = [
   {
@@ -23,10 +24,6 @@ export const routes: RouteObject[] = [
       },
       // Protected Routes
       {
-        path: ROUTER_PATHS.CREATE_PATIENT,
-        element: <CreatePatientPage />,
-      },
-      {
         element: <RequireAuth />,
         children: [
           {
@@ -39,6 +36,14 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.OFFICES,
                 element: <OfficesOverview />,
+              },
+              {
+                path: ROUTER_PATHS.CREATE_PATIENT,
+                element: <CreatePatientPage />,
+              },
+              {
+                path: ROUTER_PATHS.APPOINTMENTS,
+                element: <AppointmentsOverview />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,

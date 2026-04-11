@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { AppointmentStatus } from "@clinio/shared";
 import { OfficeEntity } from "../office/office.entity";
+import { PatientEntity } from "../patient/patient.entity";
 
 @Entity("appointments")
 @Index("idx_appointment_officeId", ["officeId"])
@@ -19,16 +20,19 @@ export class AppointmentEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ type: "varchar", nullable: true })
-  officeId!: string | null;
+  @Column({ type: "varchar" })
+  officeId!: string;
 
-  // ToDo: Check with ANA team
-  @ManyToOne(() => OfficeEntity, { onDelete: "CASCADE", nullable: true })
+  @ManyToOne(() => OfficeEntity, { onDelete: "CASCADE" })
   @JoinColumn({ name: "officeId" })
   office!: OfficeEntity | null;
 
   @Column({ type: "varchar", nullable: true })
   patientId!: string | null;
+
+  @ManyToOne(() => PatientEntity, { nullable: true })
+  @JoinColumn({ name: "patientId" })
+  patient!: PatientEntity | null;
 
   @Column({ type: "varchar" })
   date!: string;

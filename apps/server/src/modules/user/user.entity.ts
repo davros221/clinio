@@ -31,6 +31,12 @@ export class UserEntity {
   @Column({ type: "enum", enum: Object.values(UserRole) })
   role!: UserRole;
 
+  @Column({ nullable: true })
+  activationToken?: string;
+
+  @Column({ nullable: true })
+  activationTokenExpiresAt?: Date;
+
   @ManyToMany(() => OfficeEntity, (office) => office.staff)
   offices?: OfficeEntity[];
 }
