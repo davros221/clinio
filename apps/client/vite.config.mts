@@ -17,10 +17,11 @@ export default defineConfig(() => ({
     conditions: ["@clinio/source"],
     alias: {
       "@api": path.resolve(__dirname, "src/api/index.ts"),
-      "@pages": path.resolve(__dirname, "src/pages/index.tsx"),
+      "@pages": path.resolve(__dirname, "src/pages/index.ts"),
       "@components": path.resolve(__dirname, "src/components/index.ts"),
       "@utils": path.resolve(__dirname, "src/utils/index.ts"),
       "@router": path.resolve(__dirname, "src/router/index.ts"),
+      "@layout": path.resolve(__dirname, "src/layout/index.ts"),
     },
   },
   plugins: [react()],

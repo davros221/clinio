@@ -21,10 +21,11 @@
       "@clinio/shared": ["../../packages/shared/src/index.ts"],
       "@clinio/api": ["../../packages/api/src/index.ts"],
       "@api": ["./src/api/index.ts"],
-      "@pages": ["./src/pages/index.tsx"],
+      "@pages": ["./src/pages/index.ts"],
       "@components": ["./src/components/index.ts"],
       "@utils": ["./src/utils/index.ts"],
-      "@router": ["./src/router/index.tsx"]
+      "@router": ["./src/router/index.ts"],
+      "@layout": ["./src/layout/index.ts"]
     },
 
     "types": [

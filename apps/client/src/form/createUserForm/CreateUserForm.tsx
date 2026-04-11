@@ -1,5 +1,5 @@
 import { useUserFormContext } from "./CreateUserFormContext.ts";
-import { SimpleGrid, Stack, TextInput } from "@mantine/core";
+import { PasswordInput, SimpleGrid, Stack, TextInput } from "@mantine/core";
 import { useT } from "../../hooks/useT.ts";
 import { CreateUserFormPatientFields } from "./components/CreateUserFormPatientFields.tsx";
 import { CreateUserFormRoleSelect } from "./components/CreateUserFormRoleSelect.tsx";
@@ -38,16 +38,14 @@ export const CreateUserForm = (props: Props) => {
       {userRole === "staff" && <CreateUserFormRoleSelect />}
       {withPassword && (
         <>
-          <TextInput
+          <PasswordInput
             label={t("patient.form.password")}
             {...form.getInputProps("password")}
-            type={"password"}
           />
 
-          <TextInput
+          <PasswordInput
             label={t("patient.form.passwordConfirm")}
             {...form.getInputProps("passwordConfirm")}
-            type={"password"}
           />
         </>
       )}

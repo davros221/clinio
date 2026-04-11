@@ -7,6 +7,7 @@ import {
   Center,
   Group,
   Button,
+  Box,
 } from "@mantine/core";
 import { useT } from "../../hooks/useT.ts";
 import { useLoginPage } from "./useLoginPage.ts";
@@ -17,7 +18,7 @@ export const LoginPage = () => {
   const t = useT();
   const { handleSignUp, handleSubmit, form, isLoading } = useLoginPage();
   return (
-    <>
+    <Box miw={300}>
       <Title ta="center" c="blue" order={1} mb="xl">
         {t("login.welcome")}
       </Title>
@@ -76,6 +77,6 @@ export const LoginPage = () => {
           </Anchor>
         </Group>
       </Center>
-    </>
+    </Box>
   );
 };

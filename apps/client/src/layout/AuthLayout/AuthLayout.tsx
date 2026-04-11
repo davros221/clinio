@@ -1,17 +1,11 @@
 import { AppShell, Box } from "@mantine/core";
-import { Outlet } from "react-router";
-import classes from "./index.module.css";
 import { SideMenu } from "@components";
+import { Outlet } from "react-router";
+import styles from "./authLayout.module.css";
 
-export * from "./LoginPage/LoginPage.tsx";
-export * from "./SignUpPage/SignUpPage.tsx";
-export * from "./ForbiddenPage.tsx";
-export * from "./dashboards";
-
-// ToDo: Rename
 export const AuthenticatedLayout = () => {
   return (
-    <div className={classes.card}>
+    <div className={styles.card}>
       <AppShell navbar={{ width: 220, breakpoint: 0 }}>
         <AppShell.Navbar p="xs">
           <SideMenu />
