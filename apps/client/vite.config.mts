@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "node:path";
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -14,6 +15,11 @@ export default defineConfig(() => ({
   },
   resolve: {
     conditions: ["@clinio/source"],
+    alias: {
+      "@api": path.resolve(__dirname, "src/api/index.ts"),
+      "@pages": path.resolve(__dirname, "src/pages/index.tsx"),
+      "@components": path.resolve(__dirname, "src/components/index.ts"),
+    },
   },
   plugins: [react()],
   // Uncomment this if you are using workers.

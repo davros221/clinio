@@ -19,7 +19,10 @@
     "baseUrl": ".",
     "paths": {
       "@clinio/shared": ["../../packages/shared/src/index.ts"],
-      "@clinio/api": ["../../packages/api/src/index.ts"]
+      "@clinio/api": ["../../packages/api/src/index.ts"],
+      "@api": ["./src/api/index.ts"],
+      "@pages": ["./src/pages/index.tsx"],
+      "@components": ["./src/components/index.ts"]
     },
 
     "types": [

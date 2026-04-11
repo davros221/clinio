@@ -3,8 +3,12 @@ import { useUser } from "../hooks/useUser.ts";
 import { ROUTER_PATHS } from "../router/routes.ts";
 
 export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
-  const user = useUser();
+  const { user, isLoading } = useUser();
   const location = useLocation();
+
+  if (isLoading) {
+    return null;
+  }
 
   if (!user) {
     return (

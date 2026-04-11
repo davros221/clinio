@@ -6,6 +6,7 @@ import { useUser } from "../hooks/useUser.ts";
 import classes from "./SideMenu.module.css";
 import { AuthData } from "@clinio/api";
 import { useT } from "../hooks/useT";
+import { getInitials } from "../utils/getInitials.ts";
 
 type NavBtnProps = {
   to: string;
@@ -33,10 +34,8 @@ const mapNavItem = (
 
 export const SideMenu = () => {
   const t = useT();
-  const user = useUser();
-  const initials = user
-    ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-    : "";
+  const { user } = useUser();
+  const initials = getInitials(user?.firstName, user?.lastName);
 
   const getRoleNavItems = (role: AuthData["role"]) => {
     switch (role) {
