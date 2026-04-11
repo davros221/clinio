@@ -13,8 +13,8 @@ import { Button, Stack, Text } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
 import { useT } from "../../hooks/useT";
-import { DAYS, UserRole } from "@clinio/shared";
-import { useUser } from "../../hooks/useUser.ts";
+import { DAYS } from "@clinio/shared";
+import { useUserRole } from "../../hooks/useUserRole.ts";
 
 const TOP_ALIGN_LEFT: React.CSSProperties = {
   verticalAlign: "top",
@@ -76,7 +76,7 @@ function OfficeActionCell({
   onDelete: (id: string) => void;
 }) {
   const t = useT();
-  const isAdmin = useUser()?.role === UserRole.ADMIN;
+  const { isAdmin } = useUserRole();
 
   return (
     <Stack gap="xxs" justify="space-between" h="100%">
