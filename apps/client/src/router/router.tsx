@@ -14,7 +14,7 @@ import {
   SignUpPage,
   LoginPage,
 } from "@pages";
-import { ROUTER_PATHS } from "./routes.ts";
+import { ROUTER_PATHS } from "@router";
 
 export const routes: RouteObject[] = [
   {

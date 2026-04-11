@@ -1,4 +1,5 @@
 import { client } from "@clinio/api";
+import { AuthToken } from "@utils";
 
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL,
@@ -6,8 +7,7 @@ client.setConfig({
 
 // Authentication Interceptors
 client.instance.interceptors.request.use((config) => {
-  // const accessToken = useAuthStore.getState().accessToken;
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = AuthToken.get();
 
   if (accessToken && config.headers)
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -20,11 +20,10 @@ client.instance.interceptors.response.use(
   (error) => {
     const isLoginRequest = error.config?.url?.includes("/auth/login");
 
-    // ToDo: Nuke query data
     if (!isLoginRequest) {
       if (error.response?.status === 401) {
-        // useAuthStore.getState().logout();
-        localStorage.removeItem("accessToken");
+        // ToDo: We should nuke query data
+        AuthToken.clear();
       }
     }
 

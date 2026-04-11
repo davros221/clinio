@@ -5,3 +5,4 @@ export * from "./office";
 export * from "./patients";
 export * from "./appointments";
 export * from "./AuthLayout/AuthLayout.tsx";
+export * from "./SideMenu";

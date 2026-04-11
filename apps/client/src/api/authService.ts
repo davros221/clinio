@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthService, LoginDto, MeResponse } from "@clinio/api";
 import { authKeys } from "./queryKeys.ts";
+import { AuthToken } from "@utils";
 
 const meFn = async () => {
   const res = await AuthService.me();
@@ -26,9 +27,8 @@ export const useLoginMutation = () => {
   return useMutation({
     mutationFn: loginFn,
     onSuccess: (res) => {
-      // ToDo: To constant
       if (!res) return;
-      localStorage.setItem("accessToken", res.accessToken);
+      AuthToken.set(res.accessToken);
       queryClient.setQueryData<MeResponse>([authKeys.me], (old) => ({
         auth: false,
         authData: res.authData,
