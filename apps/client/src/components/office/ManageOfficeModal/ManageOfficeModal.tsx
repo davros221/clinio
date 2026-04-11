@@ -280,9 +280,9 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
                     lat={mapPosition.lat}
                     style={{ borderRadius: 8, marginTop: 8 }}
                   />
-                ) : addressValue.length >= 3 ? (
+                ) : office?.address ? (
                   <MapPreview
-                    address={addressValue}
+                    address={office.address}
                     style={{ borderRadius: 8, marginTop: 8 }}
                   />
                 ) : null}
