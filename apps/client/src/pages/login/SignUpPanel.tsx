@@ -1,4 +1,4 @@
-import { Anchor, Title, Center, Button } from "@mantine/core";
+import { Anchor, Title, Center, Group } from "@mantine/core";
 import { UserFormProvider } from "../../form/createUserForm/CreateUserFormContext.ts";
 import { CreateUserForm } from "../../form/createUserForm/CreateUserForm.tsx";
 import { useT } from "../../hooks/useT.ts";
@@ -27,12 +27,23 @@ export const SignUpPanel = (props: Props) => {
       </form>
 
       <Center mt="md">
-        <Button type={"submit"} form={FORM_ID} mr="md" disabled={isPending}>
-          GO!
-        </Button>
-        <Anchor component="button" size="sm" c="dimmed">
-          {t("signUp.backToLogin")}
-        </Anchor>
+        <Group gap="xs">
+          <Anchor
+            component="button"
+            size="sm"
+            c="dimmed"
+            type={"submit"}
+            form={FORM_ID}
+            disabled={isPending}
+          >
+            {t("login.signUp")}
+          </Anchor>
+
+          {/* ToDo: Back link will be fixed in login panels refactor commit */}
+          <Anchor component="button" size="sm" c="dimmed" type={"button"}>
+            {t("signUp.backToLogin")}
+          </Anchor>
+        </Group>
       </Center>
     </>
   );
