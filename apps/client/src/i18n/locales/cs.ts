@@ -205,6 +205,13 @@ const cs: TranslationKeys = {
     phonePlaceholder: "Telefonní číslo",
   },
   user: {
+    roles: {
+      nurse: "Sestra",
+      doctor: "Lékař",
+      client: "Pacient",
+      admin: "Administrátor",
+      staff: "Zaměstnanec",
+    },
     form: {
       title: "Nový uživatel",
       role: "Role",
@@ -229,6 +236,9 @@ const cs: TranslationKeys = {
       birthdate: "Datum narození",
       phone: "Telefon",
       submit: "Založit pacienta",
+      password: "Heslo",
+      passwordConfirm: "Potvrdit heslo",
+      role: "Role",
     },
     notification: {
       createSuccessTitle: "Hotovo!",

@@ -205,6 +205,13 @@ const en = {
     phonePlaceholder: "Phone number",
   },
   user: {
+    roles: {
+      nurse: "Nurse",
+      doctor: "Doctor",
+      client: "Patient",
+      admin: "Admin",
+      staff: "Staff",
+    },
     form: {
       title: "New User",
       role: "Role",
@@ -229,6 +236,9 @@ const en = {
       birthdate: "Date of Birth",
       phone: "Phone",
       submit: "Create Patient",
+      password: "Password",
+      passwordConfirm: "Confirm Password",
+      role: "Role",
     },
     notification: {
       createSuccessTitle: "Done!",

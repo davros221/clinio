@@ -5,57 +5,26 @@ import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
 import { notifySuccess, notifyError } from "../utils/notification";
 
-export type CreatePatientDto = Pick<
-  CreateUserDto,
-  "email" | "firstName" | "lastName" | "birthNumber" | "birthdate" | "phone"
->;
+const createUserFn = async (data: CreateUserDto) => {
+  const res = await UserService.create({ body: data });
+  return res.data;
+};
 
-export const useCreatePatientMutation = () => {
+export const useCreateUserMutation = () => {
   const queryClient = useQueryClient();
-  return useMutation<User, Error, CreatePatientDto>({
-    mutationFn: async (body) => {
-      const { data } = await UserService.create({
-        body: { ...body, role: UserRole.CLIENT },
-        throwOnError: true,
-      });
-      // if (!data) throw new Error(t("common.error.noData"));
-      return data;
-    },
+
+  return useMutation({
+    mutationFn: createUserFn,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
       notifySuccess(
         t("patient.notification.createSuccessTitle"),
         t("patient.notification.createSuccessMessage")
       );
     },
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
-  });
-};
-
-export type CreateStaffDto = Required<
-  Pick<CreateUserDto, "email" | "firstName" | "lastName" | "password" | "role">
->;
-
-export const useCreateStaffMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation<User, Error, CreateStaffDto>({
-    mutationFn: async (body) => {
-      const { data } = await UserService.create({
-        body,
-        throwOnError: true,
-      });
-      return data;
+    onError: (e) => {
+      notifyError(t("common.error.createFailed"), e.message);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-      notifySuccess(
-        t("user.notification.createSuccessTitle"),
-        t("user.notification.createSuccessMessage")
-      );
-    },
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
   });
 };
 
