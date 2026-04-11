@@ -77,7 +77,7 @@ export const SignUpPanel = ({ onSuccess, onBack }: SignUpPanelProps) => {
           birthNumber,
           birthdate,
           phone,
-        } as any,
+        },
       });
 
       if (error && typeof error === "object") {

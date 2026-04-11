@@ -1,18 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { User, UserService } from "@clinio/api";
+import { User, UserService, CreateUserDto } from "@clinio/api";
 import { t } from "../i18n";
-import { notifyError } from "../utils/notification";
-import { notifySuccess } from "../utils/notification";
+import { notifySuccess, notifyError } from "../utils/notification";
 import { patientKeys } from "./queryKeys";
 
-export type CreatePatientDto = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  birthNumber?: string;
-  birthdate?: string;
-  phone?: string;
-};
+export type CreatePatientDto = Omit<CreateUserDto, "role" | "password">;
 
 export const useCreatePatientMutation = () => {
   const queryClient = useQueryClient();
@@ -22,7 +14,7 @@ export const useCreatePatientMutation = () => {
         body: {
           ...body,
           role: "CLIENT",
-        } as any,
+        },
         throwOnError: true,
       });
       if (!data) throw new Error(t("common.error.noData"));
@@ -30,10 +22,7 @@ export const useCreatePatientMutation = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
-      notifySuccess(
-        t("patient.notification.createSuccessTitle"),
-        t("patient.notification.createSuccessMessage")
-      );
+      notifySuccess("Done!", "Patient was successfully created.");
     },
     onError: (error) =>
       notifyError(t("common.error.createFailed"), error.message),

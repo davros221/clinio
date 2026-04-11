@@ -22,7 +22,6 @@ export const routes: RouteObject[] = [
         path: ROUTER_PATHS.LOGIN,
         element: <Login />,
       },
-      // Protected Routes
       {
         element: <RequireAuth />,
         children: [
