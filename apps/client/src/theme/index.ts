@@ -50,5 +50,13 @@ export const theme = createTheme({
         label: { overflow: "visible", lineHeight: "normal" },
       },
     },
+    Modal: {
+      styles: {
+        content: {
+          borderRadius: "var(--mantine-radius-md)",
+          scrollbarColor: "var(--mantine-primary-color-9) transparent",
+        },
+      },
+    },
   },
 });
