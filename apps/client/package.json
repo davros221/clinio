@@ -1,7 +1,7 @@
 {
   "name": "@clinio/client",
   "private": true,
-  "version": "0.4.2",
+  "version": "0.4.3",
   "type": "module",
   "devDependencies": {
     "postcss": "^8.5.8",

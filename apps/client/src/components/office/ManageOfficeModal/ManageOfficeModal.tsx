@@ -8,6 +8,7 @@ import {
   Select,
   Button,
   Box,
+  Fieldset,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useGetUsersQuery } from "../../../api/userService.ts";
@@ -20,6 +21,7 @@ import {
 import { CreateOfficeDto, Office } from "@clinio/api";
 import { ManageOfficeModalDayRow } from "./ManageOfficeModalDayRow.tsx";
 import { useT } from "../../../hooks/useT";
+import { useUserRole } from "../../../hooks/useUserRole.ts";
 import { ParseKeys } from "i18next";
 import {
   ManageOfficeFormProvider,
@@ -43,6 +45,7 @@ const INITIAL_DAYS: DayEntryType[] = CAP_DAYS.map((day) => ({
 
 export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
   const t = useT();
+  const { isClient } = useUserRole();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { data: users = [] } = useGetUsersQuery([
@@ -219,176 +222,182 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
     >
       <ManageOfficeFormProvider form={form}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md" m="md">
-            {/* Basic Info */}
-            <Box>
-              <TextInput
-                key={form.key("name")}
-                label={t("office.createOfficeModal.fields.name")}
-                placeholder={t(
-                  "office.createOfficeModal.fields.namePlaceholder"
-                )}
-                {...form.getInputProps("name")}
-                mb="xs"
-              />
-              <TextInput
-                key={form.key("specialization")}
-                label={t("office.createOfficeModal.fields.specialization")}
-                placeholder={t(
-                  "office.createOfficeModal.fields.specializationPlaceholder"
-                )}
-                {...form.getInputProps("specialization")}
-                mb="xs"
-              />
-              <TextInput
-                key={form.key("address")}
-                label={t("office.createOfficeModal.fields.address")}
-                placeholder={t(
-                  "office.createOfficeModal.fields.addressPlaceholder"
-                )}
-                {...form.getInputProps("address")}
-              />
-            </Box>
+          <Fieldset disabled={isClient} variant="unstyled">
+            <Stack gap="md" m="md">
+              {/* Basic Info */}
+              <Box>
+                <TextInput
+                  key={form.key("name")}
+                  label={t("office.createOfficeModal.fields.name")}
+                  placeholder={t(
+                    "office.createOfficeModal.fields.namePlaceholder"
+                  )}
+                  {...form.getInputProps("name")}
+                  mb="xs"
+                />
+                <TextInput
+                  key={form.key("specialization")}
+                  label={t("office.createOfficeModal.fields.specialization")}
+                  placeholder={t(
+                    "office.createOfficeModal.fields.specializationPlaceholder"
+                  )}
+                  {...form.getInputProps("specialization")}
+                  mb="xs"
+                />
+                <TextInput
+                  key={form.key("address")}
+                  label={t("office.createOfficeModal.fields.address")}
+                  placeholder={t(
+                    "office.createOfficeModal.fields.addressPlaceholder"
+                  )}
+                  {...form.getInputProps("address")}
+                />
+              </Box>
 
-            {/* Office Hours */}
-            <Box py="md">
-              <Title order={5} mb="xs">
-                {t("office.createOfficeModal.sections.hours")}
-              </Title>
+              {/* Office Hours */}
+              <Box py="md">
+                <Title order={5} mb="xs">
+                  {t("office.createOfficeModal.sections.hours")}
+                </Title>
 
-              <Table>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>
+                        {t("office.createOfficeModal.table.open")}
+                      </Table.Th>
+                      <Table.Th>
+                        {t("office.createOfficeModal.table.day")}
+                      </Table.Th>
+                      <Table.Th>
+                        {t("office.createOfficeModal.table.from")}
+                      </Table.Th>
+                      <Table.Th>
+                        {t("office.createOfficeModal.table.to")}
+                      </Table.Th>
+                      <Table.Th />
+                    </Table.Tr>
+                  </Table.Thead>
+
+                  <Table.Tbody>
+                    {form.getValues().days.map((day, index) => (
+                      <ManageOfficeModalDayRow
+                        key={day.key}
+                        index={index}
+                        label={t(
+                          `common.time.daysShort.${day.key}` as ParseKeys
+                        )}
+                      />
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </Box>
+
+              {/* Personnel Selection */}
+              <Box>
+                <Title order={5} mb="xs">
+                  {t("office.createOfficeModal.sections.personnel")}
+                </Title>
+
+                <Group grow align="flex-end">
+                  <Select
+                    label={t("office.createOfficeModal.fields.role")}
+                    placeholder={t(
+                      "office.createOfficeModal.fields.rolePlaceholder"
+                    )}
+                    data={roleSelectData}
+                    value={selectedRole}
+                    onChange={handleRoleChange}
+                    clearable
+                  />
+
+                  <Select
+                    label={t("office.createOfficeModal.fields.user")}
+                    placeholder={t(
+                      "office.createOfficeModal.fields.userPlaceholder"
+                    )}
+                    data={userSelectData}
+                    value={selectedUserId}
+                    onChange={setSelectedUserId}
+                    searchable
+                    disabled={!selectedRole}
+                  />
+
+                  <Button
+                    variant="filled"
+                    color="gray"
+                    disabled={!selectedUserId}
+                    onClick={handleAddStaff}
+                  >
+                    {t("office.createOfficeModal.table.add")}
+                  </Button>
+                </Group>
+              </Box>
+
+              {/* Personnel Table */}
+              <Table verticalSpacing="xs">
                 <Table.Thead>
                   <Table.Tr>
                     <Table.Th>
-                      {t("office.createOfficeModal.table.open")}
+                      {t("office.createOfficeModal.fields.user")}
                     </Table.Th>
+
                     <Table.Th>
-                      {t("office.createOfficeModal.table.day")}
+                      {t("office.createOfficeModal.table.role")}
                     </Table.Th>
+
                     <Table.Th>
-                      {t("office.createOfficeModal.table.from")}
+                      {t("office.createOfficeModal.table.actions")}
                     </Table.Th>
-                    <Table.Th>
-                      {t("office.createOfficeModal.table.to")}
-                    </Table.Th>
-                    <Table.Th />
                   </Table.Tr>
                 </Table.Thead>
 
                 <Table.Tbody>
-                  {form.getValues().days.map((day, index) => (
-                    <ManageOfficeModalDayRow
-                      key={day.key}
-                      index={index}
-                      label={t(`common.time.daysShort.${day.key}` as ParseKeys)}
-                    />
-                  ))}
+                  {form.getValues().staffIds.map((id, index) => {
+                    const member = users.find((u) => u.id === id);
+
+                    if (!member) return null;
+
+                    return (
+                      <Table.Tr key={id}>
+                        <Table.Td>
+                          {member.firstName} {member.lastName}
+                        </Table.Td>
+
+                        <Table.Td>{member.role}</Table.Td>
+
+                        <Table.Td>
+                          <Button
+                            variant="subtle"
+                            color="blue"
+                            size="xs"
+                            onClick={() => handleRemoveStaff(index)}
+                          >
+                            {t("office.createOfficeModal.table.remove")}
+                          </Button>
+                        </Table.Td>
+                      </Table.Tr>
+                    );
+                  })}
                 </Table.Tbody>
               </Table>
-            </Box>
+            </Stack>
+          </Fieldset>
 
-            {/* Personnel Selection */}
-            <Box>
-              <Title order={5} mb="xs">
-                {t("office.createOfficeModal.sections.personnel")}
-              </Title>
+          {/* Actions */}
+          <Group justify="center" mt="xl">
+            <Button variant="outline" color="gray" onClick={onClose}>
+              {t("office.createOfficeModal.buttons.cancel")}
+            </Button>
 
-              <Group grow align="flex-end">
-                <Select
-                  label={t("office.createOfficeModal.fields.role")}
-                  placeholder={t(
-                    "office.createOfficeModal.fields.rolePlaceholder"
-                  )}
-                  data={roleSelectData}
-                  value={selectedRole}
-                  onChange={handleRoleChange}
-                  clearable
-                />
-
-                <Select
-                  label={t("office.createOfficeModal.fields.user")}
-                  placeholder={t(
-                    "office.createOfficeModal.fields.userPlaceholder"
-                  )}
-                  data={userSelectData}
-                  value={selectedUserId}
-                  onChange={setSelectedUserId}
-                  searchable
-                  disabled={!selectedRole}
-                />
-
-                <Button
-                  variant="filled"
-                  color="gray"
-                  disabled={!selectedUserId}
-                  onClick={handleAddStaff}
-                >
-                  {t("office.createOfficeModal.table.add")}
-                </Button>
-              </Group>
-            </Box>
-
-            {/* Personnel Table */}
-            <Table verticalSpacing="xs">
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>
-                    {t("office.createOfficeModal.fields.user")}
-                  </Table.Th>
-
-                  <Table.Th>
-                    {t("office.createOfficeModal.table.role")}
-                  </Table.Th>
-
-                  <Table.Th>
-                    {t("office.createOfficeModal.table.actions")}
-                  </Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-
-              <Table.Tbody>
-                {form.getValues().staffIds.map((id, index) => {
-                  const member = users.find((u) => u.id === id);
-
-                  if (!member) return null;
-
-                  return (
-                    <Table.Tr key={id}>
-                      <Table.Td>
-                        {member.firstName} {member.lastName}
-                      </Table.Td>
-
-                      <Table.Td>{member.role}</Table.Td>
-
-                      <Table.Td>
-                        <Button
-                          variant="subtle"
-                          color="blue"
-                          size="xs"
-                          onClick={() => handleRemoveStaff(index)}
-                        >
-                          {t("office.createOfficeModal.table.remove")}
-                        </Button>
-                      </Table.Td>
-                    </Table.Tr>
-                  );
-                })}
-              </Table.Tbody>
-            </Table>
-
-            {/* Actions */}
-            <Group justify="center" mt="xl">
-              <Button variant="outline" color="gray" onClick={onClose}>
-                {t("office.createOfficeModal.buttons.cancel")}
-              </Button>
-
+            {!isClient && (
               <Button type="submit" loading={isCreating || isUpdating}>
                 {isEdit
                   ? t("common.action.save")
                   : t("office.createOfficeModal.buttons.submit")}
               </Button>
-            </Group>
-          </Stack>
+            )}
+          </Group>
         </form>
       </ManageOfficeFormProvider>
     </Modal>

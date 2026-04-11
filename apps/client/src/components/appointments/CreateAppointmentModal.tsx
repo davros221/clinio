@@ -21,8 +21,8 @@ import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useCreateAppointmentMutation } from "../../api/appointmentService";
 import { useGetOfficeListQuery } from "../../api/officeService";
 import { useGetUsersQuery } from "../../api/userService";
-import { useUser } from "../../hooks/useUser";
 import { useT } from "../../hooks/useT";
+import { useUserRole } from "../../hooks/useUserRole.ts";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
   officeId: createAppointmentSchema.shape.officeId.nullable(),
@@ -60,9 +60,7 @@ type Props = {
 
 export function CreateAppointmentModal({ opened, onClose }: Props) {
   const t = useT();
-  const user = useUser();
-  const isStaff =
-    user?.role === UserRole.NURSE || user?.role === UserRole.DOCTOR;
+  const { isStaff } = useUserRole();
 
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
