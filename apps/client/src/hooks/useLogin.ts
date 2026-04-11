@@ -1,8 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { AuthService, LoginDto } from "@clinio/api";
-import { handleError } from "../utils/notification.ts";
-import { router } from "../router/router.tsx";
-import { ROUTER_PATHS } from "../router/routes.ts";
+import { handleError } from "@utils";
+import { router, ROUTER_PATHS } from "@router";
 import { useAuthStore } from "../stores/authStore.ts";
 
 export const useLogin = () => {

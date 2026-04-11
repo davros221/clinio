@@ -1,7 +1,7 @@
 import { AppShell, Box } from "@mantine/core";
 import { Outlet } from "react-router";
 import classes from "./index.module.css";
-import { SideMenu } from "../components/SideMenu.tsx";
+import { SideMenu } from "@components";
 
 export * from "./LoginPage/LoginPage.tsx";
 export * from "./SignUpPage/SignUpPage.tsx";

@@ -22,7 +22,9 @@
       "@clinio/api": ["../../packages/api/src/index.ts"],
       "@api": ["./src/api/index.ts"],
       "@pages": ["./src/pages/index.tsx"],
-      "@components": ["./src/components/index.ts"]
+      "@components": ["./src/components/index.ts"],
+      "@utils": ["./src/utils/index.ts"],
+      "@router": ["./src/router/index.tsx"]
     },
 
     "types": [
