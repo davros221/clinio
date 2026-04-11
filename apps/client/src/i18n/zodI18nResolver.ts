@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { t } from "./index";
+import i18n from "./index";
+
+/**
+ * Translate a dynamic string key, returning the raw value if no translation exists.
+ * Uses `defaultValue` to satisfy i18next's strict typing for non-literal keys.
+ */
+function translateDynamic(key: string): string {
+  return i18n.exists(key) ? i18n.t(key, { defaultValue: key }) : key;
+}
 
 /**
  * Zod resolver for Mantine useForm with automatic i18n translation.
@@ -14,18 +22,14 @@ import { t } from "./index";
  * Usage: validate: zodI18nResolver(mySchema)
  */
 export const zodI18nResolver = <T extends z.ZodType>(schema: T) => {
-  return (values: unknown) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = schema.safeParse(values as any);
+  return (values: z.input<T>) => {
+    const result = schema.safeParse(values);
     if (result.success) return {};
 
     const errors: Record<string, string> = {};
     result.error.issues.forEach((issue) => {
       const field = issue.path.join(".");
-      const raw = issue.message;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const translated = t(raw as any);
-      errors[field] = translated !== raw ? translated : raw;
+      errors[field] = translateDynamic(issue.message);
     });
     return errors;
   };

@@ -11,8 +11,7 @@ import { t } from "./index";
  */
 export function setupZodErrorMap() {
   z.config({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    customError: (issue: any) => {
+    customError: (issue: z.core.$ZodRawIssue) => {
       if (issue.code === "invalid_type") {
         return { message: t("common.validation.required") };
       }
@@ -22,7 +21,7 @@ export function setupZodErrorMap() {
       if (issue.code === "invalid_format" && issue.format === "email") {
         return { message: t("common.validation.email") };
       }
-      return { message: issue.message };
+      return { message: issue.message ?? "" };
     },
   });
 }
