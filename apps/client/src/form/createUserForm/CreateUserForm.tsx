@@ -18,13 +18,8 @@ export const CreateUserForm = (props: Props) => {
   const { userRole, withPassword = false } = props;
   const form = useUserFormContext();
 
-  const logErrors = () => {
-    console.log(form.errors);
-  };
-
   return (
     <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-      <button onClick={logErrors}> Log Errors</button>
       <Stack gap="md">
         <TextInput
           label={t("patient.form.firstName")}
