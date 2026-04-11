@@ -5,17 +5,20 @@ import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
 import { notifySuccess, notifyError } from "../utils/notification";
 
-export type CreatePatientDto = Omit<CreateUserDto, "role" | "password">;
+export type CreatePatientDto = Pick<
+  CreateUserDto,
+  "email" | "firstName" | "lastName" | "birthNumber" | "birthdate" | "phone"
+>;
 
 export const useCreatePatientMutation = () => {
   const queryClient = useQueryClient();
   return useMutation<User, Error, CreatePatientDto>({
     mutationFn: async (body) => {
       const { data } = await UserService.create({
-        body: { ...body, role: "CLIENT" },
+        body: { ...body, role: UserRole.CLIENT },
         throwOnError: true,
       });
-      if (!data) throw new Error(t("common.error.noData"));
+      // if (!data) throw new Error(t("common.error.noData"));
       return data;
     },
     onSuccess: () => {
@@ -42,7 +45,6 @@ export const useCreateStaffMutation = () => {
         body,
         throwOnError: true,
       });
-      if (!data) throw new Error(t("common.error.noData"));
       return data;
     },
     onSuccess: () => {
