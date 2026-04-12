@@ -32,17 +32,20 @@ export function MapPreview({
   style,
   ...location
 }: Props) {
+  const address = "address" in location ? location.address : undefined;
+  const lon = "lon" in location ? location.lon : undefined;
+  const lat = "lat" in location ? location.lat : undefined;
+
   const src = useMemo(() => {
-    if ("address" in location && location.address) {
-      const query = encodeURIComponent(location.address);
+    if (address) {
+      const query = encodeURIComponent(address);
       return `https://frame.mapy.cz/zakladni?q=${query}&z=${zoom}`;
     }
-    if ("lon" in location && location.lon != null && location.lat != null) {
-      const { lon, lat } = location;
+    if (lon != null && lat != null) {
       return `https://frame.mapy.cz/zakladni?x=${lon}&y=${lat}&z=${zoom}&source=coor&id=${lon},${lat}`;
     }
     return null;
-  }, [location, zoom]);
+  }, [address, lon, lat, zoom]);
 
   if (!src) return null;
 

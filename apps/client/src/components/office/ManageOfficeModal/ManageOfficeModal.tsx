@@ -113,7 +113,9 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
     },
   });
 
-  form.watch("address", ({ value }) => setAddressValue(value));
+  form.watch("address", ({ value }) => {
+    setAddressValue(value);
+  });
   const [debouncedAddress] = useDebouncedValue(addressValue, DEBOUNCE_MS);
   const { data: suggestions = [] } = useAddressSuggestQuery(debouncedAddress);
 
@@ -159,6 +161,7 @@ export function ManageOfficeModal({ opened, onClose, office }: PropsType) {
       form.reset();
       setSelectedUserId(null);
       setSelectedRole(null);
+      setMapPosition(null);
     }
   }, [office, opened]);
 

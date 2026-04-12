@@ -91,7 +91,7 @@ function OfficeCard({
 
           <Stack gap="none">
             <Text size="sm" c="dimmed">
-              Address:
+              {t("office.overview.officesListHeader.address")}:
             </Text>
             <Text size="md">{office.address}</Text>
           </Stack>
@@ -99,7 +99,7 @@ function OfficeCard({
         <Group h="100%" align="stretch" className={classes.body}>
           <Stack gap="4xs">
             <Text size="sm" c="dimmed">
-              office hours:
+              {t("office.overview.officesListHeader.officeHours")}:
             </Text>
             <OfficeHoursSummary template={office.officeHoursTemplate} />
           </Stack>
@@ -148,7 +148,7 @@ export function OfficesOverviewOfficesTable() {
 
   if (isError) {
     return (
-      <Alert color="red" title="Error">
+      <Alert color="red" title={t("common.error.general")}>
         {error instanceof Error ? error.message : String(error)}
       </Alert>
     );

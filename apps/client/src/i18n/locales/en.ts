@@ -8,6 +8,7 @@ const en = {
     },
     appName: "ClinIO",
     error: {
+      general: "Error",
       noData: "No data available",
       createFailed: "Failed to create",
       deleteFailed: "Failed to delete",
@@ -23,6 +24,15 @@ const en = {
         [ErrorCode.OFFICE_NOT_FOUND]: "Office not found",
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Appointment not found",
         [ErrorCode.BAD_REQUEST]: "Invalid request",
+        [ErrorCode.PATIENT_NOT_FOUND]: "Patient not found",
+        [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Account is not active",
+        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Account is already activated",
+        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Invalid activation token",
+        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]: "Activation token has expired",
+        [ErrorCode.APPOINTMENT_SLOT_TAKEN]:
+          "This appointment slot is already taken",
+        [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
+          "Appointment is outside office hours",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Forbidden",

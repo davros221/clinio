@@ -9,6 +9,7 @@ const cs: TranslationKeys = {
     },
     appName: "ClinIO",
     error: {
+      general: "Chyba",
       noData: "Žádná data nejsou k dispozici",
       createFailed: "Vytvoření se nezdařilo",
       deleteFailed: "Smazání se nezdařilo",
@@ -24,6 +25,15 @@ const cs: TranslationKeys = {
         [ErrorCode.OFFICE_NOT_FOUND]: "Ordinace nebyla nalezena",
         [ErrorCode.APPOINTMENT_NOT_FOUND]: "Schůzka nebyla nalezena",
         [ErrorCode.BAD_REQUEST]: "Neplatný požadavek",
+        [ErrorCode.PATIENT_NOT_FOUND]: "Pacient nebyl nalezen",
+        [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Účet není aktivní",
+        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Účet je již aktivován",
+        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Neplatný aktivační token",
+        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]:
+          "Platnost aktivačního tokenu vypršela",
+        [ErrorCode.APPOINTMENT_SLOT_TAKEN]: "Tento termín je již obsazen",
+        [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
+          "Termín je mimo ordinační hodiny",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Zakázáno",
