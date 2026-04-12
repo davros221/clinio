@@ -42,4 +42,21 @@ export const theme = createTheme({
   fontSizes,
   radius,
   spacing,
+  components: {
+    Badge: {
+      styles: {
+        // overrides for badge defaults, mantine clips the text from top
+        root: { overflow: "visible" },
+        label: { overflow: "visible", lineHeight: "normal" },
+      },
+    },
+    Modal: {
+      styles: {
+        content: {
+          borderRadius: "var(--mantine-radius-md)",
+          scrollbarColor: "var(--mantine-primary-color-9) transparent",
+        },
+      },
+    },
+  },
 });

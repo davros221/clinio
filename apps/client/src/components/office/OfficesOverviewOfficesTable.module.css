@@ -1,0 +1,20 @@
+.cardContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.body {
+  flex: 1;
+}
+
+.dayLabel {
+  flex-shrink: 0;
+}
+
+.map {
+  border: 0;
+  border-radius: 12px;
+  flex: 1;
+  min-height: 200px;
+  max-height: 600px;
+}
