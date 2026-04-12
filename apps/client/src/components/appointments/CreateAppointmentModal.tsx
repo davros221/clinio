@@ -18,11 +18,12 @@ import {
   DAYS,
 } from "@clinio/shared";
 import { OfficeHoursTemplateDto } from "@clinio/api";
-import { useCreateAppointmentMutation } from "../../api/appointmentService";
-import { useGetOfficeListQuery } from "../../api/officeService";
-import { useGetUsersQuery } from "../../api/userService";
-import { useT } from "../../hooks/useT";
-import { useUserRole } from "../../hooks/useUserRole.ts";
+import { useT, useUserRole } from "@hooks";
+import {
+  useCreateAppointmentMutation,
+  useGetOfficeListQuery,
+  useGetUsersQuery,
+} from "@api";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
   officeId: createAppointmentSchema.shape.officeId.nullable(),

@@ -4,10 +4,9 @@ import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
 import {
-  accountAlreadyActivated,
   accountNotActive,
-  activationTokenExpired,
-  invalidActivationToken,
+  resetTokenExpired,
+  invalidResetToken,
   invalidCredentials,
   notFound,
 } from "../common/error-messages";
@@ -57,35 +56,31 @@ export class AuthService {
     };
   }
 
-  async sendActivationEmail(email: string): Promise<boolean> {
+  async requestPasswordReset(email: string): Promise<boolean> {
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
       throw notFound("User");
     }
 
-    if (user.password) {
-      throw accountAlreadyActivated();
-    }
-
-    const token = this.createActivationToken();
+    const token = this.createResetToken();
     const expiresAt = addHours(new Date(), 2);
 
-    user.activationToken = token;
-    user.activationTokenExpiresAt = expiresAt;
+    user.resetToken = token;
+    user.resetTokenExpiresAt = expiresAt;
 
     await this.userService.update(user);
 
     const clientUrl = this.configService.getOrThrow<string>("client.url");
-    const activationUrl = `${clientUrl}/activate?token=${token}`;
+    const resetUrl = `${clientUrl}/activate?token=${token}`;
 
     await this.mailService.sendMail({
       to: user.email,
       from: this.configService.getOrThrow<string>("mail.from"),
-      subject: "Account activation - ClinIO",
-      template: "activation",
+      subject: "Password reset - ClinIO",
+      template: "reset-password",
       context: {
-        activationUrl,
+        resetUrl,
         expiresAt: format(expiresAt, "d. M. yyyy HH:mm"),
       },
     });
@@ -93,29 +88,27 @@ export class AuthService {
     return true;
   }
 
-  async activateAccount(token: string, password: string): Promise<void> {
-    const user = await this.userService.findByActivationToken(token);
+  async resetPassword(
+    token: string,
+    password: string
+  ): Promise<{ email: string }> {
+    const user = await this.userService.findByResetToken(token);
 
     if (!user) {
-      throw invalidActivationToken();
+      throw invalidResetToken();
     }
 
-    if (user.password) {
-      throw accountAlreadyActivated();
-    }
-
-    if (
-      !user.activationTokenExpiresAt ||
-      user.activationTokenExpiresAt < new Date()
-    ) {
-      throw activationTokenExpired();
+    if (!user.resetTokenExpiresAt || user.resetTokenExpiresAt < new Date()) {
+      throw resetTokenExpired();
     }
 
     user.password = await bcrypt.hash(password, 10);
-    user.activationToken = undefined;
-    user.activationTokenExpiresAt = undefined;
+    user.resetToken = undefined;
+    user.resetTokenExpiresAt = undefined;
 
     await this.userService.update(user);
+
+    return { email: user.email };
   }
 
   async me(userId: string): Promise<MeResponse> {
@@ -128,7 +121,7 @@ export class AuthService {
     };
   }
 
-  private createActivationToken(): string {
+  private createResetToken(): string {
     return crypto.randomBytes(32).toString("hex");
   }
 }

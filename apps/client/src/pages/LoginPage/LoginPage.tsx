@@ -1,25 +1,16 @@
-import {
-  TextInput,
-  PasswordInput,
-  Anchor,
-  Title,
-  Stack,
-  Center,
-  Group,
-  Button,
-  Box,
-} from "@mantine/core";
-import { useT } from "../../hooks/useT.ts";
+import { TextInput, PasswordInput, Title, Stack } from "@mantine/core";
+import { useT } from "@hooks";
 import { useLoginPage } from "./useLoginPage.ts";
+import { AuthFooter, SubmitButton } from "@components";
 
 const FORM_ID = "loginForm";
 
 export const LoginPage = () => {
   const t = useT();
-  const { handleSignUp, handleSubmit, form, isLoading } = useLoginPage();
+  const { handleSubmit, form, isLoading } = useLoginPage();
   return (
-    <Box miw={300}>
-      <Title ta="center" c="blue" order={1} mb="xl">
+    <Stack miw={300} gap={"lg"}>
+      <Title ta="center" c="blue" order={1}>
         {t("login.welcome")}
       </Title>
 
@@ -43,40 +34,12 @@ export const LoginPage = () => {
         </Stack>
       </form>
 
-      <Button
-        fullWidth
-        mt={"xl"}
-        variant={"outlint"}
-        radius={"xl"}
-        size={"md"}
-        type={"submit"}
-        loading={isLoading}
-        form={FORM_ID}
-      >
-        {t("login.submitButton")}
-      </Button>
-
-      <Center mt="md">
-        <Group gap="xs">
-          <Anchor
-            component="button"
-            size="sm"
-            c="dimmed"
-            // onClick={handleForgetPassword}
-          >
-            {t("login.forgotPassword")}
-          </Anchor>
-
-          <Anchor
-            component="button"
-            size="sm"
-            c="dimmed"
-            onClick={handleSignUp}
-          >
-            {t("login.signUp")}
-          </Anchor>
-        </Group>
-      </Center>
-    </Box>
+      <div>
+        <SubmitButton type={"submit"} loading={isLoading} form={FORM_ID}>
+          {t("login.submitButton")}
+        </SubmitButton>
+        <AuthFooter links={["forgotPassword", "signUp"]} />
+      </div>
+    </Stack>
   );
 };

@@ -22,14 +22,9 @@ import {
   SLOT_HEIGHT,
   ROOM_COLORS,
 } from "../utils/types";
-import {
-  timeToMinutes,
-  minutesToTime,
-  fmt,
-  getWeekStart,
-} from "../utils/dateUtils";
 import classes from "./Calendar.module.css";
-import { useT } from "../../hooks/useT";
+import { useT } from "@hooks";
+import { DateUtils } from "@utils";
 
 type Props = {
   appointments: Appointment[];
@@ -46,7 +41,10 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const weekStart = useMemo(() => getWeekStart(weekOffset), [weekOffset]);
+  const weekStart = useMemo(
+    () => DateUtils.getWeekStart(weekOffset),
+    [weekOffset]
+  );
 
   const weekEnd = useMemo(() => {
     const d = new Date(weekStart);
@@ -94,7 +92,7 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
       return;
 
     const newDay = dayIdx + 1;
-    const newStart = minutesToTime(hour * 60 + minute);
+    const newStart = DateUtils.minutesToTime(hour * 60 + minute);
 
     onAppointmentMove?.(String(active.id), newDay, newStart);
   };
@@ -124,7 +122,8 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
             ←
           </Button>
           <Text size="sm" fw={500} w={170} ta="center">
-            {fmt(weekStart)} – {fmt(weekEnd)} {weekEnd.getFullYear()}
+            {DateUtils.fmt(weekStart)} – {DateUtils.fmt(weekEnd)}{" "}
+            {weekEnd.getFullYear()}
           </Text>
           <Button
             variant="default"
@@ -206,7 +205,7 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
                   {/* Appointments */}
                   {dayAppts.map((appt) => {
                     const top =
-                      ((timeToMinutes(appt.start) - gridStart) / 60) *
+                      ((DateUtils.timeToMinutes(appt.start) - gridStart) / 60) *
                       SLOT_HEIGHT;
                     const height = (appt.duration / 60) * SLOT_HEIGHT;
                     return (

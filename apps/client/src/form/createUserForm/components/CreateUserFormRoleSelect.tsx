@@ -1,4 +1,4 @@
-import { useT } from "../../../hooks/useT.ts";
+import { useT } from "@hooks";
 import { Select } from "@mantine/core";
 import { useUserFormContext } from "../CreateUserFormContext.ts";
 import { UserRole } from "@clinio/shared";

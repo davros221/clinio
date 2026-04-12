@@ -11,6 +11,7 @@ import styles from "./publicLayout.module.css";
 import { usePublicLayout } from "./usePublicLayout.ts";
 import { LanguageSwitcher } from "@components";
 import { forwardRef } from "react";
+import { useT } from "@hooks";
 
 const PaperComponent = forwardRef<HTMLDivElement, PaperProps>((props, ref) => {
   return <Paper ref={ref} {...props} />;
@@ -20,6 +21,7 @@ const MotionPaper = motion.create(PaperComponent);
 
 export const PublicLayout = () => {
   const { outlet, location, contentAnimationProps } = usePublicLayout();
+  const t = useT();
 
   return (
     <Container className={styles.container}>
@@ -36,7 +38,7 @@ export const PublicLayout = () => {
           <Stack>
             <Group justify={"space-between"} align={"start"}>
               <Text size={"lg"} fw={700} mb={"xl"} c={"blue"}>
-                ClinIO
+                {t("common.appName")}
               </Text>
               <LanguageSwitcher />
             </Group>

@@ -3,10 +3,10 @@ import { User, UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
-import { notifySuccess, notifyError } from "../utils/notification";
+import { notifySuccess, handleError } from "@utils";
 
 const createUserFn = async (data: CreateUserDto) => {
-  const res = await UserService.create({ body: data });
+  const res = await UserService.create({ body: data, throwOnError: true });
   return res.data;
 };
 
@@ -23,7 +23,7 @@ export const useCreateUserMutation = () => {
       );
     },
     onError: (e) => {
-      notifyError(t("common.error.createFailed"), e.message);
+      handleError(e);
     },
   });
 };

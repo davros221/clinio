@@ -12,18 +12,17 @@ import {
   Fieldset,
 } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { useGetUsersQuery } from "../../../api/userService.ts";
 import { DAYS, UserRole } from "@clinio/shared";
 import { CAP_WORK_DAYS, CAP_DAYS } from "../../utils/types.ts";
 import { MapPreview } from "../../MapPreview";
 import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,
-} from "../../../api/officeService.ts";
+  useGetUsersQuery,
+} from "@api";
 import { CreateOfficeDto, Office } from "@clinio/api";
 import { ManageOfficeModalDayRow } from "./ManageOfficeModalDayRow.tsx";
-import { useT } from "../../../hooks/useT";
-import { useUserRole } from "../../../hooks/useUserRole.ts";
+import { useT, useUserRole } from "@hooks";
 import { ParseKeys } from "i18next";
 import {
   ManageOfficeFormProvider,

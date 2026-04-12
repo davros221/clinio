@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
-import { useT } from "../../hooks/useT";
+import { useT } from "@hooks";
 
 export function AppointmentsOverview() {
   const t = useT();

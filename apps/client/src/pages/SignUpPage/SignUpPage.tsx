@@ -1,14 +1,14 @@
-import { Anchor, Title, Center, Group, Box, Button } from "@mantine/core";
-import { UserFormProvider } from "../../form/createUserForm/CreateUserFormContext.ts";
-import { CreateUserForm } from "../../form/createUserForm/CreateUserForm.tsx";
-import { useT } from "../../hooks/useT.ts";
+import { Title, Box } from "@mantine/core";
+import { useT } from "@hooks";
 import { useSignUpPage } from "./useSignUpPage.ts";
+import { AuthFooter, SubmitButton } from "@components";
+import { CreateUserForm, UserFormProvider } from "@form";
 
 const FORM_ID = "createUserForm";
 
 export const SignUpPage = () => {
   const t = useT();
-  const { handleSubmit, form, isPending, handleLogin } = useSignUpPage();
+  const { handleSubmit, form, isPending } = useSignUpPage();
 
   return (
     <Box miw={450}>
@@ -22,32 +22,11 @@ export const SignUpPage = () => {
         </UserFormProvider>
       </form>
 
-      <Button
-        fullWidth
-        mt={"xl"}
-        variant={"outlint"}
-        radius={"xl"}
-        size={"md"}
-        type={"submit"}
-        form={FORM_ID}
-        loading={isPending}
-      >
+      <SubmitButton type={"submit"} form={FORM_ID} loading={isPending}>
         {t("signUp.submitButton")}
-      </Button>
+      </SubmitButton>
 
-      <Center mt="md">
-        <Group gap="xs">
-          <Anchor
-            component="button"
-            size="sm"
-            c="dimmed"
-            type={"button"}
-            onClick={handleLogin}
-          >
-            {t("signUp.backToLogin")}
-          </Anchor>
-        </Group>
-      </Center>
+      <AuthFooter links={["login"]} />
     </Box>
   );
 };

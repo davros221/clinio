@@ -71,24 +71,17 @@ export function accountNotActive(): ForbiddenException {
   });
 }
 
-export function accountAlreadyActivated(): ForbiddenException {
-  return new ForbiddenException({
-    errorCode: ErrorCode.ACCOUNT_ALREADY_ACTIVATED,
-    message: "Account already activated",
+export function invalidResetToken(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.INVALID_RESET_TOKEN,
+    message: "Invalid reset token",
   });
 }
 
-export function invalidActivationToken(): BadRequestException {
+export function resetTokenExpired(): BadRequestException {
   return new BadRequestException({
-    errorCode: ErrorCode.INVALID_ACTIVATION_TOKEN,
-    message: "Invalid activation token",
-  });
-}
-
-export function activationTokenExpired(): BadRequestException {
-  return new BadRequestException({
-    errorCode: ErrorCode.ACTIVATION_TOKEN_EXPIRED,
-    message: "Activation token has expired",
+    errorCode: ErrorCode.RESET_TOKEN_EXPIRED,
+    message: "Reset token has expired",
   });
 }
 

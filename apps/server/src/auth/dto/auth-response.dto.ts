@@ -20,6 +20,11 @@ export class AuthResponse {
   authData!: AuthData;
 }
 
+export class ResetPasswordResponse {
+  @ApiProperty()
+  email!: string;
+}
+
 export class MeResponse {
   @ApiProperty()
   auth!: boolean;

@@ -2,8 +2,7 @@ import { User } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { DataTable } from "../DataTable";
 import { useGetUsersQuery } from "@api";
-import { useT } from "../../hooks/useT";
-import { useUser } from "../../hooks/useUser";
+import { useT, useUser } from "@hooks";
 
 const mapColumn = (key: keyof User, headerKey: string) => ({
   key,

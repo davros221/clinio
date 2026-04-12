@@ -27,7 +27,7 @@ const mockUser: UserEntity = {
 const mockUserService = () => ({
   findByEmail: jest.fn(),
   findById: jest.fn(),
-  findByActivationToken: jest.fn(),
+  findByResetToken: jest.fn(),
   update: jest.fn(),
 });
 
@@ -55,7 +55,7 @@ describe("AuthService", () => {
   let userService: jest.Mocked<
     Pick<
       UserService,
-      "findByEmail" | "findById" | "findByActivationToken" | "update"
+      "findByEmail" | "findById" | "findByResetToken" | "update"
     >
   >;
   let jwtService: jest.Mocked<Pick<JwtService, "sign">>;
@@ -205,53 +205,52 @@ describe("AuthService", () => {
     });
   });
 
-  describe("sendActivationEmail", () => {
-    const inactiveUser: UserEntity = {
+  describe("requestPasswordReset", () => {
+    const user: UserEntity = {
       ...mockUser,
-      password: undefined,
     };
 
-    it("should send activation email for inactive user", async () => {
-      userService.findByEmail.mockResolvedValue(inactiveUser);
-      userService.update.mockResolvedValue(inactiveUser);
+    it("should send reset email", async () => {
+      userService.findByEmail.mockResolvedValue(user);
+      userService.update.mockResolvedValue(user);
       mailService.sendMail.mockResolvedValue(undefined);
 
-      const result = await service.sendActivationEmail(inactiveUser.email);
+      const result = await service.requestPasswordReset(user.email);
 
       expect(result).toBe(true);
       expect(mailService.sendMail).toHaveBeenCalledWith(
         expect.objectContaining({
-          to: inactiveUser.email,
-          subject: "Account activation - ClinIO",
-          template: "activation",
+          to: user.email,
+          subject: "Password reset - ClinIO",
+          template: "reset-password",
         })
       );
     });
 
-    it("should set activation token and expiry on user", async () => {
-      userService.findByEmail.mockResolvedValue(inactiveUser);
-      userService.update.mockResolvedValue(inactiveUser);
+    it("should set reset token and expiry on user", async () => {
+      userService.findByEmail.mockResolvedValue(user);
+      userService.update.mockResolvedValue(user);
       mailService.sendMail.mockResolvedValue(undefined);
 
-      await service.sendActivationEmail(inactiveUser.email);
+      await service.requestPasswordReset(user.email);
 
       expect(userService.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          activationToken: expect.any(String),
-          activationTokenExpiresAt: expect.any(Date),
+          resetToken: expect.any(String),
+          resetTokenExpiresAt: expect.any(Date),
         })
       );
     });
 
-    it("should build activation URL from client.url config", async () => {
-      userService.findByEmail.mockResolvedValue(inactiveUser);
-      userService.update.mockResolvedValue(inactiveUser);
+    it("should build reset URL from client.url config", async () => {
+      userService.findByEmail.mockResolvedValue(user);
+      userService.update.mockResolvedValue(user);
       mailService.sendMail.mockResolvedValue(undefined);
 
-      await service.sendActivationEmail(inactiveUser.email);
+      await service.requestPasswordReset(user.email);
 
       const callArgs = mailService.sendMail.mock.calls[0][0];
-      expect(callArgs.context?.activationUrl).toMatch(
+      expect(callArgs.context?.resetUrl).toMatch(
         /^http:\/\/localhost:3000\/activate\?token=.+/
       );
     });
@@ -260,122 +259,104 @@ describe("AuthService", () => {
       userService.findByEmail.mockResolvedValue(null);
 
       try {
-        await service.sendActivationEmail("unknown@example.com");
+        await service.requestPasswordReset("unknown@example.com");
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
       }
     });
-
-    it("should throw ACCOUNT_ALREADY_ACTIVATED when user has password", async () => {
-      userService.findByEmail.mockResolvedValue(mockUser);
-
-      try {
-        await service.sendActivationEmail(mockUser.email);
-        fail("should have thrown");
-      } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-        expect((error as ForbiddenException).getResponse()).toMatchObject({
-          errorCode: ErrorCode.ACCOUNT_ALREADY_ACTIVATED,
-        });
-      }
-    });
   });
 
-  describe("activateAccount", () => {
-    const token = "valid-activation-token";
+  describe("resetPassword", () => {
+    const token = "valid-reset-token";
     const password = "NewPassword123";
-    const inactiveUser: UserEntity = {
+    const userWithToken: UserEntity = {
       ...mockUser,
       password: undefined,
-      activationToken: token,
-      activationTokenExpiresAt: addHours(new Date(), 1),
+      resetToken: token,
+      resetTokenExpiresAt: addHours(new Date(), 1),
     };
 
-    it("should hash password and clear activation token", async () => {
-      userService.findByActivationToken.mockResolvedValue({
-        ...inactiveUser,
+    it("should hash password and clear reset token", async () => {
+      userService.findByResetToken.mockResolvedValue({
+        ...userWithToken,
       });
       userService.update.mockImplementation(async (user) => user);
       jest
         .spyOn(bcrypt, "hash")
         .mockImplementation(() => Promise.resolve("hashed-new-password"));
 
-      await service.activateAccount(token, password);
+      await service.resetPassword(token, password);
 
       expect(userService.update).toHaveBeenCalledWith(
         expect.objectContaining({
           password: "hashed-new-password",
-          activationToken: undefined,
-          activationTokenExpiresAt: undefined,
+          resetToken: undefined,
+          resetTokenExpiresAt: undefined,
         })
       );
     });
 
-    it("should throw INVALID_ACTIVATION_TOKEN when token not found", async () => {
-      userService.findByActivationToken.mockResolvedValue(null);
-
-      try {
-        await service.activateAccount("bad-token", password);
-        fail("should have thrown");
-      } catch (error) {
-        expect(error).toBeInstanceOf(BadRequestException);
-        expect((error as BadRequestException).getResponse()).toMatchObject({
-          errorCode: ErrorCode.INVALID_ACTIVATION_TOKEN,
-        });
-      }
-    });
-
-    it("should throw ACCOUNT_ALREADY_ACTIVATED when user already has password", async () => {
-      userService.findByActivationToken.mockResolvedValue({
-        ...mockUser,
-        activationToken: token,
-        activationTokenExpiresAt: addHours(new Date(), 1),
+    it("should return email on success", async () => {
+      userService.findByResetToken.mockResolvedValue({
+        ...userWithToken,
       });
+      userService.update.mockImplementation(async (user) => user);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed-new-password"));
+
+      const result = await service.resetPassword(token, password);
+
+      expect(result).toEqual({ email: userWithToken.email });
+    });
+
+    it("should throw INVALID_RESET_TOKEN when token not found", async () => {
+      userService.findByResetToken.mockResolvedValue(null);
 
       try {
-        await service.activateAccount(token, password);
+        await service.resetPassword("bad-token", password);
         fail("should have thrown");
       } catch (error) {
-        expect(error).toBeInstanceOf(ForbiddenException);
-        expect((error as ForbiddenException).getResponse()).toMatchObject({
-          errorCode: ErrorCode.ACCOUNT_ALREADY_ACTIVATED,
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.INVALID_RESET_TOKEN,
         });
       }
     });
 
-    it("should throw ACTIVATION_TOKEN_EXPIRED when token has expired", async () => {
+    it("should throw RESET_TOKEN_EXPIRED when token has expired", async () => {
       const expiredUser: UserEntity = {
-        ...inactiveUser,
-        activationTokenExpiresAt: new Date(Date.now() - 1000),
+        ...userWithToken,
+        resetTokenExpiresAt: new Date(Date.now() - 1000),
       };
-      userService.findByActivationToken.mockResolvedValue(expiredUser);
+      userService.findByResetToken.mockResolvedValue(expiredUser);
 
       try {
-        await service.activateAccount(token, password);
+        await service.resetPassword(token, password);
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
         expect((error as BadRequestException).getResponse()).toMatchObject({
-          errorCode: ErrorCode.ACTIVATION_TOKEN_EXPIRED,
+          errorCode: ErrorCode.RESET_TOKEN_EXPIRED,
         });
       }
     });
 
-    it("should throw ACTIVATION_TOKEN_EXPIRED when expiresAt is missing", async () => {
+    it("should throw RESET_TOKEN_EXPIRED when expiresAt is missing", async () => {
       const noExpiryUser: UserEntity = {
-        ...inactiveUser,
-        activationTokenExpiresAt: undefined,
+        ...userWithToken,
+        resetTokenExpiresAt: undefined,
       };
-      userService.findByActivationToken.mockResolvedValue(noExpiryUser);
+      userService.findByResetToken.mockResolvedValue(noExpiryUser);
 
       try {
-        await service.activateAccount(token, password);
+        await service.resetPassword(token, password);
         fail("should have thrown");
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
         expect((error as BadRequestException).getResponse()).toMatchObject({
-          errorCode: ErrorCode.ACTIVATION_TOKEN_EXPIRED,
+          errorCode: ErrorCode.RESET_TOKEN_EXPIRED,
         });
       }
     });

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const sendActivationEmailSchema = z
+export const requestPasswordResetSchema = z
   .object({
     email: z.email("Invalid email address."),
   })
