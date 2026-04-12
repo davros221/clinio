@@ -1,16 +1,17 @@
-import { useT } from "../../hooks/useT.ts";
+import { useT, useUser } from "@hooks";
 import { SideMenuItemProps } from "./SideMenuItemProps.ts";
 import { useMemo } from "react";
 import { ROUTER_PATHS } from "@router";
 import { UserRole } from "@clinio/shared";
-import { useUser } from "../../hooks/useUser.ts";
-import { getInitials } from "@utils";
+import { StringUtils } from "@utils";
 
 export const useSideMenu = () => {
   const t = useT();
   const { logout, user } = useUser();
 
-  const initials = getInitials(user?.firstName, user?.lastName);
+  const initials = StringUtils.getInitials(user?.firstName, user?.lastName);
+  const userListTitle =
+    user?.role === UserRole.ADMIN ? t("nav.staff") : t("nav.patients");
 
   // stable refearence to nav items
   const navItems: SideMenuItemProps[] = useMemo(
@@ -26,7 +27,7 @@ export const useSideMenu = () => {
       {
         // ToDo: Route name doesn't seem corect and not matchilg the label
         to: ROUTER_PATHS.CREATE_PATIENT,
-        label: t("nav.staff"),
+        label: userListTitle,
         allowed: [UserRole.ADMIN, UserRole.NURSE, UserRole.DOCTOR],
       },
       {
@@ -44,7 +45,7 @@ export const useSideMenu = () => {
         onClick: logout,
       },
     ],
-    [t, logout]
+    [t, logout, userListTitle]
   );
 
   return {

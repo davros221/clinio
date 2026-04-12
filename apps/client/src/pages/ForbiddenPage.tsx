@@ -1,7 +1,7 @@
 import { Center, Paper, Title, Text, Button } from "@mantine/core";
 import { useNavigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
-import { useT } from "../hooks/useT.ts";
+import { useT } from "@hooks";
 
 export const ForbiddenPage = () => {
   const navigate = useNavigate();

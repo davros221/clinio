@@ -103,8 +103,8 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async findByActivationToken(token: string): Promise<UserEntity | null> {
-    return this.userRepository.findOneBy({ activationToken: token });
+  async findByResetToken(token: string): Promise<UserEntity | null> {
+    return this.userRepository.findOneBy({ resetToken: token });
   }
 
   /**

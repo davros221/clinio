@@ -22,13 +22,17 @@ import { Public } from "../common/decorators/public.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
-import { SendActivationEmailDto } from "./dto/send-activation-email.dto";
-import { ActivateAccountDto } from "./dto/activate-account.dto";
-import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
+import { RequestPasswordResetDto } from "./dto/request-password-reset.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import {
+  ResetPasswordResponse,
+  AuthResponse,
+  MeResponse,
+} from "./dto/auth-response.dto";
 import {
   loginSchema,
-  sendActivationEmailSchema,
-  activateAccountSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
 } from "@clinio/shared";
 
 @Controller("auth")
@@ -48,35 +52,32 @@ export class AuthController {
   }
 
   @Public()
-  @Post("send-activation-email")
+  @Post("request-password-reset")
   @UseGuards(ThrottlerGuard)
-  @Throttle({ "activation-email": { ttl: 60_000, limit: 3 } })
-  @ApiOperation({ operationId: "sendActivationEmail" })
-  @ApiOkResponse({ description: "Activation email sent" })
+  @Throttle({ "password-reset": { ttl: 60_000, limit: 3 } })
+  @ApiOperation({ operationId: "requestPasswordReset" })
+  @ApiOkResponse({ description: "Password reset email sent" })
   @ApiNotFoundResponse({ description: "User not found" })
-  @ApiForbiddenResponse({ description: "Account already activated" })
-  @UsePipes(new ZodValidationPipe(sendActivationEmailSchema))
-  async sendActivationEmail(
-    @Body() dto: SendActivationEmailDto
+  @UsePipes(new ZodValidationPipe(requestPasswordResetSchema))
+  async requestPasswordReset(
+    @Body() dto: RequestPasswordResetDto
   ): Promise<{ success: boolean }> {
-    await this.authService.sendActivationEmail(dto.email);
+    await this.authService.requestPasswordReset(dto.email);
     return { success: true };
   }
 
   @Public()
-  @Post("activate")
-  @ApiOperation({ operationId: "activateAccount" })
-  @ApiOkResponse({ description: "Account activated" })
+  @Post("reset-password")
+  @ApiOperation({ operationId: "resetPassword" })
+  @ApiOkResponse({ type: ResetPasswordResponse })
   @ApiBadRequestResponse({
-    description: "Invalid or expired activation token",
+    description: "Invalid or expired reset token",
   })
-  @ApiForbiddenResponse({ description: "Account already activated" })
-  @UsePipes(new ZodValidationPipe(activateAccountSchema))
-  async activateAccount(
-    @Body() dto: ActivateAccountDto
-  ): Promise<{ success: boolean }> {
-    await this.authService.activateAccount(dto.token, dto.password);
-    return { success: true };
+  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
+  async resetPassword(
+    @Body() dto: ResetPasswordDto
+  ): Promise<ResetPasswordResponse> {
+    return this.authService.resetPassword(dto.token, dto.password);
   }
 
   @Get("me")

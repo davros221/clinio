@@ -7,8 +7,29 @@ const cs: TranslationKeys = {
       save: "Uložit",
       delete: "Smazat",
       cancel: "Zrušit",
+      activate: "Aktivovat",
     },
     appName: "ClinIO",
+    auth: {
+      accountNotActive: "Váš účet existuje, ale ještě není aktivován",
+      sendResetLink: "Odeslat odkaz pro nastavení hesla",
+      emailSent: {
+        title: "Odkaz odeslán",
+        message:
+          "Na zadaný e-mail byl odeslán odkaz pro nastavení hesla. Zkontrolujte svůj e-mail.",
+      },
+      passwordReset: {
+        title: "Heslo nastaveno",
+        message: "Vaše heslo bylo úspěšně nastaveno",
+      },
+      password: "Heslo",
+      email: "E-mail",
+      passwordConfirmation: "Potvrzení hesla",
+      resetPassword: "Obnovit heslo",
+      sendEmailButton: "Odeslat",
+      emailSentButton: "E-mail odeslán",
+      confirmPassword: "Potvrzení hesla",
+    },
     error: {
       general: "Chyba",
       noData: "Žádná data nejsou k dispozici",
@@ -28,10 +49,9 @@ const cs: TranslationKeys = {
         [ErrorCode.BAD_REQUEST]: "Neplatný požadavek",
         [ErrorCode.PATIENT_NOT_FOUND]: "Pacient nebyl nalezen",
         [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Účet není aktivní",
-        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Účet je již aktivován",
-        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Neplatný aktivační token",
-        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]:
-          "Platnost aktivačního tokenu vypršela",
+        [ErrorCode.INVALID_RESET_TOKEN]: "Neplatný token pro reset hesla",
+        [ErrorCode.RESET_TOKEN_EXPIRED]:
+          "Platnost tokenu pro reset hesla vypršela",
         [ErrorCode.APPOINTMENT_SLOT_TAKEN]: "Tento termín je již obsazen",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
           "Termín je mimo ordinační hodiny",
@@ -120,6 +140,7 @@ const cs: TranslationKeys = {
     emailPlaceholder: "Váš e-mail/uživatelské jméno",
     passwordLabel: "Heslo",
     passwordPlaceholder: "Vaše heslo",
+    login: "Login",
     submitButton: "Přihlásit se",
     forgotPassword: "Zapomenuté heslo",
     signUp: "Registrace",

@@ -1,8 +1,7 @@
 import { Button, Group, Modal } from "@mantine/core";
-import { CreateUserForm } from "../../../form/createUserForm/CreateUserForm.tsx";
-import { useT } from "../../../hooks/useT.ts";
+import { CreateUserForm, UserFormProvider } from "@form";
+import { useT } from "@hooks";
 import { useCreateUserModal } from "./useCreateUserModal.ts";
-import { UserFormProvider } from "../../../form/createUserForm/CreateUserFormContext.ts";
 
 export type CreateUserModalProps = {
   opened: boolean;

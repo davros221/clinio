@@ -6,8 +6,14 @@ import {
   PatientsOverview,
   RequireAuth,
 } from "@components";
-import { ForbiddenPage, SignUpPage, LoginPage } from "@pages";
-import { ROUTER_PATHS } from "@router";
+import {
+  ForbiddenPage,
+  SignUpPage,
+  LoginPage,
+  ActivateAccountPage,
+  ResetPasswordPage,
+} from "@pages";
+import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
 
 export const routes: RouteObject[] = [
@@ -28,6 +34,14 @@ export const routes: RouteObject[] = [
           {
             path: ROUTER_PATHS.SIGN_UP,
             element: <SignUpPage />,
+          },
+          {
+            path: ROUTER_PATHS.ACTIVATE_EMAIL,
+            element: <ActivateAccountPage />,
+          },
+          {
+            path: ROUTER_PATHS.RESET_PASSWORD,
+            element: <ResetPasswordPage />,
           },
         ],
       },

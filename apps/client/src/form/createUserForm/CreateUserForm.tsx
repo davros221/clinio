@@ -1,6 +1,6 @@
 import { useUserFormContext } from "./CreateUserFormContext.ts";
 import { PasswordInput, SimpleGrid, Stack, TextInput } from "@mantine/core";
-import { useT } from "../../hooks/useT.ts";
+import { useT } from "@hooks";
 import { CreateUserFormPatientFields } from "./components/CreateUserFormPatientFields.tsx";
 import { CreateUserFormRoleSelect } from "./components/CreateUserFormRoleSelect.tsx";
 

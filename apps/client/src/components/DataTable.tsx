@@ -1,7 +1,7 @@
 import { Table, Loader, Alert, Button, Group, Text, Box } from "@mantine/core";
 import { MdErrorOutline } from "react-icons/md";
 import { ApiError } from "@clinio/shared";
-import { useT } from "../hooks/useT";
+import { useT } from "@hooks";
 import classes from "./DataTable.module.css";
 
 export type DataTableColumn<T> = {

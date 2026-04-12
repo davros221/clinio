@@ -3,10 +3,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AuthToken } from "@utils";
 
 export const useUser = () => {
-  const token = AuthToken.get();
+  const hasToken = AuthToken.exists();
   const queryClient = useQueryClient();
 
-  const { data, isPending } = useGetMeQuery(!!token);
+  const { data, isPending } = useGetMeQuery(hasToken);
 
   const logout = () => {
     AuthToken.clear();
@@ -16,7 +16,7 @@ export const useUser = () => {
   return {
     user: data?.authData,
     loggedIn: data?.auth,
-    isLoading: !!token && isPending,
+    isLoading: hasToken && isPending,
     logout,
   };
 };

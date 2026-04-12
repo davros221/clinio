@@ -1,12 +1,12 @@
-import { useUserFormContext } from "../CreateUserFormContext.ts";
-import { TextInput } from "@mantine/core";
-import { useT } from "../../../hooks/useT.ts";
+import { useUserFormContext } from "@form";
+import { Stack, TextInput } from "@mantine/core";
+import { useT } from "@hooks";
 
 export const CreateUserFormPatientFields = () => {
   const form = useUserFormContext();
   const t = useT();
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+    <Stack gap={"md"}>
       <TextInput
         label={t("patient.form.birthNumber")}
         {...form.getInputProps("birthNumber")}
@@ -20,6 +20,6 @@ export const CreateUserFormPatientFields = () => {
         label={t("patient.form.phone")}
         {...form.getInputProps("phone")}
       />
-    </div>
+    </Stack>
   );
 };

@@ -6,8 +6,29 @@ const en = {
       save: "Save",
       delete: "Delete",
       cancel: "Cancel",
+      activate: "Activate",
     },
     appName: "ClinIO",
+    auth: {
+      accountNotActive: "Your account exists, but it's not activated yet",
+      sendResetLink: "Send password reset link",
+      emailSent: {
+        title: "Reset link sent",
+        message:
+          "A password reset link has been sent to your email. Check your email and set your password.",
+      },
+      passwordReset: {
+        title: "Password set",
+        message: "Your password has been set successfully",
+      },
+      email: "Email",
+      password: "Password",
+      passwordConfirmation: "Password confirmation",
+      resetPassword: "Reset password",
+      sendEmailButton: "Send",
+      emailSentButton: "Email sent",
+      confirmPassword: "Confirm password",
+    },
     error: {
       general: "Error",
       noData: "No data available",
@@ -27,9 +48,8 @@ const en = {
         [ErrorCode.BAD_REQUEST]: "Invalid request",
         [ErrorCode.PATIENT_NOT_FOUND]: "Patient not found",
         [ErrorCode.ACCOUNT_NOT_ACTIVE]: "Account is not active",
-        [ErrorCode.ACCOUNT_ALREADY_ACTIVATED]: "Account is already activated",
-        [ErrorCode.INVALID_ACTIVATION_TOKEN]: "Invalid activation token",
-        [ErrorCode.ACTIVATION_TOKEN_EXPIRED]: "Activation token has expired",
+        [ErrorCode.INVALID_RESET_TOKEN]: "Invalid reset token",
+        [ErrorCode.RESET_TOKEN_EXPIRED]: "Reset token has expired",
         [ErrorCode.APPOINTMENT_SLOT_TAKEN]:
           "This appointment slot is already taken",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
@@ -120,6 +140,7 @@ const en = {
     passwordLabel: "Password",
     passwordPlaceholder: "Your Password",
     submitButton: "Let me In",
+    login: "Login",
     forgotPassword: "Forgot password",
     signUp: "Sign Up",
   },

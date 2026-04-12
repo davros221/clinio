@@ -2,7 +2,8 @@ import { UserRole } from "@clinio/shared";
 import { useUser } from "./useUser.ts";
 
 export const useUserRole = () => {
-  const role = useUser()?.role;
+  const { user } = useUser();
+  const role = user?.role;
   return {
     isClient: role === UserRole.CLIENT,
     isNurse: role === UserRole.NURSE,

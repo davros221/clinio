@@ -1,7 +1,7 @@
 import { schemaResolver, useForm } from "@mantine/form";
 import { loginSchema } from "@clinio/shared";
 import { LoginDto } from "@clinio/api";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
 import { useLoginMutation } from "@api";
 
@@ -12,8 +12,9 @@ const initialValues: LoginDto = {
 
 export const useLoginPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const prefill = searchParams.get("prefill");
+  const location = useLocation();
+
+  const prefill = location.state?.prefillEmail;
 
   const { mutate: login, isPending: isLoading } = useLoginMutation();
 
@@ -35,13 +36,8 @@ export const useLoginPage = () => {
     });
   });
 
-  const handleSignUp = () => {
-    navigate(ROUTER_PATHS.SIGN_UP);
-  };
-
   return {
     form,
-    handleSignUp,
     handleSubmit,
     isLoading,
   };

@@ -8,17 +8,14 @@ import { AuthResponse, MeResponse } from "../dto/auth-response.dto";
 const mockAuthService = () => ({
   login: jest.fn(),
   me: jest.fn(),
-  sendActivationEmail: jest.fn(),
-  activateAccount: jest.fn(),
+  requestPasswordReset: jest.fn(),
+  resetPassword: jest.fn(),
 });
 
 describe("AuthController", () => {
   let controller: AuthController;
   let service: jest.Mocked<
-    Pick<
-      AuthService,
-      "login" | "me" | "sendActivationEmail" | "activateAccount"
-    >
+    Pick<AuthService, "login" | "me" | "requestPasswordReset" | "resetPassword">
   >;
 
   beforeEach(async () => {
@@ -53,29 +50,30 @@ describe("AuthController", () => {
     });
   });
 
-  describe("sendActivationEmail", () => {
+  describe("requestPasswordReset", () => {
     const dto = { email: "user@example.com" };
 
-    it("should call authService.sendActivationEmail and return success", async () => {
-      service.sendActivationEmail.mockResolvedValue(true);
+    it("should call authService.requestPasswordReset and return success", async () => {
+      service.requestPasswordReset.mockResolvedValue(true);
 
-      const result = await controller.sendActivationEmail(dto);
+      const result = await controller.requestPasswordReset(dto);
 
       expect(result).toEqual({ success: true });
-      expect(service.sendActivationEmail).toHaveBeenCalledWith(dto.email);
+      expect(service.requestPasswordReset).toHaveBeenCalledWith(dto.email);
     });
   });
 
-  describe("activateAccount", () => {
-    const dto = { token: "activation-token", password: "NewPassword123" };
+  describe("resetPassword", () => {
+    const dto = { token: "reset-token", password: "NewPassword123" };
 
-    it("should call authService.activateAccount and return success", async () => {
-      service.activateAccount.mockResolvedValue(undefined);
+    it("should call authService.resetPassword and return result", async () => {
+      const resetResult = { email: "user@example.com" };
+      service.resetPassword.mockResolvedValue(resetResult);
 
-      const result = await controller.activateAccount(dto);
+      const result = await controller.resetPassword(dto);
 
-      expect(result).toEqual({ success: true });
-      expect(service.activateAccount).toHaveBeenCalledWith(
+      expect(result).toEqual(resetResult);
+      expect(service.resetPassword).toHaveBeenCalledWith(
         dto.token,
         dto.password
       );

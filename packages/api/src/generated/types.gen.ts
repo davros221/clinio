@@ -50,13 +50,17 @@ export type AuthResponse = {
     authData: AuthData;
 };
 
-export type SendActivationEmailDto = {
+export type RequestPasswordResetDto = {
     email: string;
 };
 
-export type ActivateAccountDto = {
+export type ResetPasswordDto = {
     token: string;
     password: string;
+};
+
+export type ResetPasswordResponse = {
+    email: string;
 };
 
 export type MeResponse = {
@@ -441,55 +445,46 @@ export type LoginResponses = {
 
 export type LoginResponse = LoginResponses[keyof LoginResponses];
 
-export type SendActivationEmailData = {
-    body: SendActivationEmailDto;
+export type RequestPasswordResetData = {
+    body: RequestPasswordResetDto;
     path?: never;
     query?: never;
-    url: '/api/auth/send-activation-email';
+    url: '/api/auth/request-password-reset';
 };
 
-export type SendActivationEmailErrors = {
-    /**
-     * Account already activated
-     */
-    403: unknown;
+export type RequestPasswordResetErrors = {
     /**
      * User not found
      */
     404: unknown;
 };
 
-export type SendActivationEmailResponses = {
+export type RequestPasswordResetResponses = {
     /**
-     * Activation email sent
+     * Password reset email sent
      */
     200: unknown;
 };
 
-export type ActivateAccountData = {
-    body: ActivateAccountDto;
+export type ResetPasswordData = {
+    body: ResetPasswordDto;
     path?: never;
     query?: never;
-    url: '/api/auth/activate';
+    url: '/api/auth/reset-password';
 };
 
-export type ActivateAccountErrors = {
+export type ResetPasswordErrors = {
     /**
-     * Invalid or expired activation token
+     * Invalid or expired reset token
      */
     400: unknown;
-    /**
-     * Account already activated
-     */
-    403: unknown;
 };
 
-export type ActivateAccountResponses = {
-    /**
-     * Account activated
-     */
-    200: unknown;
+export type ResetPasswordResponses = {
+    200: ResetPasswordResponse;
 };
+
+export type ResetPasswordResponse2 = ResetPasswordResponses[keyof ResetPasswordResponses];
 
 export type MeData = {
     body?: never;

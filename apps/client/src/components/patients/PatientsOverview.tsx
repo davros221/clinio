@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import { PatientsOverviewTable } from "./PatientsOverviewTable";
-import { useT } from "../../hooks/useT";
-import { useUser } from "../../hooks/useUser";
+import { useT, useUser } from "@hooks";
 import { CreateUserModal } from "../user/CreateUserModal/CreateUserModal.tsx";
 
 export function PatientsOverview() {

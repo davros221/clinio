@@ -2,9 +2,9 @@ import { CreateUserDto } from "@clinio/api";
 import { buildCreateUserSchema, UserRole } from "@clinio/shared";
 import { schemaResolver } from "@mantine/form";
 import { useUserForm } from "../../form/createUserForm/CreateUserFormContext.ts";
-import { useCreateUserMutation } from "../../api/userService.ts";
-import { createSearchParams, useNavigate } from "react-router";
-import { ROUTER_PATHS } from "../../router/routes.ts";
+import { useCreateUserMutation } from "@api";
+import { useNavigate } from "react-router";
+import { ROUTER_PATHS } from "@router";
 
 const initialValues: CreateUserDto = {
   role: UserRole.CLIENT,
@@ -31,9 +31,8 @@ export const useSignUpPage = () => {
     createUser(data, {
       onSuccess: () => {
         form.reset();
-        navigate({
-          pathname: ROUTER_PATHS.LOGIN,
-          search: createSearchParams({ prefill: data.email }).toString(),
+        navigate(ROUTER_PATHS.LOGIN, {
+          state: { prefillEmail: data.email },
         });
       },
     });

@@ -32,10 +32,10 @@ export class UserEntity {
   role!: UserRole;
 
   @Column({ nullable: true })
-  activationToken?: string;
+  resetToken?: string;
 
   @Column({ nullable: true })
-  activationTokenExpiresAt?: Date;
+  resetTokenExpiresAt?: Date;
 
   @ManyToMany(() => OfficeEntity, (office) => office.staff)
   offices?: OfficeEntity[];

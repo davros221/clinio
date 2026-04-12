@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
 
       login: (accessToken, user) => set({ accessToken, user }),
 
-      ogout: () => set({ accessToken: null, user: null }),
+      logout: () => set({ accessToken: null, user: null }),
     }),
     {
       name: STORE_KEYS.AUTH,

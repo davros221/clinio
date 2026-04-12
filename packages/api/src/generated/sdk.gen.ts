@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { ActivateAccountData, ActivateAccountErrors, ActivateAccountResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, SendActivationEmailData, SendActivationEmailErrors, SendActivationEmailResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
+import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -71,9 +71,9 @@ export class AuthService {
         });
     }
     
-    public static sendActivationEmail<ThrowOnError extends boolean = false>(options: Options<SendActivationEmailData, ThrowOnError>) {
-        return (options.client ?? client).post<SendActivationEmailResponses, SendActivationEmailErrors, ThrowOnError>({
-            url: '/api/auth/send-activation-email',
+    public static requestPasswordReset<ThrowOnError extends boolean = false>(options: Options<RequestPasswordResetData, ThrowOnError>) {
+        return (options.client ?? client).post<RequestPasswordResetResponses, RequestPasswordResetErrors, ThrowOnError>({
+            url: '/api/auth/request-password-reset',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -82,9 +82,10 @@ export class AuthService {
         });
     }
     
-    public static activateAccount<ThrowOnError extends boolean = false>(options: Options<ActivateAccountData, ThrowOnError>) {
-        return (options.client ?? client).post<ActivateAccountResponses, ActivateAccountErrors, ThrowOnError>({
-            url: '/api/auth/activate',
+    public static resetPassword<ThrowOnError extends boolean = false>(options: Options<ResetPasswordData, ThrowOnError>) {
+        return (options.client ?? client).post<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/auth/reset-password',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

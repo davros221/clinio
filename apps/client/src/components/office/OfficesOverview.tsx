@@ -1,9 +1,8 @@
 import { memo } from "react";
 import { Box, Group, Stack, Title } from "@mantine/core";
 import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
-import { useT } from "../../hooks/useT";
+import { useT, useUserRole } from "@hooks";
 import { OfficesOverviewOfficesTable } from "./OfficesOverviewOfficesTable.tsx";
-import { useUserRole } from "../../hooks/useUserRole.ts";
 
 function OfficesOverviewComponent() {
   const t = useT();

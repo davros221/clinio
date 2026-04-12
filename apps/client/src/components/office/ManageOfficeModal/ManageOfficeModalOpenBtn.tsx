@@ -1,9 +1,9 @@
 import { Button } from "@mantine/core";
-import { ManageOfficeModal } from "./ManageOfficeModal.tsx";
+import { ManageOfficeModal } from "@components";
 import { useDisclosure } from "@mantine/hooks";
-import { useGetOfficeDetailQuery } from "../../../api/officeService.ts";
-import { useT } from "../../../hooks/useT";
-import { notifyError } from "../../../utils/notification";
+import { useGetOfficeDetailQuery } from "@api";
+import { useT } from "@hooks";
+import { notifyError } from "@utils";
 
 type PropsType = {
   officeId?: string;

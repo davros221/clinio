@@ -1,11 +1,10 @@
 import { Badge } from "@mantine/core";
 import { Appointment } from "@clinio/api";
 import { DataTable } from "../DataTable";
-import { useGetAppointmentListQuery } from "../../api/appointmentService";
-import { useGetOfficeListQuery } from "../../api/officeService";
+import { useGetOfficeListQuery, useGetAppointmentListQuery } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
-import { useT } from "../../hooks/useT";
-import { formatDate } from "../utils/dateUtils";
+import { useT } from "@hooks";
+import { DateUtils } from "@utils";
 
 const STATUS_COLOR: Record<AppointmentStatus, string> = {
   [AppointmentStatus.PLANNED]: "blue",
@@ -29,7 +28,7 @@ export function AppointmentsOverviewTable() {
     {
       key: "date",
       header: t("appointment.overview.table.date"),
-      render: (row: Appointment) => formatDate(row.date),
+      render: (row: Appointment) => DateUtils.formatDate(row.date),
     },
     {
       key: "hour",
