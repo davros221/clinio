@@ -1,95 +1,113 @@
-import { DataTable } from "../DataTable.tsx";
-import {
-  Office,
-  OfficeHoursInterval,
-  OfficeHoursTemplateDto,
-} from "@clinio/api";
-import { useCallback, useMemo } from "react";
+import { Office, OfficeHoursTemplateDto } from "@clinio/api";
+import { useCallback } from "react";
+import { MapPreview } from "../MapPreview";
 import { useDeleteOfficeMutation, useGetOfficeListQuery } from "@api";
-import { Button, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Group,
+  Loader,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
-import { useT, useUser } from "@hooks";
-import { DAYS, UserRole } from "@clinio/shared";
+import { useT, useUserRole } from "@hooks";
+import { DAYS } from "@clinio/shared";
+import classes from "./OfficesOverviewOfficesTable.module.css";
 
-const TOP_ALIGN_LEFT: React.CSSProperties = {
-  verticalAlign: "top",
-  textAlign: "left",
-};
-
-function OfficeHoursCell({ template }: { template: OfficeHoursTemplateDto }) {
+function OfficeHoursSummary({
+  template,
+}: {
+  template: OfficeHoursTemplateDto;
+}) {
   const t = useT();
 
-  if (!template || typeof template !== "object") return null;
-
   return (
-    <Stack gap={2} align="center">
+    <Stack gap={2}>
       {DAYS.map((day) => {
         const intervals = template[day];
-        if (!intervals) return null;
+        if (!intervals?.length) return null;
 
         const timeString = intervals
-          .filter(
-            (interval): interval is OfficeHoursInterval =>
-              !!interval &&
-              typeof interval === "object" &&
-              "from" in interval &&
-              "to" in interval
-          )
-          .map((slot) => `${slot.from}:00–${slot.to}:00`)
+          .map((slot) => `${slot.from}:00\u2013${slot.to}:00`)
           .join(", ");
 
-        if (!timeString) return null;
-
         return (
-          <div
-            key={day}
-            style={{
-              display: "flex",
-              gap: 4,
-              alignItems: "baseline",
-              width: "100%",
-            }}
-          >
-            <Text fw={800} size="sm" c="dimmed" style={{ flexShrink: 0 }}>
-              {t(`common.time.daysShort.${day}`)}:
+          <Group key={day} gap={4} wrap="nowrap">
+            <Text fw={700} size="sm" c="dimmed" className={classes.dayLabel}>
+              {t(`common.time.daysShort.${day}`)}
             </Text>
-            <Text size="sm" style={{ minWidth: 0, wordBreak: "break-word" }}>
-              {timeString}
-            </Text>
-          </div>
+            <Text size="sm">{timeString}</Text>
+          </Group>
         );
       })}
     </Stack>
   );
 }
 
-function OfficeActionCell({
-  id,
+function OfficeCard({
+  office,
   onDelete,
 }: {
-  id: string;
+  office: Office;
   onDelete: (id: string) => void;
 }) {
   const t = useT();
-  const { user } = useUser();
-  const isAdmin = user?.role === UserRole.ADMIN;
+  const { isAdmin } = useUserRole();
 
   return (
-    <Stack gap="xxs" justify="space-between" h="100%">
-      <ManageOfficeModalOpenBtn officeId={id} />
+    <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Stack justify="space-between" h="100%" className={classes.cardContent}>
+        <Group>
+          <Title size="lg">{office.name}</Title>
+          <Badge variant="light" color="blue">
+            {office.specialization}
+          </Badge>
+        </Group>
 
-      {isAdmin && (
-        <Button
-          size="xs"
-          variant="outline"
-          color="red"
-          onClick={() => onDelete(id)}
-        >
-          {t("common.action.delete")}
-        </Button>
-      )}
-    </Stack>
+        <Stack>
+          <Group>
+            <ManageOfficeModalOpenBtn officeId={office.id} />
+            {isAdmin && (
+              <Button
+                size="xs"
+                variant="outline"
+                color="red"
+                onClick={() => onDelete(office.id)}
+              >
+                {t("common.action.delete")}
+              </Button>
+            )}
+          </Group>
+
+          <Stack gap="none">
+            <Text size="sm" c="dimmed">
+              {t("office.overview.officesListHeader.address")}:
+            </Text>
+            <Text size="md">{office.address}</Text>
+          </Stack>
+        </Stack>
+        <Group h="100%" align="stretch" className={classes.body}>
+          <Stack gap="4xs">
+            <Text size="sm" c="dimmed">
+              {t("office.overview.officesListHeader.officeHours")}:
+            </Text>
+            <OfficeHoursSummary template={office.officeHoursTemplate} />
+          </Stack>
+
+          <MapPreview
+            address={office.address}
+            title={`Map: ${office.address}`}
+            className={classes.map}
+          />
+        </Group>
+      </Stack>
+    </Card>
   );
 }
 
@@ -120,51 +138,23 @@ export function OfficesOverviewOfficesTable() {
     [t, deleteOffice]
   );
 
-  const columns = useMemo(
-    () => [
-      {
-        key: "action",
-        header: t("office.overview.officesListHeader.action"),
-        style: TOP_ALIGN_LEFT,
-        render: ({ id }: Office) => (
-          <OfficeActionCell id={id} onDelete={handleDelete} />
-        ),
-      },
-      {
-        key: "name",
-        header: t("office.overview.officesListHeader.name"),
-        style: TOP_ALIGN_LEFT,
-      },
-      {
-        key: "specialization",
-        header: t("office.overview.officesListHeader.specialization"),
-        style: TOP_ALIGN_LEFT,
-      },
-      {
-        key: "address",
-        header: t("office.overview.officesListHeader.address"),
-        style: TOP_ALIGN_LEFT,
-      },
-      {
-        key: "officeHours",
-        header: t("office.overview.officesListHeader.officeHours"),
-        render: (row: Office) => (
-          <OfficeHoursCell template={row.officeHoursTemplate} />
-        ),
-      },
-    ],
-    [t, handleDelete]
-  );
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return (
+      <Alert color="red" title={t("common.error.general")}>
+        {error instanceof Error ? error.message : String(error)}
+      </Alert>
+    );
+  }
 
   return (
-    <DataTable<Office>
-      data={offices}
-      keyExtractor={(row) => row.id}
-      isLoading={isLoading}
-      isError={isError}
-      error={error}
-      columns={columns}
-      highlightOnHover={false}
-    />
+    <SimpleGrid cols={{ base: 2 }} spacing="lg">
+      {offices.map((office) => (
+        <OfficeCard key={office.id} office={office} onDelete={handleDelete} />
+      ))}
+    </SimpleGrid>
   );
 }
