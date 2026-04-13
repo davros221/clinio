@@ -18,6 +18,7 @@ import { MapPreview } from "../../MapPreview";
 import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,
+  useAddressSuggestQuery,
   useGetUsersQuery,
 } from "@api";
 import { CreateOfficeDto, Office } from "@clinio/api";
@@ -32,7 +33,6 @@ import {
   type ManageOfficeFormValues,
 } from "./ManageOfficeFormContext";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useAddressSuggestQuery } from "../../../api/addressService.ts";
 import { DEBOUNCE_MS } from "../../../constants.ts";
 
 type PropsType = {
