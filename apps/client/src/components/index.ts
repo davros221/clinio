@@ -7,3 +7,4 @@ export * from "./SideMenu";
 export * from "./LanguageSwitcher.tsx";
 export * from "./SubmitButton/SubmitButton.tsx";
 export * from "./AuthLinks/AuthFooter.tsx";
+export * from "./RoleGuard/RoleGuard.tsx";
