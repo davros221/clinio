@@ -4,6 +4,7 @@ export const ROUTER_PATHS = {
   SIGN_UP: "/sign-up",
   RESET_PASSWORD: "/reset-password",
   ACTIVATE_EMAIL: "/activate",
+  PATIENTS: "patients",
   FORBIDDEN: "/forbidden",
   SETTINGS: "/settings",
   OFFICES: "/offices",

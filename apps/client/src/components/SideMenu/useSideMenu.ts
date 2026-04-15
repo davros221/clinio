@@ -25,8 +25,7 @@ export const useSideMenu = () => {
         label: t("nav.offices"),
       },
       {
-        // ToDo: Route name doesn't seem corect and not matchilg the label
-        to: ROUTER_PATHS.CREATE_PATIENT,
+        to: ROUTER_PATHS.PATIENTS,
         label: userListTitle,
         allowed: [UserRole.ADMIN, UserRole.NURSE, UserRole.DOCTOR],
       },

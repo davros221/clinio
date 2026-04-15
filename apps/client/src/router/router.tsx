@@ -3,6 +3,7 @@ import {
   AppointmentsOverview,
   DashboardSwitch,
   OfficesOverview,
+  PatientsOverview,
   RequireAuth,
 } from "@components";
 import {
@@ -61,6 +62,10 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.APPOINTMENTS,
                 element: <AppointmentsOverview />,
+              },
+              {
+                path: ROUTER_PATHS.PATIENTS,
+                element: <PatientsOverview />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
