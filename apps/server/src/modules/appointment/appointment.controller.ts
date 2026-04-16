@@ -22,11 +22,11 @@ import {
 import { ZodValidationPipe } from "nestjs-zod";
 import {
   createAppointmentSchema,
+  appointmentListSchema,
   UserRole,
   AppointmentStatus,
   AppointmentSortField,
   SortOrder,
-  appointmentListSchema,
 } from "@clinio/shared";
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
 import { Roles } from "../../common/decorators/roles.decorator";

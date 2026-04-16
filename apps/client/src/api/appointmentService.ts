@@ -13,19 +13,23 @@ export type AppointmentListFilters = {
   status?: AppointmentStatus[];
   page?: number;
   limit?: number;
+  officeId?: string;
 };
 
 export const useGetAppointmentListQuery = (
-  filters?: AppointmentListFilters
+  filters?: AppointmentListFilters,
+  enabled = true
 ) => {
   return useQuery<Appointment[]>({
     queryKey: appointmentKeys.list(filters),
+    enabled,
     queryFn: async () => {
       const { data } = await AppointmentService.getAppointments({
         query: {
           status: filters?.status,
           page: filters?.page,
           limit: filters?.limit,
+          officeId: filters?.officeId,
         },
         throwOnError: true,
       });

@@ -41,6 +41,13 @@ export class DateUtils {
   }
 
   /**
+   * Formats a Date to "yyyy-MM-dd" using local time (avoids UTC offset issues)
+   */
+  public static toIsoDate(d: Date): string {
+    return format(d, "yyyy-MM-dd");
+  }
+
+  /**
    * Converts "HH:MM" to minutes since midnight
    * @param time
    */

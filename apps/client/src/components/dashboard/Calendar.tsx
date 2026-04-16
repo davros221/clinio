@@ -15,13 +15,7 @@ import { AppointmentModal } from "./AppointmentModal";
 import { CalendarHeader } from "./CalendarHeader";
 import { CalendarLegend } from "./CalendarLegend";
 import { DroppableSlot } from "./DroppableSlot";
-import {
-  Appointment,
-  CAP_WORK_DAYS,
-  HOURS,
-  SLOT_HEIGHT,
-  ROOM_COLORS,
-} from "../utils/types";
+import { Appointment, CAP_WORK_DAYS, HOURS, SLOT_HEIGHT } from "../utils/types";
 import classes from "./Calendar.module.css";
 import { useT } from "@hooks";
 import { DateUtils } from "@utils";
@@ -30,15 +24,28 @@ type Props = {
   appointments: Appointment[];
   // Callback when moving appointment by d&d — parent will provide API call
   onAppointmentMove?: (id: string, day: number, start: string) => void;
+  weekOffset?: number;
+  onWeekOffsetChange?: (offset: number) => void;
 };
 
 /**
  * Responsive week-view calendar for scheduling appointments.
  * Supports drag-and-drop rescheduling, room color coding, and mobile single-day navigation.
  */
-export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
+export const Calendar = ({
+  appointments,
+  onAppointmentMove,
+  weekOffset: weekOffsetProp,
+  onWeekOffsetChange,
+}: Props) => {
   const t = useT();
-  const [weekOffset, setWeekOffset] = useState(0);
+  const [weekOffsetInternal, setWeekOffsetInternal] = useState(0);
+  const weekOffset = weekOffsetProp ?? weekOffsetInternal;
+  const setWeekOffset = (updater: number | ((prev: number) => number)) => {
+    const next = typeof updater === "function" ? updater(weekOffset) : updater;
+    setWeekOffsetInternal(next);
+    onWeekOffsetChange?.(next);
+  };
   const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
   const [draggingAppt, setDraggingAppt] = useState<Appointment | null>(null);
   const [mobileDayIdx, setMobileDayIdx] = useState(0);
@@ -234,13 +241,6 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
         <DragOverlay>
           {draggingAppt &&
             (() => {
-              const colors = ROOM_COLORS[draggingAppt.room] ?? {
-                bg: "#e0e0e0",
-                text: "#333",
-              };
-              <span className="week-table__drag-overlay-room">
-                {draggingAppt.start} · ord. {draggingAppt.roomNumber}
-              </span>;
               const height = (draggingAppt.duration / 60) * SLOT_HEIGHT;
               return (
                 <Paper
@@ -248,8 +248,8 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
                   radius="sm"
                   className="week-table__drag-overlay"
                   style={{
-                    background: colors.bg,
-                    color: colors.text,
+                    background: "var(--mantine-color-blue-6)",
+                    color: "var(--mantine-color-white)",
                     height: height - 2,
                   }}
                 >

@@ -1,7 +1,7 @@
 import { Tooltip } from "@mantine/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Appointment, ROOM_COLORS } from "../utils/types";
+import { Appointment } from "../utils/types";
 
 type Props = {
   appt: Appointment;
@@ -16,12 +16,6 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
       id: appt.id,
       data: { appt },
     });
-
-  // TODO předelat pak podle vytvareni ordinací
-  const colors = ROOM_COLORS[appt.room] ?? {
-    bg: "var(--mantine-color-gray-5)",
-    text: "var(--mantine-color-white)",
-  };
 
   return (
     <Tooltip
@@ -41,8 +35,8 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
           {
             "--appt-top": `${top}px`,
             "--appt-height": `${height - 2}px`,
-            "--appt-bg": colors.bg,
-            "--appt-color": colors.text,
+            "--appt-bg": "var(--mantine-color-blue-6)",
+            "--appt-color": "var(--mantine-color-white)",
             transform: CSS.Translate.toString(transform),
           } as React.CSSProperties
         }

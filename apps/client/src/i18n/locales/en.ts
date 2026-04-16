@@ -245,6 +245,9 @@ const en = {
       createSuccessMessage: "User was successfully created.",
     },
   },
+  calendar: {
+    today: "Today",
+  },
   patient: {
     overview: {
       title: "Patients",
