@@ -87,7 +87,7 @@ describe("OfficeController", () => {
     it("should return paginated office DTOs", async () => {
       service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
 
-      const result = await controller.getAll();
+      const result = await controller.getAll(mockUser);
 
       expect(result).toEqual({
         items: [mockOfficeDto],
@@ -96,13 +96,17 @@ describe("OfficeController", () => {
         limit: 20,
         totalPages: 1,
       });
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, undefined);
+      expect(service.findAll).toHaveBeenCalledWith(
+        defaultQuery,
+        mockUser,
+        undefined
+      );
     });
 
     it("should return empty items when no offices exist", async () => {
       service.findAll.mockResolvedValue({ items: [], total: 0 });
 
-      const result = await controller.getAll();
+      const result = await controller.getAll(mockUser);
 
       expect(result.items).toEqual([]);
       expect(result.total).toBe(0);
@@ -113,6 +117,7 @@ describe("OfficeController", () => {
       service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
 
       await controller.getAll(
+        mockUser,
         undefined,
         "2",
         "10",
@@ -127,6 +132,7 @@ describe("OfficeController", () => {
           sortBy: OfficeSortField.SPECIALIZATION,
           sortOrder: SortOrder.DESC,
         },
+        mockUser,
         undefined
       );
     });
@@ -134,15 +140,19 @@ describe("OfficeController", () => {
     it("should pass search to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockOffice], total: 1 });
 
-      await controller.getAll("cardio");
+      await controller.getAll(mockUser, "cardio");
 
-      expect(service.findAll).toHaveBeenCalledWith(defaultQuery, "cardio");
+      expect(service.findAll).toHaveBeenCalledWith(
+        defaultQuery,
+        mockUser,
+        "cardio"
+      );
     });
 
     it("should calculate totalPages correctly", async () => {
       service.findAll.mockResolvedValue({ items: [mockOffice], total: 45 });
 
-      const result = await controller.getAll(undefined, "1", "20");
+      const result = await controller.getAll(mockUser, undefined, "1", "20");
 
       expect(result.totalPages).toBe(3);
     });

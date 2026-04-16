@@ -149,7 +149,7 @@ export class AppointmentService {
     });
 
     if (!patient) {
-      return { items: [], total: 0 };
+      throw notFound("Patient");
     }
 
     const where: FindOptionsWhere<AppointmentEntity> = {

@@ -144,7 +144,6 @@ export class CalendarService {
                 patientId
               );
             } else if (!isPatient) {
-              // Staff and admin see full data
               appointment = this.mapAppointmentForStaff(currentHourAppointment);
             }
           }
