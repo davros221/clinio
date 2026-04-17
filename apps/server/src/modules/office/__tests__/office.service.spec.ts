@@ -37,6 +37,18 @@ const nonStaffDoctorUser: AuthUser = {
   role: UserRole.DOCTOR,
 };
 
+const clientUser: AuthUser = {
+  id: "client-1",
+  email: "client@example.com",
+  role: UserRole.CLIENT,
+};
+
+const nurseUser: AuthUser = {
+  id: "nurse-1",
+  email: "nurse@example.com",
+  role: UserRole.NURSE,
+};
+
 const mockStaff: UserEntity = {
   id: "staff-1",
   email: "doc@example.com",
@@ -114,10 +126,10 @@ describe("OfficeService", () => {
   });
 
   describe("findAll", () => {
-    it("should return offices with pagination", async () => {
+    it("should return all offices for admin", async () => {
       officeRepository.findAndCount.mockResolvedValue([[mockOffice], 1]);
 
-      const result = await service.findAll(defaultQuery);
+      const result = await service.findAll(defaultQuery, adminUser);
 
       expect(result).toEqual({ items: [mockOffice], total: 1 });
       expect(officeRepository.findAndCount).toHaveBeenCalledWith({
@@ -129,10 +141,44 @@ describe("OfficeService", () => {
       });
     });
 
+    it("should return all offices for client", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[mockOffice], 1]);
+
+      await service.findAll(defaultQuery, clientUser);
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({ where: {} })
+      );
+    });
+
+    it("should filter by staff membership for doctor", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(defaultQuery, staffDoctorUser);
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { staff: { id: staffDoctorUser.id } },
+        })
+      );
+    });
+
+    it("should filter by staff membership for nurse", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(defaultQuery, nurseUser);
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { staff: { id: nurseUser.id } },
+        })
+      );
+    });
+
     it("should apply correct skip for page 2", async () => {
       officeRepository.findAndCount.mockResolvedValue([[], 0]);
 
-      await service.findAll({ ...defaultQuery, page: 2 });
+      await service.findAll({ ...defaultQuery, page: 2 }, adminUser);
 
       expect(officeRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({ skip: 20, take: 20 })
@@ -142,21 +188,24 @@ describe("OfficeService", () => {
     it("should apply sorting parameters", async () => {
       officeRepository.findAndCount.mockResolvedValue([[], 0]);
 
-      await service.findAll({
-        ...defaultQuery,
-        sortBy: OfficeSortField.SPECIALIZATION,
-        sortOrder: SortOrder.DESC,
-      });
+      await service.findAll(
+        {
+          ...defaultQuery,
+          sortBy: OfficeSortField.SPECIALIZATION,
+          sortOrder: SortOrder.DESC,
+        },
+        adminUser
+      );
 
       expect(officeRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({ order: { specialization: "DESC" } })
       );
     });
 
-    it("should search by name and specialization when search provided", async () => {
+    it("should search by name and specialization for admin", async () => {
       officeRepository.findAndCount.mockResolvedValue([[mockOffice], 1]);
 
-      await service.findAll(defaultQuery, "cardio");
+      await service.findAll(defaultQuery, adminUser, "cardio");
 
       expect(officeRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -168,10 +217,28 @@ describe("OfficeService", () => {
       );
     });
 
-    it("should not filter when search not provided", async () => {
+    it("should combine search with staff filter for doctor", async () => {
       officeRepository.findAndCount.mockResolvedValue([[], 0]);
 
-      await service.findAll(defaultQuery);
+      await service.findAll(defaultQuery, staffDoctorUser, "cardio");
+
+      expect(officeRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: [
+            { name: expect.anything(), staff: { id: staffDoctorUser.id } },
+            {
+              specialization: expect.anything(),
+              staff: { id: staffDoctorUser.id },
+            },
+          ],
+        })
+      );
+    });
+
+    it("should not filter by staff when search not provided for admin", async () => {
+      officeRepository.findAndCount.mockResolvedValue([[], 0]);
+
+      await service.findAll(defaultQuery, adminUser);
 
       expect(officeRepository.findAndCount).toHaveBeenCalledWith(
         expect.objectContaining({ where: {} })

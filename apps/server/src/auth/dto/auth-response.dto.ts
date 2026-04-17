@@ -3,6 +3,9 @@ import { UserRole } from "@clinio/shared";
 
 export class AuthData {
   @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
   firstName!: string;
 
   @ApiProperty()

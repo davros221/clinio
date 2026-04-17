@@ -82,6 +82,7 @@ export class OfficeController {
   @ApiOkResponse({ type: PaginatedOfficeResponse })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
+    @CurrentUser() user: AuthUser,
     @Query("search") search?: string,
     @Query("page") page?: string,
     @Query("limit") limit?: string,
@@ -89,7 +90,11 @@ export class OfficeController {
     @Query("sortOrder") sortOrder?: string
   ) {
     const query = officeListSchema.parse({ page, limit, sortBy, sortOrder });
-    const { items, total } = await this.officeService.findAll(query, search);
+    const { items, total } = await this.officeService.findAll(
+      query,
+      user,
+      search
+    );
     return {
       items: OfficeMapper.toDtoList(items),
       total,
