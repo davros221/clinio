@@ -19,6 +19,7 @@ export class UserMapper {
 
   static toAuthData(user: UserEntity): AuthData {
     return {
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,

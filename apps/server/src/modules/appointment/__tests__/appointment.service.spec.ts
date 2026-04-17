@@ -182,12 +182,18 @@ describe("AppointmentService", () => {
         );
       });
 
-      it("should return empty result when patient entity not found", async () => {
+      it("should throw NotFoundException when patient entity not found", async () => {
         patientRepo.findOne.mockResolvedValue(null);
 
-        const result = await service.findAll(defaultQuery, clientUser);
-
-        expect(result).toEqual({ items: [], total: 0 });
+        try {
+          await service.findAll(defaultQuery, clientUser);
+          fail("should have thrown");
+        } catch (error) {
+          expect(error).toBeInstanceOf(NotFoundException);
+          expect((error as NotFoundException).getResponse()).toMatchObject({
+            errorCode: ErrorCode.NOT_FOUND,
+          });
+        }
       });
     });
 

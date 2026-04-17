@@ -93,6 +93,7 @@ describe("AuthService", () => {
       expect(result).toEqual({
         accessToken: "jwt-token",
         authData: {
+          id: mockUser.id,
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
@@ -371,6 +372,7 @@ describe("AuthService", () => {
       expect(result).toEqual({
         auth: true,
         authData: {
+          id: mockUser.id,
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
