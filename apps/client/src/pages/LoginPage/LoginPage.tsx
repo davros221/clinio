@@ -53,7 +53,6 @@ export const LoginPage = () => {
         <SubmitButton type={"submit"} loading={isLoading} form={FORM_ID}>
           {t("login.submitButton")}
         </SubmitButton>
-        <a href={"http://localhost:8000/api/auth/google"}>Login with google</a>
         <AuthFooter links={["forgotPassword", "signUp"]} />
       </div>
     </Stack>
