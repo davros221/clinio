@@ -9,12 +9,15 @@ import {
   invalidResetToken,
   invalidCredentials,
   notFound,
+  googleEmailNotVerified,
 } from "../common/error-messages";
 import { UserService } from "../modules/user/user.service";
+import { UserEntity } from "../modules/user/user.entity";
 import { MailService } from "../modules/mail/mail.service";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
+import { GoogleProfile } from "./strategies/google.strategy";
 import { UserMapper } from "../modules/user/mapper/UserMapper";
 import { addHours, format } from "date-fns";
 
@@ -109,6 +112,39 @@ export class AuthService {
     await this.userService.update(user);
 
     return { email: user.email };
+  }
+
+  async validateGoogleUser(profile: GoogleProfile): Promise<UserEntity> {
+    if (!profile.emailVerified) {
+      throw googleEmailNotVerified();
+    }
+
+    const byGoogleId = await this.userService.findByGoogleId(profile.googleId);
+    if (byGoogleId) {
+      return byGoogleId;
+    }
+
+    const byEmail = await this.userService.findByEmail(profile.email);
+    if (byEmail) {
+      byEmail.googleId = profile.googleId;
+      return this.userService.update(byEmail);
+    }
+
+    return this.userService.createGoogleUser({
+      googleId: profile.googleId,
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    });
+  }
+
+  googleLogin(user: UserEntity): { accessToken: string } {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    return { accessToken: this.jwtService.sign(payload) };
   }
 
   async me(userId: string): Promise<MeResponse> {

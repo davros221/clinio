@@ -1,28 +1,46 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { ConfigService } from "@nestjs/config";
 import { AuthController } from "../auth.controller";
 import { AuthService } from "../auth.service";
 import { UserRole } from "@clinio/shared";
 import { AuthResponse, MeResponse } from "../dto/auth-response.dto";
+import { UserEntity } from "../../modules/user/user.entity";
 
 const mockAuthService = () => ({
   login: jest.fn(),
   me: jest.fn(),
   requestPasswordReset: jest.fn(),
   resetPassword: jest.fn(),
+  googleLogin: jest.fn(),
+});
+
+const mockConfigService = () => ({
+  getOrThrow: jest.fn((key: string) => {
+    const config: Record<string, string> = {
+      "client.url": "http://localhost:3000",
+    };
+    return config[key];
+  }),
 });
 
 describe("AuthController", () => {
   let controller: AuthController;
   let service: jest.Mocked<
-    Pick<AuthService, "login" | "me" | "requestPasswordReset" | "resetPassword">
+    Pick<
+      AuthService,
+      "login" | "me" | "requestPasswordReset" | "resetPassword" | "googleLogin"
+    >
   >;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ThrottlerModule.forRoot()],
       controllers: [AuthController],
-      providers: [{ provide: AuthService, useFactory: mockAuthService }],
+      providers: [
+        { provide: AuthService, useFactory: mockAuthService },
+        { provide: ConfigService, useFactory: mockConfigService },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -98,6 +116,27 @@ describe("AuthController", () => {
 
       expect(result).toEqual(meResponse);
       expect(service.me).toHaveBeenCalledWith(currentUser.id);
+    });
+  });
+
+  describe("googleAuthCallback", () => {
+    it("should redirect to client URL with access token", () => {
+      const user = { id: "user-id" } as UserEntity;
+      const req = { user } as unknown as Parameters<
+        typeof controller.googleAuthCallback
+      >[0];
+      const res = { redirect: jest.fn() } as unknown as Parameters<
+        typeof controller.googleAuthCallback
+      >[1];
+
+      service.googleLogin.mockReturnValue({ accessToken: "jwt-token" });
+
+      controller.googleAuthCallback(req, res);
+
+      expect(service.googleLogin).toHaveBeenCalledWith(user);
+      expect(res.redirect).toHaveBeenCalledWith(
+        "http://localhost:3000/auth/google/callback?token=jwt-token"
+      );
     });
   });
 });

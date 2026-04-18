@@ -98,3 +98,10 @@ export function appointmentOutsideHours(): BadRequestException {
     message: "Appointment hour is outside of opening hours",
   });
 }
+
+export function googleEmailNotVerified(): UnauthorizedException {
+  return new UnauthorizedException({
+    errorCode: ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED,
+    message: "Google email is not verified",
+  });
+}

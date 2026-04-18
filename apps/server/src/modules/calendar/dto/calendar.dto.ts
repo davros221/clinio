@@ -19,11 +19,11 @@ export class CalendarAppointmentPatient {
   @ApiProperty()
   email!: string;
 
-  @ApiProperty()
-  phone!: string;
+  @ApiProperty({ required: false, nullable: true })
+  phone?: string | null;
 
-  @ApiProperty()
-  birthNumber!: string;
+  @ApiProperty({ required: false, nullable: true })
+  birthNumber?: string | null;
 }
 
 export class CalendarAppointment {

@@ -19,12 +19,12 @@ export class PatientEntity {
   @JoinColumn({ name: "userId" })
   user!: UserEntity;
 
-  @Column()
-  birthNumber!: string;
+  @Column({ nullable: true, type: "varchar" })
+  birthNumber?: string | null;
 
-  @Column({ type: "date" })
-  birthdate!: Date;
+  @Column({ type: "date", nullable: true })
+  birthdate?: Date | null;
 
-  @Column()
-  phone!: string;
+  @Column({ nullable: true, type: "varchar" })
+  phone?: string | null;
 }

@@ -103,8 +103,37 @@ export class UserService {
     return this.userRepository.findOneBy({ email });
   }
 
+  async findByGoogleId(googleId: string): Promise<UserEntity | null> {
+    return this.userRepository.findOneBy({ googleId });
+  }
+
   async findByResetToken(token: string): Promise<UserEntity | null> {
     return this.userRepository.findOneBy({ resetToken: token });
+  }
+
+  async createGoogleUser(params: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+  }): Promise<UserEntity> {
+    return this.dataSource.transaction(async (manager) => {
+      const user = manager.create(UserEntity, {
+        email: params.email,
+        firstName: params.firstName,
+        lastName: params.lastName,
+        googleId: params.googleId,
+        role: UserRole.CLIENT,
+      });
+      const savedUser = await manager.save(user);
+
+      const patient = manager.create(PatientEntity, {
+        userId: savedUser.id,
+      });
+      await manager.save(patient);
+
+      return savedUser;
+    });
   }
 
   /**

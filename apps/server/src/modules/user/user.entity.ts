@@ -11,6 +11,7 @@ import { OfficeEntity } from "../office/office.entity";
 
 @Entity("users")
 @Unique(["email"])
+@Unique(["googleId"])
 @Index("idx_user_role", ["role"])
 export class UserEntity {
   @PrimaryGeneratedColumn("uuid")
@@ -21,6 +22,9 @@ export class UserEntity {
 
   @Column({ nullable: true, type: "varchar" })
   password?: string | null;
+
+  @Column({ nullable: true, type: "varchar" })
+  googleId?: string | null;
 
   @Column()
   firstName!: string;
