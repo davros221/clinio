@@ -39,10 +39,25 @@ export type LoginDto = {
     password: string;
 };
 
+export type AuthPatient = {
+    id: string;
+    birthNumber?: {
+        [key: string]: unknown;
+    } | null;
+    birthdate?: {
+        [key: string]: unknown;
+    } | null;
+    phone?: {
+        [key: string]: unknown;
+    } | null;
+};
+
 export type AuthData = {
+    id: string;
     firstName: string;
     lastName: string;
     role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
+    patient?: AuthPatient | null;
 };
 
 export type AuthResponse = {
@@ -68,6 +83,40 @@ export type MeResponse = {
     authData: AuthData | null;
 };
 
+export type Patient = {
+    id: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    birthNumber?: {
+        [key: string]: unknown;
+    } | null;
+    birthdate?: {
+        [key: string]: unknown;
+    } | null;
+    phone?: {
+        [key: string]: unknown;
+    } | null;
+    email: string;
+};
+
+export type PaginatedPatientResponse = {
+    items: Array<Patient>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
+export type UpdatePatientDto = {
+    birthNumber?: string;
+    /**
+     * ISO Date string (e.g. 1990-01-01)
+     */
+    birthdate?: string;
+    phone?: string;
+};
+
 export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
 
 export type CalendarAppointmentPatient = {
@@ -75,8 +124,12 @@ export type CalendarAppointmentPatient = {
     firstName: string;
     lastName: string;
     email: string;
-    phone: string;
-    birthNumber: string;
+    phone?: {
+        [key: string]: unknown;
+    } | null;
+    birthNumber?: {
+        [key: string]: unknown;
+    } | null;
 };
 
 export type CalendarAppointment = {
@@ -255,34 +308,6 @@ export type SuggestResponse = {
     items: Array<SuggestItem>;
 };
 
-export type Patient = {
-    id: string;
-    userId: string;
-    firstName: string;
-    lastName: string;
-    birthNumber: string;
-    birthdate: string;
-    phone: string;
-    email: string;
-};
-
-export type PaginatedPatientResponse = {
-    items: Array<Patient>;
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-};
-
-export type UpdatePatientDto = {
-    birthNumber?: string;
-    /**
-     * ISO Date string (e.g. 1990-01-01)
-     */
-    birthdate?: string;
-    phone?: string;
-};
-
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -406,6 +431,10 @@ export type GetByIdData = {
 
 export type GetByIdErrors = {
     /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
      * User not found
      */
     404: unknown;
@@ -498,6 +527,121 @@ export type MeResponses = {
 };
 
 export type MeResponse2 = MeResponses[keyof MeResponses];
+
+export type GoogleAuthData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/google';
+};
+
+export type GoogleAuthResponses = {
+    200: unknown;
+};
+
+export type GoogleAuthCallbackData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/auth/google/callback';
+};
+
+export type GoogleAuthCallbackResponses = {
+    200: unknown;
+};
+
+export type GetPatientsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Search by first name or last name
+         */
+        search?: string;
+        /**
+         * Sort field (default: lastName)
+         */
+        sortBy?: 'lastName' | 'birthNumber' | 'birthdate';
+        /**
+         * Sort order (default: ASC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
+    };
+    url: '/api/patients';
+};
+
+export type GetPatientsErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+};
+
+export type GetPatientsResponses = {
+    200: PaginatedPatientResponse;
+};
+
+export type GetPatientsResponse = GetPatientsResponses[keyof GetPatientsResponses];
+
+export type GetPatientByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{id}';
+};
+
+export type GetPatientByIdErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type GetPatientByIdResponses = {
+    200: Patient;
+};
+
+export type GetPatientByIdResponse = GetPatientByIdResponses[keyof GetPatientByIdResponses];
+
+export type UpdatePatientData = {
+    body: UpdatePatientDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{id}';
+};
+
+export type UpdatePatientErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type UpdatePatientResponses = {
+    200: Patient;
+};
+
+export type UpdatePatientResponse = UpdatePatientResponses[keyof UpdatePatientResponses];
 
 export type GetCalendarData = {
     body?: never;
@@ -830,96 +974,3 @@ export type SuggestAddressResponses = {
 };
 
 export type SuggestAddressResponse = SuggestAddressResponses[keyof SuggestAddressResponses];
-
-export type GetPatientsData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Page number (default: 1)
-         */
-        page?: number;
-        /**
-         * Items per page (default: 20, max: 100)
-         */
-        limit?: number;
-        /**
-         * Search by first name or last name
-         */
-        search?: string;
-        /**
-         * Sort field (default: lastName)
-         */
-        sortBy?: 'lastName' | 'birthNumber' | 'birthdate';
-        /**
-         * Sort order (default: ASC)
-         */
-        sortOrder?: 'ASC' | 'DESC';
-    };
-    url: '/api/patients';
-};
-
-export type GetPatientsErrors = {
-    /**
-     * Forbidden
-     */
-    403: unknown;
-};
-
-export type GetPatientsResponses = {
-    200: PaginatedPatientResponse;
-};
-
-export type GetPatientsResponse = GetPatientsResponses[keyof GetPatientsResponses];
-
-export type GetPatientByIdData = {
-    body?: never;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/patients/{id}';
-};
-
-export type GetPatientByIdErrors = {
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Patient not found
-     */
-    404: unknown;
-};
-
-export type GetPatientByIdResponses = {
-    200: Patient;
-};
-
-export type GetPatientByIdResponse = GetPatientByIdResponses[keyof GetPatientByIdResponses];
-
-export type UpdatePatientData = {
-    body: UpdatePatientDto;
-    path: {
-        id: string;
-    };
-    query?: never;
-    url: '/api/patients/{id}';
-};
-
-export type UpdatePatientErrors = {
-    /**
-     * Forbidden
-     */
-    403: unknown;
-    /**
-     * Patient not found
-     */
-    404: unknown;
-};
-
-export type UpdatePatientResponses = {
-    200: Patient;
-};
-
-export type UpdatePatientResponse = UpdatePatientResponses[keyof UpdatePatientResponses];

@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { UserRole } from "@clinio/shared";
 import {
   accountNotActive,
   resetTokenExpired,
@@ -14,6 +15,8 @@ import {
 import { UserService } from "../modules/user/user.service";
 import { UserEntity } from "../modules/user/user.entity";
 import { MailService } from "../modules/mail/mail.service";
+import { PatientService } from "../modules/patient/patient.service";
+import { PatientEntity } from "../modules/patient/patient.entity";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
@@ -27,7 +30,8 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private patientService: PatientService
   ) {}
 
   async login(dto: LoginDto): Promise<AuthResponse> {
@@ -51,7 +55,8 @@ export class AuthService {
       role: user.role,
     };
     const accessToken = this.jwtService.sign(payload);
-    const authData = UserMapper.toAuthData(user);
+    const patient = await this.loadPatientIfClient(user);
+    const authData = UserMapper.toAuthData(user, patient);
 
     return {
       accessToken,
@@ -149,7 +154,8 @@ export class AuthService {
 
   async me(userId: string): Promise<MeResponse> {
     const user = await this.userService.findById(userId);
-    const authData = UserMapper.toAuthData(user);
+    const patient = await this.loadPatientIfClient(user);
+    const authData = UserMapper.toAuthData(user, patient);
 
     return {
       auth: true,
@@ -159,5 +165,12 @@ export class AuthService {
 
   private createResetToken(): string {
     return crypto.randomBytes(32).toString("hex");
+  }
+
+  private async loadPatientIfClient(
+    user: UserEntity
+  ): Promise<PatientEntity | null> {
+    if (user.role !== UserRole.CLIENT) return null;
+    return this.patientService.findByUserId(user.id);
   }
 }

@@ -11,7 +11,9 @@ import * as bcrypt from "bcryptjs";
 import { AuthService } from "../auth.service";
 import { UserService } from "../../modules/user/user.service";
 import { MailService } from "../../modules/mail/mail.service";
+import { PatientService } from "../../modules/patient/patient.service";
 import { UserEntity } from "../../modules/user/user.entity";
+import { PatientEntity } from "../../modules/patient/patient.entity";
 import { GoogleProfile } from "../strategies/google.strategy";
 import { UserRole, ErrorCode } from "@clinio/shared";
 import { addHours } from "date-fns";
@@ -42,6 +44,10 @@ const mockMailService = () => ({
   sendMail: jest.fn(),
 });
 
+const mockPatientService = () => ({
+  findByUserId: jest.fn(),
+});
+
 const mockConfigService = () => ({
   get: jest.fn(),
   getOrThrow: jest.fn((key: string) => {
@@ -68,6 +74,7 @@ describe("AuthService", () => {
   >;
   let jwtService: jest.Mocked<Pick<JwtService, "sign">>;
   let mailService: jest.Mocked<Pick<MailService, "sendMail">>;
+  let patientService: jest.Mocked<Pick<PatientService, "findByUserId">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -77,6 +84,7 @@ describe("AuthService", () => {
         { provide: JwtService, useFactory: mockJwtService },
         { provide: MailService, useFactory: mockMailService },
         { provide: ConfigService, useFactory: mockConfigService },
+        { provide: PatientService, useFactory: mockPatientService },
       ],
     }).compile();
 
@@ -84,6 +92,7 @@ describe("AuthService", () => {
     userService = module.get(UserService);
     jwtService = module.get(JwtService);
     mailService = module.get(MailService);
+    patientService = module.get(PatientService);
   });
 
   describe("login", () => {
@@ -105,8 +114,49 @@ describe("AuthService", () => {
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
+          patient: null,
         },
       });
+    });
+
+    it("should include patient data in authData when user is CLIENT", async () => {
+      const clientUser: UserEntity = { ...mockUser, role: UserRole.CLIENT };
+      const patient: PatientEntity = {
+        id: "patient-id",
+        userId: clientUser.id,
+        user: clientUser,
+        birthNumber: "9001011234",
+        birthdate: new Date("1990-01-01"),
+        phone: "+420123456789",
+      };
+      userService.findByEmail.mockResolvedValue(clientUser);
+      patientService.findByUserId.mockResolvedValue(patient);
+      jest
+        .spyOn(bcrypt, "compare")
+        .mockImplementation(() => Promise.resolve(true));
+      jwtService.sign.mockReturnValue("jwt-token");
+
+      const result = await service.login(loginDto);
+
+      expect(patientService.findByUserId).toHaveBeenCalledWith(clientUser.id);
+      expect(result.authData.patient).toEqual({
+        id: patient.id,
+        birthNumber: patient.birthNumber,
+        birthdate: patient.birthdate,
+        phone: patient.phone,
+      });
+    });
+
+    it("should not fetch patient data for non-CLIENT roles", async () => {
+      userService.findByEmail.mockResolvedValue(mockUser);
+      jest
+        .spyOn(bcrypt, "compare")
+        .mockImplementation(() => Promise.resolve(true));
+      jwtService.sign.mockReturnValue("jwt-token");
+
+      await service.login(loginDto);
+
+      expect(patientService.findByUserId).not.toHaveBeenCalled();
     });
 
     it("should sign JWT with correct payload", async () => {
@@ -384,7 +434,32 @@ describe("AuthService", () => {
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
+          patient: null,
         },
+      });
+    });
+
+    it("should include patient data in authData when user is CLIENT", async () => {
+      const clientUser: UserEntity = { ...mockUser, role: UserRole.CLIENT };
+      const patient: PatientEntity = {
+        id: "patient-id",
+        userId: clientUser.id,
+        user: clientUser,
+        birthNumber: "9001011234",
+        birthdate: new Date("1990-01-01"),
+        phone: "+420123456789",
+      };
+      userService.findById.mockResolvedValue(clientUser);
+      patientService.findByUserId.mockResolvedValue(patient);
+
+      const result = await service.me(clientUser.id);
+
+      expect(patientService.findByUserId).toHaveBeenCalledWith(clientUser.id);
+      expect(result.authData?.patient).toEqual({
+        id: patient.id,
+        birthNumber: patient.birthNumber,
+        birthdate: patient.birthdate,
+        phone: patient.phone,
       });
     });
 

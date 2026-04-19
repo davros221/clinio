@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule, type JwtModuleOptions } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { MailModule, UserModule } from "../modules";
+import { MailModule, PatientModule, UserModule } from "../modules";
 import { AuthController } from "./auth.controller";
 import { APP_GUARD } from "@nestjs/core";
 import { AuthService } from "./auth.service";
@@ -15,6 +15,7 @@ import { GoogleStrategy } from "./strategies/google.strategy";
   imports: [
     UserModule,
     MailModule,
+    PatientModule,
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
