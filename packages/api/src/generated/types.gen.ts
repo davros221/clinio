@@ -40,6 +40,7 @@ export type LoginDto = {
 };
 
 export type AuthData = {
+    id: string;
     firstName: string;
     lastName: string;
     role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';

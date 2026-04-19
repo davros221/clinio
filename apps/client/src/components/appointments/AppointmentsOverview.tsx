@@ -9,18 +9,18 @@ import {
   useGetOfficeListQuery,
   useGetPatientsQuery,
 } from "@api";
-import { useT, useUserRole } from "@hooks";
-import { AuthToken, DateUtils } from "@utils";
+import { useT, useUser, useUserRole } from "@hooks";
+import { DateUtils } from "@utils";
 
 export function AppointmentsOverview() {
   const t = useT();
-  const { isNurse, isDoctor } = useUserRole();
-  const isStaff = isNurse || isDoctor;
+  const { isStaff } = useUserRole();
   const [modalOpened, setModalOpened] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
 
-  const currentUserId = AuthToken.getUserId();
+  const { user } = useUser();
+  const currentUserId = user?.id ?? null;
   const { data: offices = [] } = useGetOfficeListQuery();
   const { data: patients = [] } = useGetPatientsQuery(isStaff);
 
