@@ -105,3 +105,10 @@ export function googleEmailNotVerified(): UnauthorizedException {
     message: "Google email is not verified",
   });
 }
+
+export function patientProfileIncomplete(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.PATIENT_PROFILE_INCOMPLETE,
+    message: "Patient profile is incomplete",
+  });
+}

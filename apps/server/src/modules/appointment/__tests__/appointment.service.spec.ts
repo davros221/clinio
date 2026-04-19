@@ -44,6 +44,9 @@ const clientUser: AuthUser = {
 const mockPatient: Partial<PatientEntity> = {
   id: "patient-1",
   userId: clientUser.id,
+  birthNumber: "9001011234",
+  birthdate: new Date("1990-01-01"),
+  phone: "+420123456789",
 };
 
 const mockAppointment: AppointmentEntity = {
@@ -430,6 +433,29 @@ describe("AppointmentService", () => {
         NotFoundException
       );
     });
+
+    it.each([
+      ["birthNumber", { birthNumber: null }],
+      ["birthdate", { birthdate: null }],
+      ["phone", { phone: null }],
+    ])(
+      "should throw PATIENT_PROFILE_INCOMPLETE when client missing %s",
+      async (_field, missing) => {
+        const incomplete = { ...mockPatient, ...missing } as PatientEntity;
+        appointmentRepo.findOne.mockResolvedValue(null);
+        patientRepo.findOne.mockResolvedValue(incomplete);
+
+        try {
+          await service.create(createDto, clientUser);
+          fail("should have thrown");
+        } catch (error) {
+          expect(error).toBeInstanceOf(ForbiddenException);
+          expect((error as ForbiddenException).getResponse()).toMatchObject({
+            errorCode: ErrorCode.PATIENT_PROFILE_INCOMPLETE,
+          });
+        }
+      }
+    );
 
     it("should throw BadRequestException when hour is outside opening hours", async () => {
       const dto: CreateAppointmentDto = { ...createDto, hour: 5 };

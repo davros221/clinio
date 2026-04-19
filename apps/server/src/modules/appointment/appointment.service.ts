@@ -15,6 +15,7 @@ import {
   forbidden,
   internalError,
   notFound,
+  patientProfileIncomplete,
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
@@ -130,6 +131,10 @@ export class AppointmentService {
 
       if (!patient) {
         throw notFound("Patient");
+      }
+
+      if (!patient.birthNumber || !patient.birthdate || !patient.phone) {
+        throw patientProfileIncomplete();
       }
 
       dto.patientId = patient.id;
