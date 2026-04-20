@@ -8,9 +8,12 @@ import { AppointmentEntity } from "../../appointment/appointment.entity";
 import { PatientEntity } from "../../patient/patient.entity";
 import { OfficeEntity } from "../../office/office.entity";
 import { CalendarHourState } from "../dto/calendar.dto";
-import { AppointmentStatus, UserRole } from "@clinio/shared";
+import {
+  AppointmentStatus,
+  OfficeHoursTemplate,
+  UserRole,
+} from "@clinio/shared";
 import { AuthUser } from "../../../auth/strategies/jwt.strategy";
-import { SettingsService } from "../../../common/services/settings.service";
 
 const mockAppointmentService = () => ({
   findByOfficeAndWeek: jest.fn(),
@@ -22,12 +25,6 @@ const mockPatientRepository = () => ({
 
 const mockOfficeRepository = () => ({
   findOne: jest.fn(),
-});
-
-const mockSettingsService = () => ({
-  getOpeningHours: jest
-    .fn()
-    .mockReturnValue({ startingHour: 6, endingHour: 20 }),
 });
 
 const doctorUser: AuthUser = {
@@ -72,9 +69,20 @@ const otherPatient: Partial<PatientEntity> = {
   birthNumber: "9501011234",
 };
 
+const weekdayHours: OfficeHoursTemplate = {
+  monday: [{ from: 8, to: 16 }],
+  tuesday: [{ from: 8, to: 16 }],
+  wednesday: [{ from: 8, to: 16 }],
+  thursday: [{ from: 8, to: 16 }],
+  friday: [{ from: 8, to: 16 }],
+  saturday: [],
+  sunday: [],
+};
+
 const mockOffice: Partial<OfficeEntity> = {
   id: "office-uuid-001",
   staff: [{ id: doctorUser.id }] as OfficeEntity["staff"],
+  officeHoursTemplate: weekdayHours,
 };
 
 describe("CalendarService", () => {
@@ -101,10 +109,6 @@ describe("CalendarService", () => {
           provide: getRepositoryToken(OfficeEntity),
           useFactory: mockOfficeRepository,
         },
-        {
-          provide: SettingsService,
-          useFactory: mockSettingsService,
-        },
       ],
     }).compile();
 
@@ -120,6 +124,7 @@ describe("CalendarService", () => {
     const wednesday = new Date(2026, 3, 1);
 
     it("should return 7 days starting from Monday", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
 
       const result = await service.getWeek(officeId, wednesday, adminUser);
@@ -130,6 +135,7 @@ describe("CalendarService", () => {
     });
 
     it("should call appointmentService.findByOfficeAndWeek with officeId", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
 
       await service.getWeek(officeId, wednesday, adminUser);
@@ -140,18 +146,33 @@ describe("CalendarService", () => {
       );
     });
 
-    it("should return hours from 6 to 19", async () => {
+    it("should return hour grid matching the office template (min 8 hours)", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
 
       const result = await service.getWeek(officeId, wednesday, adminUser);
 
       const hours = result[0].hours.map((h) => h.hour);
-      expect(hours[0]).toBe(6);
-      expect(hours[hours.length - 1]).toBe(19);
-      expect(hours).toHaveLength(14);
+      expect(hours[0]).toBe(8);
+      expect(hours[hours.length - 1]).toBe(15);
+      expect(hours).toHaveLength(8);
+    });
+
+    it("should mark all hours on a closed day as CLOSED", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
+
+      const result = await service.getWeek(officeId, wednesday, adminUser);
+
+      // day 5 = Saturday, empty slots in template
+      const saturday = result[5];
+      expect(
+        saturday.hours.every((h) => h.state === CalendarHourState.CLOSED)
+      ).toBe(true);
     });
 
     it("should mark hours with appointments as BOOKED", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
 
       const emptyResult = await service.getWeek(officeId, wednesday, adminUser);
@@ -246,6 +267,7 @@ describe("CalendarService", () => {
 
     describe("patient (CLIENT) access", () => {
       it("should return appointment data only for own appointments", async () => {
+        officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
         patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
         appointmentService.findByOfficeAndWeek.mockResolvedValue([]);
 

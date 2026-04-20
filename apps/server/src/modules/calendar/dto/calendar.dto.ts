@@ -3,7 +3,7 @@ import { ApiProperty } from "@nestjs/swagger";
 export enum CalendarHourState {
   AVAILABLE = "AVAILABLE",
   BOOKED = "BOOKED",
-  NOT_AVAILABLE = "NOT_AVAILABLE",
+  CLOSED = "CLOSED",
 }
 
 export class CalendarAppointmentPatient {

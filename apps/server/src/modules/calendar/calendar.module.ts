@@ -5,7 +5,6 @@ import { CalendarService } from "./calendar.service";
 import { AppointmentModule } from "../appointment/appointment.module";
 import { PatientEntity } from "../patient/patient.entity";
 import { OfficeEntity } from "../office/office.entity";
-import { SettingsService } from "../../common/services/settings.service";
 
 @Module({
   imports: [
@@ -13,6 +12,6 @@ import { SettingsService } from "../../common/services/settings.service";
     TypeOrmModule.forFeature([PatientEntity, OfficeEntity]),
   ],
   controllers: [CalendarController],
-  providers: [CalendarService, SettingsService],
+  providers: [CalendarService],
 })
 export class CalendarModule {}
