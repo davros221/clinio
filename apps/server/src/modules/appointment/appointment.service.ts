@@ -18,7 +18,7 @@ import {
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
-import { SettingsService } from "../../common/services/settings.service";
+import { OfficeHoursHelper } from "../../common/helpers/OfficeHoursHelper";
 
 @Injectable()
 export class AppointmentService {
@@ -28,8 +28,7 @@ export class AppointmentService {
     @InjectRepository(PatientEntity)
     private patientRepository: Repository<PatientEntity>,
     @InjectRepository(OfficeEntity)
-    private officeRepository: Repository<OfficeEntity>,
-    private settingsService: SettingsService
+    private officeRepository: Repository<OfficeEntity>
   ) {}
 
   async findAll(
@@ -108,19 +107,23 @@ export class AppointmentService {
   ): Promise<AppointmentEntity> {
     const { isStaff, isPatient } = AuthHelper.getRoles(currentUser);
 
+    const office = await this.officeRepository.findOne({
+      where: { id: dto.officeId },
+      relations: ["staff"],
+    });
+    if (!office) {
+      throw notFound("Office");
+    }
+
     if (isStaff) {
-      await AuthHelper.assertStaffBelongsToOffice(
-        this.officeRepository,
-        currentUser.id,
-        dto.officeId
-      );
+      AuthHelper.assertStaffBelongsToOfficeEntity(office, currentUser.id);
 
       if (!dto.patientId) {
         throw badRequest("patientId is required for staff");
       }
     }
 
-    await this.assertWithinOpeningHours(dto.hour);
+    this.assertWithinOfficeHours(office, dto.date, dto.hour);
     await this.assertSlotAvailable(dto.officeId, dto.date, dto.hour);
 
     if (isPatient) {
@@ -219,10 +222,17 @@ export class AppointmentService {
     }
   }
 
-  private assertWithinOpeningHours(hour: number): void {
-    const { startingHour, endingHour } = this.settingsService.getOpeningHours();
+  private assertWithinOfficeHours(
+    office: OfficeEntity,
+    date: string,
+    hour: number
+  ): void {
+    const slots = OfficeHoursHelper.getSlotsForDate(
+      office.officeHoursTemplate,
+      date
+    );
 
-    if (hour < startingHour || hour >= endingHour) {
+    if (!OfficeHoursHelper.isHourOpen(slots, hour)) {
       throw appointmentOutsideHours();
     }
   }

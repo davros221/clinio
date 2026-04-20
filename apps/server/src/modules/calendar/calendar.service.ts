@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { addDays, startOfWeek } from "date-fns";
+import { addDays, format, startOfWeek } from "date-fns";
 import {
   CalendarAppointment,
   CalendarAppointmentPatient,
@@ -14,7 +14,8 @@ import { PatientEntity } from "../patient/patient.entity";
 import { OfficeEntity } from "../office/office.entity";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
-import { SettingsService } from "../../common/services/settings.service";
+import { OfficeHoursHelper } from "../../common/helpers/OfficeHoursHelper";
+import { notFound } from "../../common/error-messages";
 
 type AppointmentMapKey = string & { __brand: "AppointmentMapKey" };
 
@@ -25,19 +26,15 @@ export class CalendarService {
     @InjectRepository(PatientEntity)
     private readonly patientRepository: Repository<PatientEntity>,
     @InjectRepository(OfficeEntity)
-    private readonly officeRepository: Repository<OfficeEntity>,
-    private readonly settingsService: SettingsService
+    private readonly officeRepository: Repository<OfficeEntity>
   ) {}
 
   private buildKey(date: string, hour: number): AppointmentMapKey {
     return `${date}-${hour}` as AppointmentMapKey;
   }
 
-  /**
-   * Format Date to "yyyy-MM-dd" string in UTC to avoid timezone shifts
-   */
   private formatDate(date: Date): string {
-    return date.toISOString().slice(0, 10);
+    return format(date, "yyyy-MM-dd");
   }
 
   private mapAppointments(appointments: AppointmentEntity[]) {
@@ -93,18 +90,24 @@ export class CalendarService {
     currentUser: AuthUser
   ): Promise<CalendarDay[]> {
     const { isStaff, isPatient } = AuthHelper.getRoles(currentUser);
-    const { startingHour, endingHour } = this.settingsService.getOpeningHours();
+
+    const office = await this.officeRepository.findOne({
+      where: { id: officeId },
+      relations: ["staff"],
+    });
+    if (!office) {
+      throw notFound("Office");
+    }
 
     if (isStaff) {
-      await AuthHelper.assertStaffBelongsToOffice(
-        this.officeRepository,
-        currentUser.id,
-        officeId
-      );
+      AuthHelper.assertStaffBelongsToOfficeEntity(office, currentUser.id);
     }
 
     const monday = startOfWeek(date, { weekStartsOn: 1 });
-    const dayLength = endingHour - startingHour;
+    const { start, end } = OfficeHoursHelper.computeGridRange(
+      office.officeHoursTemplate
+    );
+    const dayLength = end - start;
 
     const appointments = await this.appointmentService.findByOfficeAndWeek(
       officeId,
@@ -123,13 +126,22 @@ export class CalendarService {
     return Array.from({ length: 7 }, (_, i) => {
       const currentDate = addDays(monday, i);
       const dateStr = this.formatDate(currentDate);
+      const slots = OfficeHoursHelper.getSlotsForDate(
+        office.officeHoursTemplate,
+        dateStr
+      );
 
       return {
         date: dateStr,
         day: i,
         hours: Array.from({ length: dayLength }, (_, j) => {
-          // ToDo: DRO: first check office.officeHourSchema, if date slot is available
-          const hour = j + startingHour;
+          const hour = j + start;
+          const isOpen = OfficeHoursHelper.isHourOpen(slots, hour);
+
+          if (!isOpen) {
+            return { hour, state: CalendarHourState.CLOSED };
+          }
+
           const key = this.buildKey(dateStr, hour);
           const currentHourAppointment = appointmentMap.get(key);
           const state = currentHourAppointment
