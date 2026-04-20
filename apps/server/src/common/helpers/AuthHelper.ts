@@ -30,7 +30,14 @@ export class AuthHelper {
       throw forbidden();
     }
 
-    const isMember = office.staff.some((s) => s.id === userId);
+    AuthHelper.assertStaffBelongsToOfficeEntity(office, userId);
+  }
+
+  static assertStaffBelongsToOfficeEntity(
+    office: OfficeEntity,
+    userId: string
+  ): void {
+    const isMember = office.staff?.some((s) => s.id === userId) ?? false;
     if (!isMember) {
       throw forbidden();
     }
