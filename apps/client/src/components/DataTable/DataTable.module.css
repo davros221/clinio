@@ -1,5 +1,6 @@
 .scrollContainer {
   overflow: auto;
+  position: relative;
 }
 
 .wrapper {

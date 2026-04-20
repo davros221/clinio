@@ -1,8 +1,8 @@
 import { User } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
-import { DataTable } from "../DataTable";
 import { useGetUsersQuery } from "@api";
 import { useT, useUser } from "@hooks";
+import { DataTable } from "../DataTable";
 
 const mapColumn = (key: keyof User, headerKey: string) => ({
   key,
@@ -31,7 +31,7 @@ export function PatientsOverviewTable() {
   ];
 
   return (
-    <DataTable<User>
+    <DataTable
       data={users}
       keyExtractor={(row) => row.id}
       isLoading={isLoading}
