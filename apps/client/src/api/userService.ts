@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { User, UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
@@ -41,4 +46,24 @@ export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
     },
     enabled,
   });
+};
+
+/*
+ * ------------------------- GET user detail
+ */
+
+const getUserDetailOptions = (id: string) =>
+  queryOptions({
+    queryFn: async ({ signal }) => {
+      const res = await UserService.getById({
+        path: { id },
+        signal,
+      });
+      return res.data;
+    },
+    queryKey: userKeys.detail(id),
+  });
+
+export const useGetUserDetailQuery = (id: string) => {
+  return useQuery(getUserDetailOptions(id));
 };
