@@ -7,6 +7,7 @@ export type CalendarSlot = {
   start: string;
   duration: number;
   day: number;
+  note?: string;
 };
 
 export const CAP_DAYS = DAYS.map(

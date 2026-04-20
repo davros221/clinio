@@ -2,6 +2,7 @@ import { Modal, Stack, Badge, Group, Text } from "@mantine/core";
 import { CalendarSlot, CAP_WORK_DAYS } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
+import { GoNote } from "react-icons/go";
 
 type Props = {
   appt: CalendarSlot | null;
@@ -35,6 +36,13 @@ export const AppointmentModal = ({ appt, onClose }: Props) => (
           <IoMdTime />
           <Text size="sm">
             {appt.start} — délka: {appt.duration} min
+          </Text>
+        </Group>
+
+        <Group gap="xs">
+          <GoNote />
+          <Text size="sm" c="dimmed">
+            {appt.note}
           </Text>
         </Group>
       </Stack>

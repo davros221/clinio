@@ -41,6 +41,7 @@ export function AppointmentsOverview() {
             start: `${String(h.hour).padStart(2, "0")}:00`,
             duration: 60,
             day: day.day + 1,
+            note: h.appointment!.note,
           }))
       );
   }, [calendarDays, officeName]);
