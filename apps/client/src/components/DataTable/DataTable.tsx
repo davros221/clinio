@@ -12,7 +12,6 @@ import { DataTableAction, DataTableColumn } from "./DataTableProps.ts";
 import { DataTableBody } from "./components/DataTableBody.tsx";
 import { MdErrorOutline } from "react-icons/md";
 import { ApiError } from "@clinio/shared";
-import { MouseEventHandler } from "react";
 
 export type DataTableProps<T> = {
   data: T[];
@@ -28,7 +27,7 @@ export type DataTableProps<T> = {
   pagination?: {
     total: number;
     current: number;
-    onChange: MouseEventHandler<HTMLDivElement>;
+    onChange: (page: number) => void;
   };
 };
 
@@ -73,51 +72,54 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
   const hasActions = !!actions?.length;
 
   return (
-    <Box className={classes.scrollContainer}>
-      <Box className={classes.wrapper}>
-        <Table
-          highlightOnHover={highlightOnHover}
-          classNames={{
-            table: classes.table,
-            thead: classes.thead,
-            th: classes.th,
-            td: classes.td,
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              {columns.map((col) => (
-                <Table.Th key={col.key}>{col.header}</Table.Th>
-              ))}
-              {hasActions && (
-                <Table.Th>{t("component.dataTable.actionsColumn")}</Table.Th>
-              )}
-            </Table.Tr>
-          </Table.Thead>
+    <>
+      <Box className={classes.scrollContainer}>
+        <Box className={classes.wrapper}>
+          <Table
+            highlightOnHover={highlightOnHover}
+            classNames={{
+              table: classes.table,
+              thead: classes.thead,
+              th: classes.th,
+              td: classes.td,
+            }}
+          >
+            <Table.Thead>
+              <Table.Tr>
+                {columns.map((col) => (
+                  <Table.Th key={col.key}>{col.header}</Table.Th>
+                ))}
+                {hasActions && (
+                  <Table.Th>{t("component.dataTable.actionsColumn")}</Table.Th>
+                )}
+              </Table.Tr>
+            </Table.Thead>
 
-          <Table.Tbody>
-            <DataTableBody
-              hasActions={hasActions}
-              keyExtractor={keyExtractor}
-              data={data}
-              columns={columns}
-              emptyMessage={resolvedEmptyMessage}
-              isLoading={isLoading}
-              actions={actions}
-            />
-          </Table.Tbody>
-        </Table>
+            <Table.Tbody>
+              <DataTableBody
+                hasActions={hasActions}
+                keyExtractor={keyExtractor}
+                data={data}
+                columns={columns}
+                emptyMessage={resolvedEmptyMessage}
+                isLoading={isLoading}
+                actions={actions}
+              />
+            </Table.Tbody>
+          </Table>
+        </Box>
+        <LoadingOverlay visible={isFetching} />
       </Box>
-      {pagination && (
+      {pagination && pagination.total > 1 && (
         <Center mt={16}>
           <Pagination
             total={pagination.total}
             value={pagination.current}
-            onClick={pagination.onChange}
+            onChange={pagination.onChange}
+            disabled={isFetching}
           />
         </Center>
       )}
-      <LoadingOverlay visible={isFetching} />
-    </Box>
+    </>
   );
 };

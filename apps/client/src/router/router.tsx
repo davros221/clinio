@@ -12,6 +12,7 @@ import {
   LoginPage,
   ActivateAccountPage,
   ResetPasswordPage,
+  PatientDetailPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -66,6 +67,10 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.PATIENTS,
                 element: <PatientsOverview />,
+              },
+              {
+                path: ROUTER_PATHS.PATIENT_DETAIL,
+                element: <PatientDetailPage />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
