@@ -10,6 +10,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { CalendarDay } from "@clinio/api";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentModal } from "./AppointmentModal";
 import { CalendarHeader } from "./CalendarHeader";
@@ -30,8 +31,7 @@ type Props = {
   onAppointmentMove?: (id: string, day: number, start: string) => void;
   weekTimestamp?: number;
   onWeekTimestampChange?: (timestamp: number) => void;
-  hours?: number[];
-  closedSlots?: Set<string>;
+  calendarDays?: CalendarDay[];
 };
 
 /**
@@ -43,8 +43,7 @@ export const Calendar = ({
   onAppointmentMove,
   weekTimestamp: weekTimestampProp,
   onWeekTimestampChange,
-  hours: hoursProp,
-  closedSlots,
+  calendarDays,
 }: Props) => {
   const t = useT();
   const [weekTimestampInternal, setWeekTimestampInternal] = useState(() =>
@@ -62,7 +61,14 @@ export const Calendar = ({
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const displayHours = hoursProp ?? HOURS;
+  const displayHours = useMemo(() => {
+    if (!calendarDays?.length) return HOURS;
+    const allHours = calendarDays.flatMap((d) => d.hours.map((h) => h.hour));
+    if (!allHours.length) return HOURS;
+    const min = Math.min(...allHours);
+    const max = Math.max(...allHours);
+    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  }, [calendarDays]);
 
   const weekStart = useMemo(
     () => DateUtils.getWeekStart(0, new Date(weekTimestamp)),
@@ -119,6 +125,11 @@ export const Calendar = ({
     onAppointmentMove?.(String(active.id), newDay, newStart);
   };
 
+  const isHourClosed = (dayIdx: number, hour: number): boolean => {
+    const day = calendarDays?.find((d) => d.day === dayIdx);
+    return day?.hours.find((h) => h.hour === hour)?.state === "CLOSED";
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -161,7 +172,15 @@ export const Calendar = ({
           <Button
             variant="subtle"
             size="xs"
-            onClick={() => setWeekTimestamp(Date.now())}
+            onClick={() => {
+              setWeekTimestamp(Date.now());
+              setMobileDayIdx(
+                Math.min(
+                  DateUtils.isoWeekday(DateUtils.toIsoDate(new Date())),
+                  4
+                )
+              );
+            }}
             className="calendar__today-btn"
           >
             {t("calendar.today")}
@@ -222,8 +241,7 @@ export const Calendar = ({
                 <div key={dayIdx} className="week-table__day-col">
                   {/* Half-hour droppable slots */}
                   {displayHours.map((hour) => {
-                    const closed =
-                      closedSlots?.has(`${dayIdx}-${hour}`) ?? false;
+                    const closed = isHourClosed(dayIdx, hour);
                     return (
                       <div key={hour} className="week-table__hour-row">
                         <DroppableSlot

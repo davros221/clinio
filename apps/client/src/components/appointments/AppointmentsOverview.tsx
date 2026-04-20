@@ -46,28 +46,6 @@ export function AppointmentsOverview() {
       );
   }, [calendarDays, officeName]);
 
-  const hours = useMemo(() => {
-    const allHours = calendarDays.flatMap((d) => d.hours.map((h) => h.hour));
-    if (!allHours.length) return undefined;
-    const min = Math.min(...allHours);
-    const max = Math.max(...allHours);
-    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
-  }, [calendarDays]);
-
-  const closedSlots = useMemo(() => {
-    const set = new Set<string>();
-    calendarDays
-      .filter((d) => d.day < 5)
-      .forEach((day) => {
-        day.hours.forEach((h) => {
-          if (h.state === "CLOSED") {
-            set.add(`${day.day}-${h.hour}`);
-          }
-        });
-      });
-    return set;
-  }, [calendarDays]);
-
   return (
     <Box>
       <Stack gap="md">
@@ -94,8 +72,7 @@ export function AppointmentsOverview() {
               appointments={calendarSlots}
               weekTimestamp={time}
               onWeekTimestampChange={setTime}
-              hours={hours}
-              closedSlots={closedSlots}
+              calendarDays={calendarDays}
             />
           </Stack>
         ) : (
