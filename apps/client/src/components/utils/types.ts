@@ -1,11 +1,10 @@
 import { DAYS } from "@clinio/shared";
 
-export type Appointment = {
+export type CalendarSlot = {
   id: string;
   patientName: string;
   room: string;
   start: string;
-  roomNumber: number;
   duration: number;
   day: number;
 };

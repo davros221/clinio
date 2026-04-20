@@ -14,6 +14,8 @@ export type AppointmentListFilters = {
   page?: number;
   limit?: number;
   officeId?: string;
+  sortBy?: "date" | "status";
+  sortOrder?: "ASC" | "DESC";
 };
 
 export const useGetAppointmentListQuery = (
@@ -30,6 +32,8 @@ export const useGetAppointmentListQuery = (
           page: filters?.page,
           limit: filters?.limit,
           officeId: filters?.officeId,
+          sortBy: filters?.sortBy,
+          sortOrder: filters?.sortOrder,
         },
         throwOnError: true,
       });

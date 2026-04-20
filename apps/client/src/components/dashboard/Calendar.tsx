@@ -13,15 +13,19 @@ import {
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentModal } from "./AppointmentModal";
 import { CalendarHeader } from "./CalendarHeader";
-import { CalendarLegend } from "./CalendarLegend";
 import { DroppableSlot } from "./DroppableSlot";
-import { Appointment, CAP_WORK_DAYS, HOURS, SLOT_HEIGHT } from "../utils/types";
-import classes from "./Calendar.module.css";
+import {
+  CalendarSlot,
+  CAP_WORK_DAYS,
+  HOURS,
+  SLOT_HEIGHT,
+} from "../utils/types";
+import "./Calendar.css";
 import { useT } from "@hooks";
 import { DateUtils } from "@utils";
 
 type Props = {
-  appointments: Appointment[];
+  appointments: CalendarSlot[];
   // Callback when moving appointment by d&d — parent will provide API call
   onAppointmentMove?: (id: string, day: number, start: string) => void;
   weekOffset?: number;
@@ -46,8 +50,8 @@ export const Calendar = ({
     setWeekOffsetInternal(next);
     onWeekOffsetChange?.(next);
   };
-  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
-  const [draggingAppt, setDraggingAppt] = useState<Appointment | null>(null);
+  const [selectedAppt, setSelectedAppt] = useState<CalendarSlot | null>(null);
+  const [draggingAppt, setDraggingAppt] = useState<CalendarSlot | null>(null);
   const [mobileDayIdx, setMobileDayIdx] = useState(0);
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -57,11 +61,10 @@ export const Calendar = ({
     [weekOffset]
   );
 
-  const weekEnd = useMemo(() => {
-    const d = new Date(weekStart);
-    d.setDate(weekStart.getDate() + 4);
-    return d;
-  }, [weekStart]);
+  const weekEnd = useMemo(
+    () => DateUtils.getWeekDay(weekStart, 4),
+    [weekStart]
+  );
 
   // Recalculated only when isMobile or mobileDayIdx changes
   const visibleDayIndices = useMemo(
@@ -77,7 +80,7 @@ export const Calendar = ({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setDraggingAppt(event.active.data.current?.appt as Appointment);
+    setDraggingAppt(event.active.data.current?.appt as CalendarSlot);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -124,7 +127,7 @@ export const Calendar = ({
         }
       >
         {/* Week Navigation */}
-        <Group justify="center" gap="xs" className={classes.weekNav}>
+        <Group justify="center" gap="xs" className="calendar__week-nav">
           <Button
             variant="default"
             size="xs"
@@ -147,7 +150,7 @@ export const Calendar = ({
             variant="subtle"
             size="xs"
             onClick={() => setWeekOffset(0)}
-            className={classes.todayBtn}
+            className="calendar__today-btn"
           >
             {t("calendar.today")}
           </Button>
@@ -213,7 +216,7 @@ export const Calendar = ({
                     </div>
                   ))}
 
-                  {/* Appointments */}
+                  {/* CalendarSlots */}
                   {dayAppts.map((appt) => {
                     const top =
                       ((DateUtils.timeToMinutes(appt.start) - gridStart) / 60) *
@@ -235,8 +238,6 @@ export const Calendar = ({
           </div>
         </div>
 
-        <CalendarLegend />
-
         {/* DragOverlay */}
         <DragOverlay>
           {draggingAppt &&
@@ -255,7 +256,7 @@ export const Calendar = ({
                 >
                   <span>{draggingAppt.patientName}</span>
                   <span className="week-table__drag-overlay-room">
-                    {draggingAppt.start} · ord. {draggingAppt.roomNumber}
+                    {draggingAppt.start} · {draggingAppt.room}
                   </span>
                 </Paper>
               );

@@ -33,19 +33,4 @@ export class AuthToken {
   public static clear(): void {
     localStorage.removeItem(this.tokenName);
   }
-
-  /**
-   * Decodes JWT payload and returns the user ID (sub claim)
-   * @returns {string | null}
-   */
-  public static getUserId(): string | null {
-    const token = this.get();
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.sub ?? null;
-    } catch {
-      return null;
-    }
-  }
 }

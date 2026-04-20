@@ -1,10 +1,10 @@
 import { Modal, Stack, Badge, Group, Text } from "@mantine/core";
-import { Appointment, CAP_WORK_DAYS } from "../utils/types";
+import { CalendarSlot, CAP_WORK_DAYS } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 
 type Props = {
-  appt: Appointment | null;
+  appt: CalendarSlot | null;
   onClose: () => void;
 };
 

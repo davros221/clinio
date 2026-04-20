@@ -1,4 +1,5 @@
 export * from "./authService.ts";
+export * from "./calendarService.ts";
 export * from "./patientService.ts";
 export * from "./appointmentService.ts";
 export * from "./clientService.ts";

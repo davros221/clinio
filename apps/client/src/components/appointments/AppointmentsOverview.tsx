@@ -3,13 +3,9 @@ import { Box, Button, Group, Select, Stack, Title } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { Calendar } from "../dashboard/Calendar";
-import { Appointment } from "../utils/types";
-import {
-  useGetAppointmentListQuery,
-  useGetOfficeListQuery,
-  useGetPatientsQuery,
-} from "@api";
-import { useT, useUser, useUserRole } from "@hooks";
+import { CalendarSlot } from "../utils/types";
+import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
+import { useT, useUserRole } from "@hooks";
 import { DateUtils } from "@utils";
 
 export function AppointmentsOverview() {
@@ -18,62 +14,40 @@ export function AppointmentsOverview() {
   const [modalOpened, setModalOpened] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [today] = useState(() => new Date());
 
-  const { user } = useUser();
-  const currentUserId = user?.id ?? null;
   const { data: offices = [] } = useGetOfficeListQuery();
-  const { data: patients = [] } = useGetPatientsQuery(isStaff);
 
-  const nurseOffices = useMemo(
-    () =>
-      isStaff && currentUserId
-        ? offices.filter((o) => o.staffIds.includes(currentUserId))
-        : offices,
-    [offices, isStaff, currentUserId]
+  const weekStart = DateUtils.getWeekStart(weekOffset, today);
+
+  const { data: calendarDays = [] } = useGetCalendarQuery(
+    selectedOfficeId!,
+    weekStart,
+    !!selectedOfficeId
   );
 
-  const { data: apiAppointments = [] } = useGetAppointmentListQuery(
-    isStaff && selectedOfficeId ? { officeId: selectedOfficeId } : undefined,
-    isStaff ? !!selectedOfficeId : true
-  );
+  const officeName = offices.find((o) => o.id === selectedOfficeId)?.name ?? "";
 
-  const weekStart = DateUtils.getWeekStart(weekOffset);
-
-  const calendarAppointments: Appointment[] = useMemo(() => {
-    const weekDates = Array.from({ length: 5 }, (_, i) => {
-      const d = new Date(weekStart);
-      d.setDate(weekStart.getDate() + i);
-      return DateUtils.toIsoDate(d);
-    });
-
-    return apiAppointments
-      .filter((appt) => weekDates.includes(appt.date))
-      .map((appt) => {
-        const office = offices.find((o) => o.id === appt.officeId);
-        const officeName = office?.name ?? "Ordinace 1";
-        const roomNumberMatch = officeName.match(/\d+/);
-        const roomNumber = roomNumberMatch ? Number(roomNumberMatch[0]) : 1;
-
-        const dayIndex = weekDates.indexOf(appt.date);
-
-        const patient = patients.find(
-          (p) => p.id === (appt.patientId as unknown as string)
-        );
-        const patientName = patient
-          ? `${patient.firstName} ${patient.lastName}`.trim()
-          : "Pacient";
-
-        return {
-          id: appt.id,
-          patientName,
-          room: officeName,
-          roomNumber,
-          start: `${String(appt.hour).padStart(2, "0")}:00`,
-          duration: 60,
-          day: dayIndex + 1,
-        };
-      });
-  }, [apiAppointments, offices, patients, weekStart]);
+  const calendarSlots: CalendarSlot[] = useMemo(() => {
+    return calendarDays
+      .filter((day) => day.day < 5)
+      .flatMap((day) =>
+        day.hours
+          .filter((h) => h.state === "BOOKED" && h.appointment)
+          .map((h) => ({
+            id: h.appointment!.id,
+            patientName: h.appointment!.patient
+              ? `${h.appointment!.patient.firstName} ${
+                  h.appointment!.patient.lastName
+                }`.trim()
+              : "Pacient",
+            room: officeName,
+            start: `${String(h.hour).padStart(2, "0")}:00`,
+            duration: 60,
+            day: day.day + 1,
+          }))
+      );
+  }, [calendarDays, officeName]);
 
   return (
     <Box>
@@ -92,13 +66,13 @@ export function AppointmentsOverview() {
               placeholder={t(
                 "appointment.createModal.fields.officePlaceholder"
               )}
-              data={nurseOffices.map((o) => ({ value: o.id, label: o.name }))}
+              data={offices.map((o) => ({ value: o.id, label: o.name }))}
               value={selectedOfficeId}
               onChange={setSelectedOfficeId}
               w={300}
             />
             <Calendar
-              appointments={calendarAppointments}
+              appointments={calendarSlots}
               weekOffset={weekOffset}
               onWeekOffsetChange={setWeekOffset}
             />

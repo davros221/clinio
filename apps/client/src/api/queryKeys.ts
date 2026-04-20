@@ -9,6 +9,7 @@ const createQueryKeys = (entity: string) => ({
 export const addressKeys = createQueryKeys("addresses");
 export const suggestKeys = createQueryKeys("suggest");
 export const appointmentKeys = createQueryKeys("appointments");
+export const calendarKeys = createQueryKeys("calendar");
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
 // Auth servicer is not generic entity / list service, so there should be custom keys

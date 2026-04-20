@@ -1,10 +1,10 @@
 import { Tooltip } from "@mantine/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Appointment } from "../utils/types";
+import { CalendarSlot } from "../utils/types";
 
 type Props = {
-  appt: Appointment;
+  appt: CalendarSlot;
   top: number;
   height: number;
   onClick: () => void;
@@ -44,7 +44,7 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
       >
         <span>{appt.patientName}</span>
         <span className="week-table__appt-room">
-          {appt.start} · ord. {appt.roomNumber}
+          {appt.start} · {appt.room}
         </span>
       </div>
     </Tooltip>
