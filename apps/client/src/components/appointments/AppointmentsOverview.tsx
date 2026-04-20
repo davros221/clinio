@@ -1,9 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Box, Button, Group, Select, Stack, Title } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { Calendar } from "../dashboard/Calendar";
-import { CalendarSlot } from "../utils/types";
 import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
 import { useT, useUserRole } from "@hooks";
 
@@ -23,28 +22,6 @@ export function AppointmentsOverview() {
   );
 
   const officeName = offices.find((o) => o.id === selectedOfficeId)?.name ?? "";
-
-  const calendarSlots: CalendarSlot[] = useMemo(() => {
-    return calendarDays
-      .filter((day) => day.day < 5)
-      .flatMap((day) =>
-        day.hours
-          .filter((h) => h.state === "BOOKED" && h.appointment)
-          .map((h) => ({
-            id: h.appointment!.id,
-            patientName: h.appointment!.patient
-              ? `${h.appointment!.patient.firstName} ${
-                  h.appointment!.patient.lastName
-                }`.trim()
-              : "Pacient",
-            room: officeName,
-            start: `${String(h.hour).padStart(2, "0")}:00`,
-            duration: 60,
-            day: day.day + 1,
-            note: h.appointment!.note,
-          }))
-      );
-  }, [calendarDays, officeName]);
 
   return (
     <Box>
@@ -69,10 +46,10 @@ export function AppointmentsOverview() {
               w={300}
             />
             <Calendar
-              appointments={calendarSlots}
+              calendarDays={calendarDays}
+              officeName={officeName}
               weekTimestamp={time}
               onWeekTimestampChange={setTime}
-              calendarDays={calendarDays}
             />
           </Stack>
         ) : (

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Button, Text, Group, Stack, Paper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -26,12 +26,11 @@ import { useT } from "@hooks";
 import { DateUtils } from "@utils";
 
 type Props = {
-  appointments: CalendarSlot[];
-  // Callback when moving appointment by d&d — parent will provide API call
+  calendarDays: CalendarDay[];
+  officeName?: string;
   onAppointmentMove?: (id: string, day: number, start: string) => void;
   weekTimestamp?: number;
   onWeekTimestampChange?: (timestamp: number) => void;
-  calendarDays?: CalendarDay[];
 };
 
 /**
@@ -39,11 +38,11 @@ type Props = {
  * Supports drag-and-drop rescheduling, room color coding, and mobile single-day navigation.
  */
 export const Calendar = ({
-  appointments,
+  calendarDays,
+  officeName = "",
   onAppointmentMove,
   weekTimestamp: weekTimestampProp,
   onWeekTimestampChange,
-  calendarDays,
 }: Props) => {
   const t = useT();
   const [weekTimestampInternal, setWeekTimestampInternal] = useState(() =>
@@ -61,31 +60,14 @@ export const Calendar = ({
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const displayHours = useMemo(() => {
-    if (!calendarDays?.length) return HOURS;
-    const allHours = calendarDays.flatMap((d) => d.hours.map((h) => h.hour));
-    if (!allHours.length) return HOURS;
-    const min = Math.min(...allHours);
-    const max = Math.max(...allHours);
-    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
-  }, [calendarDays]);
-
-  const weekStart = useMemo(
-    () => DateUtils.getWeekStart(0, new Date(weekTimestamp)),
-    [weekTimestamp]
-  );
-
-  const weekEnd = useMemo(
-    () => DateUtils.getWeekDay(weekStart, 4),
-    [weekStart]
-  );
-
-  const visibleDayIndices = useMemo(
-    () => (isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4]),
-    [isMobile, mobileDayIdx]
-  );
-
+  // All days share the same hour range — take from first available weekday
+  const displayHours =
+    calendarDays.find((d) => d.day < 5)?.hours.map((h) => h.hour) ?? HOURS;
   const gridStart = displayHours[0] * 60;
+
+  const weekStart = DateUtils.getWeekStart(0, new Date(weekTimestamp));
+  const weekEnd = DateUtils.getWeekDay(weekStart, 4);
+  const visibleDayIndices = isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4];
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -104,8 +86,6 @@ export const Calendar = ({
     if (parts.length !== 3) return;
 
     const [dayIdx, hour, minute] = parts.map(Number);
-    const firstHour = displayHours[0];
-    const lastHour = displayHours[displayHours.length - 1];
 
     if (
       isNaN(dayIdx) ||
@@ -113,21 +93,17 @@ export const Calendar = ({
       isNaN(minute) ||
       dayIdx < 0 ||
       dayIdx > 4 ||
-      hour < firstHour ||
-      hour > lastHour ||
+      hour < displayHours[0] ||
+      hour > displayHours[displayHours.length - 1] ||
       (minute !== 0 && minute !== 30)
     )
       return;
 
-    const newDay = dayIdx + 1;
-    const newStart = DateUtils.minutesToTime(hour * 60 + minute);
-
-    onAppointmentMove?.(String(active.id), newDay, newStart);
-  };
-
-  const isHourClosed = (dayIdx: number, hour: number): boolean => {
-    const day = calendarDays?.find((d) => d.day === dayIdx);
-    return day?.hours.find((h) => h.hour === hour)?.state === "CLOSED";
+    onAppointmentMove?.(
+      String(active.id),
+      dayIdx + 1,
+      DateUtils.minutesToTime(hour * 60 + minute)
+    );
   };
 
   return (
@@ -172,6 +148,7 @@ export const Calendar = ({
           <Button
             variant="subtle"
             size="xs"
+            className="calendar__today-btn"
             onClick={() => {
               setWeekTimestamp(Date.now());
               setMobileDayIdx(
@@ -181,7 +158,6 @@ export const Calendar = ({
                 )
               );
             }}
-            className="calendar__today-btn"
           >
             {t("calendar.today")}
           </Button>
@@ -234,48 +210,60 @@ export const Calendar = ({
               ))}
             </div>
 
-            {/* Days - columns */}
+            {/* Day columns */}
             {visibleDayIndices.map((dayIdx) => {
-              const dayAppts = appointments.filter((a) => a.day === dayIdx + 1);
+              const day = calendarDays.find((d) => d.day === dayIdx);
               return (
                 <div key={dayIdx} className="week-table__day-col">
-                  {/* Half-hour droppable slots */}
-                  {displayHours.map((hour) => {
-                    const closed = isHourClosed(dayIdx, hour);
-                    return (
-                      <div key={hour} className="week-table__hour-row">
-                        <DroppableSlot
-                          dayIdx={dayIdx}
-                          hour={hour}
-                          minute={0}
-                          closed={closed}
-                        />
-                        <DroppableSlot
-                          dayIdx={dayIdx}
-                          hour={hour}
-                          minute={30}
-                          closed={closed}
-                        />
-                      </div>
-                    );
-                  })}
-
-                  {/* CalendarSlots */}
-                  {dayAppts.map((appt) => {
-                    const top =
-                      ((DateUtils.timeToMinutes(appt.start) - gridStart) / 60) *
-                      SLOT_HEIGHT;
-                    const height = (appt.duration / 60) * SLOT_HEIGHT;
-                    return (
-                      <AppointmentCard
-                        key={appt.id}
-                        appt={appt}
-                        top={top}
-                        height={height}
-                        onClick={() => setSelectedAppt(appt)}
+                  {/* Droppable slots */}
+                  {day?.hours.map((slot) => (
+                    <div key={slot.hour} className="week-table__hour-row">
+                      <DroppableSlot
+                        dayIdx={dayIdx}
+                        hour={slot.hour}
+                        minute={0}
+                        closed={slot.state === "CLOSED"}
                       />
-                    );
-                  })}
+                      <DroppableSlot
+                        dayIdx={dayIdx}
+                        hour={slot.hour}
+                        minute={30}
+                        closed={slot.state === "CLOSED"}
+                      />
+                    </div>
+                  ))}
+
+                  {/* Appointment cards */}
+                  {day?.hours
+                    .filter(
+                      (slot) => slot.state === "BOOKED" && slot.appointment
+                    )
+                    .map((slot) => {
+                      const appt: CalendarSlot = {
+                        id: slot.appointment!.id,
+                        patientName: slot.appointment!.patient
+                          ? `${slot.appointment!.patient.firstName} ${
+                              slot.appointment!.patient.lastName
+                            }`.trim()
+                          : "Pacient",
+                        room: officeName,
+                        start: `${String(slot.hour).padStart(2, "0")}:00`,
+                        duration: 60,
+                        day: dayIdx + 1,
+                        note: slot.appointment!.note,
+                      };
+                      return (
+                        <AppointmentCard
+                          key={slot.hour}
+                          appt={appt}
+                          top={
+                            ((slot.hour * 60 - gridStart) / 60) * SLOT_HEIGHT
+                          }
+                          height={SLOT_HEIGHT}
+                          onClick={() => setSelectedAppt(appt)}
+                        />
+                      );
+                    })}
                 </div>
               );
             })}
@@ -284,30 +272,25 @@ export const Calendar = ({
 
         {/* DragOverlay */}
         <DragOverlay>
-          {draggingAppt &&
-            (() => {
-              const height = (draggingAppt.duration / 60) * SLOT_HEIGHT;
-              return (
-                <Paper
-                  shadow="md"
-                  radius="sm"
-                  className="week-table__drag-overlay"
-                  style={{
-                    background: "var(--mantine-color-blue-6)",
-                    color: "var(--mantine-color-white)",
-                    height: height - 2,
-                  }}
-                >
-                  <span>{draggingAppt.patientName}</span>
-                  <span className="week-table__drag-overlay-room">
-                    {draggingAppt.start} · {draggingAppt.room}
-                  </span>
-                </Paper>
-              );
-            })()}
+          {draggingAppt && (
+            <Paper
+              shadow="md"
+              radius="sm"
+              className="week-table__drag-overlay"
+              style={{
+                background: "var(--mantine-color-blue-6)",
+                color: "var(--mantine-color-white)",
+                height: SLOT_HEIGHT - 2,
+              }}
+            >
+              <span>{draggingAppt.patientName}</span>
+              <span className="week-table__drag-overlay-room">
+                {draggingAppt.start} · {draggingAppt.room}
+              </span>
+            </Paper>
+          )}
         </DragOverlay>
 
-        {/* Modal */}
         <AppointmentModal
           appt={selectedAppt}
           onClose={() => setSelectedAppt(null)}
