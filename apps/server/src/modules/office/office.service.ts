@@ -24,16 +24,26 @@ export class OfficeService {
 
   async findAll(
     query: OfficeListQuery,
+    user: AuthUser,
     search?: string
   ): Promise<{ items: OfficeEntity[]; total: number }> {
     let where:
       | FindOptionsWhere<OfficeEntity>
       | FindOptionsWhere<OfficeEntity>[];
+
+    const staffFilter =
+      user.role === UserRole.NURSE || user.role === UserRole.DOCTOR
+        ? { staff: { id: user.id } }
+        : {};
+
     if (search) {
       const pattern = ILike(`%${search}%`);
-      where = [{ name: pattern }, { specialization: pattern }];
+      where = [
+        { name: pattern, ...staffFilter },
+        { specialization: pattern, ...staffFilter },
+      ];
     } else {
-      where = {};
+      where = staffFilter;
     }
 
     const [items, total] = await this.officeRepository.findAndCount({
