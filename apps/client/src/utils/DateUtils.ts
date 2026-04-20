@@ -77,4 +77,11 @@ export class DateUtils {
   public static isoWeekday(dateStr: string): number {
     return getISODay(parseISO(dateStr)) - 1;
   }
+
+  /**
+   * Adds the given number of weeks to a timestamp and returns a new timestamp
+   */
+  public static addWeeks(timestamp: number, weeks: number): number {
+    return addWeeks(timestamp, weeks).getTime();
+  }
 }

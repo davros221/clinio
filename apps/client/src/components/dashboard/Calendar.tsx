@@ -28,8 +28,10 @@ type Props = {
   appointments: CalendarSlot[];
   // Callback when moving appointment by d&d — parent will provide API call
   onAppointmentMove?: (id: string, day: number, start: string) => void;
-  weekOffset?: number;
-  onWeekOffsetChange?: (offset: number) => void;
+  weekTimestamp?: number;
+  onWeekTimestampChange?: (timestamp: number) => void;
+  hours?: number[];
+  closedSlots?: Set<string>;
 };
 
 /**
@@ -39,26 +41,32 @@ type Props = {
 export const Calendar = ({
   appointments,
   onAppointmentMove,
-  weekOffset: weekOffsetProp,
-  onWeekOffsetChange,
+  weekTimestamp: weekTimestampProp,
+  onWeekTimestampChange,
+  hours: hoursProp,
+  closedSlots,
 }: Props) => {
   const t = useT();
-  const [weekOffsetInternal, setWeekOffsetInternal] = useState(0);
-  const weekOffset = weekOffsetProp ?? weekOffsetInternal;
-  const setWeekOffset = (updater: number | ((prev: number) => number)) => {
-    const next = typeof updater === "function" ? updater(weekOffset) : updater;
-    setWeekOffsetInternal(next);
-    onWeekOffsetChange?.(next);
+  const [weekTimestampInternal, setWeekTimestampInternal] = useState(() =>
+    Date.now()
+  );
+  const weekTimestamp = weekTimestampProp ?? weekTimestampInternal;
+  const setWeekTimestamp = (next: number) => {
+    setWeekTimestampInternal(next);
+    onWeekTimestampChange?.(next);
   };
+
   const [selectedAppt, setSelectedAppt] = useState<CalendarSlot | null>(null);
   const [draggingAppt, setDraggingAppt] = useState<CalendarSlot | null>(null);
   const [mobileDayIdx, setMobileDayIdx] = useState(0);
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
+  const displayHours = hoursProp ?? HOURS;
+
   const weekStart = useMemo(
-    () => DateUtils.getWeekStart(weekOffset),
-    [weekOffset]
+    () => DateUtils.getWeekStart(0, new Date(weekTimestamp)),
+    [weekTimestamp]
   );
 
   const weekEnd = useMemo(
@@ -66,14 +74,12 @@ export const Calendar = ({
     [weekStart]
   );
 
-  // Recalculated only when isMobile or mobileDayIdx changes
   const visibleDayIndices = useMemo(
     () => (isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4]),
     [isMobile, mobileDayIdx]
   );
 
-  // Start of grid in minutes — never changes
-  const gridStart = useMemo(() => HOURS[0] * 60, []);
+  const gridStart = displayHours[0] * 60;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -92,6 +98,8 @@ export const Calendar = ({
     if (parts.length !== 3) return;
 
     const [dayIdx, hour, minute] = parts.map(Number);
+    const firstHour = displayHours[0];
+    const lastHour = displayHours[displayHours.length - 1];
 
     if (
       isNaN(dayIdx) ||
@@ -99,8 +107,8 @@ export const Calendar = ({
       isNaN(minute) ||
       dayIdx < 0 ||
       dayIdx > 4 ||
-      hour < 7 ||
-      hour > 17 ||
+      hour < firstHour ||
+      hour > lastHour ||
       (minute !== 0 && minute !== 30)
     )
       return;
@@ -131,7 +139,9 @@ export const Calendar = ({
           <Button
             variant="default"
             size="xs"
-            onClick={() => setWeekOffset((o) => o - 1)}
+            onClick={() =>
+              setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, -1))
+            }
           >
             ←
           </Button>
@@ -142,14 +152,16 @@ export const Calendar = ({
           <Button
             variant="default"
             size="xs"
-            onClick={() => setWeekOffset((o) => o + 1)}
+            onClick={() =>
+              setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, 1))
+            }
           >
             →
           </Button>
           <Button
             variant="subtle"
             size="xs"
-            onClick={() => setWeekOffset(0)}
+            onClick={() => setWeekTimestamp(Date.now())}
             className="calendar__today-btn"
           >
             {t("calendar.today")}
@@ -196,7 +208,7 @@ export const Calendar = ({
           >
             {/* Time Axis */}
             <div className="week-table__time-axis">
-              {HOURS.map((hour) => (
+              {displayHours.map((hour) => (
                 <div key={hour} className="week-table__hour-label">
                   {hour}:00
                 </div>
@@ -209,12 +221,26 @@ export const Calendar = ({
               return (
                 <div key={dayIdx} className="week-table__day-col">
                   {/* Half-hour droppable slots */}
-                  {HOURS.map((hour) => (
-                    <div key={hour} className="week-table__hour-row">
-                      <DroppableSlot dayIdx={dayIdx} hour={hour} minute={0} />
-                      <DroppableSlot dayIdx={dayIdx} hour={hour} minute={30} />
-                    </div>
-                  ))}
+                  {displayHours.map((hour) => {
+                    const closed =
+                      closedSlots?.has(`${dayIdx}-${hour}`) ?? false;
+                    return (
+                      <div key={hour} className="week-table__hour-row">
+                        <DroppableSlot
+                          dayIdx={dayIdx}
+                          hour={hour}
+                          minute={0}
+                          closed={closed}
+                        />
+                        <DroppableSlot
+                          dayIdx={dayIdx}
+                          hour={hour}
+                          minute={30}
+                          closed={closed}
+                        />
+                      </div>
+                    );
+                  })}
 
                   {/* CalendarSlots */}
                   {dayAppts.map((appt) => {

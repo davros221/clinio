@@ -6,23 +6,19 @@ import { Calendar } from "../dashboard/Calendar";
 import { CalendarSlot } from "../utils/types";
 import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
 import { useT, useUserRole } from "@hooks";
-import { DateUtils } from "@utils";
 
 export function AppointmentsOverview() {
   const t = useT();
   const { isStaff } = useUserRole();
   const [modalOpened, setModalOpened] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [today] = useState(() => new Date());
+  const [time, setTime] = useState(() => Date.now());
 
   const { data: offices = [] } = useGetOfficeListQuery();
 
-  const weekStart = DateUtils.getWeekStart(weekOffset, today);
-
   const { data: calendarDays = [] } = useGetCalendarQuery(
     selectedOfficeId!,
-    weekStart,
+    time,
     !!selectedOfficeId
   );
 
@@ -49,6 +45,28 @@ export function AppointmentsOverview() {
       );
   }, [calendarDays, officeName]);
 
+  const hours = useMemo(() => {
+    const allHours = calendarDays.flatMap((d) => d.hours.map((h) => h.hour));
+    if (!allHours.length) return undefined;
+    const min = Math.min(...allHours);
+    const max = Math.max(...allHours);
+    return Array.from({ length: max - min + 1 }, (_, i) => min + i);
+  }, [calendarDays]);
+
+  const closedSlots = useMemo(() => {
+    const set = new Set<string>();
+    calendarDays
+      .filter((d) => d.day < 5)
+      .forEach((day) => {
+        day.hours.forEach((h) => {
+          if (h.state === "CLOSED") {
+            set.add(`${day.day}-${h.hour}`);
+          }
+        });
+      });
+    return set;
+  }, [calendarDays]);
+
   return (
     <Box>
       <Stack gap="md">
@@ -73,8 +91,10 @@ export function AppointmentsOverview() {
             />
             <Calendar
               appointments={calendarSlots}
-              weekOffset={weekOffset}
-              onWeekOffsetChange={setWeekOffset}
+              weekTimestamp={time}
+              onWeekTimestampChange={setTime}
+              hours={hours}
+              closedSlots={closedSlots}
             />
           </Stack>
         ) : (

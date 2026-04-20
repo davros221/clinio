@@ -119,6 +119,11 @@
   background: var(--mantine-color-blue-light);
 }
 
+.week-table__half-slot--closed {
+  background: var(--mantine-color-gray-1);
+  cursor: not-allowed;
+}
+
 /* Appointments ─────────────────────────────────────────────────────────────────*/
 
 .week-table__appt {

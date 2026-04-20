@@ -69,7 +69,7 @@ export type MeResponse = {
     authData: AuthData | null;
 };
 
-export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
+export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'CLOSED';
 
 export type CalendarAppointmentPatient = {
     id: string;

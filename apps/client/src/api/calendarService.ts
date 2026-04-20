@@ -4,14 +4,14 @@ import { calendarKeys } from "./queryKeys";
 
 export const useGetCalendarQuery = (
   officeId: string,
-  weekStart: Date,
+  timestamp: number,
   enabled: boolean
 ) => {
   return useQuery<CalendarDay[]>({
-    queryKey: calendarKeys.list({ officeId, timestamp: weekStart.getTime() }),
+    queryKey: calendarKeys.list({ officeId, timestamp }),
     queryFn: async () => {
       const { data } = await CalendarService.getCalendar({
-        query: { officeId, timestamp: weekStart.getTime() },
+        query: { officeId, timestamp },
         throwOnError: true,
       });
       return data ?? [];

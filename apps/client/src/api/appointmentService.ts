@@ -7,7 +7,7 @@ import {
 import { AppointmentStatus } from "@clinio/shared";
 import { t } from "../i18n";
 import { notifyError, notifySuccess } from "../utils/notification";
-import { appointmentKeys } from "./queryKeys";
+import { appointmentKeys, calendarKeys } from "./queryKeys";
 
 export type AppointmentListFilters = {
   status?: AppointmentStatus[];
@@ -57,6 +57,7 @@ export const useCreateAppointmentMutation = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.createSuccess"), "");
     },
 
