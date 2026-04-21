@@ -1,5 +1,5 @@
+import { Input } from "@mantine/core";
 import { PhoneInput } from "react-international-phone";
-import "react-international-phone/style.css";
 
 type PhoneInputFieldProps = {
   label: string;
@@ -15,24 +15,8 @@ export const PhoneInputField = ({
   error,
 }: PhoneInputFieldProps) => {
   return (
-    <div>
-      <label
-        style={{ fontSize: "var(--mantine-font-size-sm)", fontWeight: 500 }}
-      >
-        {label}
-      </label>
+    <Input.Wrapper label={label} error={error}>
       <PhoneInput defaultCountry="cz" value={value} onChange={onChange} />
-      {error && (
-        <p
-          style={{
-            color: "var(--mantine-color-error)",
-            fontSize: "var(--mantine-font-size-xs)",
-            marginTop: 4,
-          }}
-        >
-          {error}
-        </p>
-      )}
-    </div>
+    </Input.Wrapper>
   );
 };

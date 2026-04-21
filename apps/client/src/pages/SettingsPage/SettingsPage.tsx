@@ -12,7 +12,7 @@ export const SettingsPage = () => {
     <Stack maw={450}>
       <Title order={2}>{t("nav.settings")}</Title>
 
-      {isClient && (
+      {(isClient || isOnboardingClient) && (
         <>
           {isOnboardingClient && (
             <Alert color="yellow" title={t("settings.onboardingWarningTitle")}>

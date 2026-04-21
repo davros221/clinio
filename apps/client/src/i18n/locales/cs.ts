@@ -55,6 +55,13 @@ const cs: TranslationKeys = {
         [ErrorCode.APPOINTMENT_SLOT_TAKEN]: "Tento termín je již obsazen",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
           "Termín je mimo ordinační hodiny",
+        [ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED]:
+          "E-mail z Google účtu není ověřený",
+        [ErrorCode.PATIENT_PROFILE_INCOMPLETE]:
+          "Profil pacienta není kompletní",
+        [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Zdravotní záznam nebyl nalezen",
+        [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
+          "Rezervace již byla dokončena",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Zakázáno",
@@ -78,6 +85,7 @@ const cs: TranslationKeys = {
       datePast: "datum nemůže být v minulosti",
       dateFuture: "datum nemůže být v budoucnosti",
       birthNumberLength: "Rodné číslo musí mít přesně 10 číslic",
+      invalidBirthNumber: "Neplatné rodné číslo",
     },
   },
   component: {

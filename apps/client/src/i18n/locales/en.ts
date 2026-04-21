@@ -54,6 +54,11 @@ const en = {
           "This appointment slot is already taken",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
           "Appointment is outside office hours",
+        [ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED]: "Google email is not verified",
+        [ErrorCode.PATIENT_PROFILE_INCOMPLETE]: "Patient profile is incomplete",
+        [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Medical record not found",
+        [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
+          "Appointment has already been completed",
       } satisfies Record<ErrorCode, string>),
     },
     forbidden: "Forbidden",
@@ -77,6 +82,7 @@ const en = {
       datePast: "date cannot be in the past",
       dateFuture: "date cannot be in the future",
       birthNumberLength: "Birth number must be exactly 10 digits",
+      invalidBirthNumber: "Invalid birth number",
     },
   },
   component: {
