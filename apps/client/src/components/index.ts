@@ -9,3 +9,4 @@ export * from "./SubmitButton/SubmitButton.tsx";
 export * from "./AuthLinks/AuthFooter.tsx";
 export * from "./RoleGuard/RoleGuard.tsx";
 export * from "./DataTable/DataTable.tsx";
+export * from "./GoogleAuthButton/GoogleAuthButton.tsx";

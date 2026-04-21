@@ -143,6 +143,8 @@ const en = {
     login: "Login",
     forgotPassword: "Forgot password",
     signUp: "Sign Up",
+    orDivider: "or",
+    googleButton: "Continue with Google",
   },
   office: {
     createOfficeModal: {

@@ -144,6 +144,8 @@ const cs: TranslationKeys = {
     submitButton: "Přihlásit se",
     forgotPassword: "Zapomenuté heslo",
     signUp: "Registrace",
+    orDivider: "nebo",
+    googleButton: "Pokračovat přes Google",
   },
   office: {
     createOfficeModal: {
