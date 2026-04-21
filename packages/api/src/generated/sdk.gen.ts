@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
+import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreateResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -100,6 +100,44 @@ export class AuthService {
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/auth/me',
             ...options
+        });
+    }
+    
+    public static googleAuth<ThrowOnError extends boolean = false>(options?: Options<GoogleAuthData, ThrowOnError>) {
+        return (options?.client ?? client).get<GoogleAuthResponses, unknown, ThrowOnError>({ url: '/api/auth/google', ...options });
+    }
+    
+    public static googleAuthCallback<ThrowOnError extends boolean = false>(options?: Options<GoogleAuthCallbackData, ThrowOnError>) {
+        return (options?.client ?? client).get<GoogleAuthCallbackResponses, unknown, ThrowOnError>({ url: '/api/auth/google/callback', ...options });
+    }
+}
+
+export class PatientService {
+    public static getPatients<ThrowOnError extends boolean = false>(options?: Options<GetPatientsData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetPatientsResponses, GetPatientsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/patients',
+            ...options
+        });
+    }
+    
+    public static getPatientById<ThrowOnError extends boolean = false>(options: Options<GetPatientByIdData, ThrowOnError>) {
+        return (options.client ?? client).get<GetPatientByIdResponses, GetPatientByIdErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/patients/{id}',
+            ...options
+        });
+    }
+    
+    public static updatePatient<ThrowOnError extends boolean = false>(options: Options<UpdatePatientData, ThrowOnError>) {
+        return (options.client ?? client).patch<UpdatePatientResponses, UpdatePatientErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/patients/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
 }
@@ -208,36 +246,6 @@ export class AddressService {
             responseType: 'json',
             url: '/api/addresses/suggest',
             ...options
-        });
-    }
-}
-
-export class PatientService {
-    public static getPatients<ThrowOnError extends boolean = false>(options?: Options<GetPatientsData, ThrowOnError>) {
-        return (options?.client ?? client).get<GetPatientsResponses, GetPatientsErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/patients',
-            ...options
-        });
-    }
-    
-    public static getPatientById<ThrowOnError extends boolean = false>(options: Options<GetPatientByIdData, ThrowOnError>) {
-        return (options.client ?? client).get<GetPatientByIdResponses, GetPatientByIdErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/patients/{id}',
-            ...options
-        });
-    }
-    
-    public static updatePatient<ThrowOnError extends boolean = false>(options: Options<UpdatePatientData, ThrowOnError>) {
-        return (options.client ?? client).patch<UpdatePatientResponses, UpdatePatientErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/patients/{id}',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
         });
     }
 }

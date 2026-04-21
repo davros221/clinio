@@ -13,14 +13,14 @@ export class Patient {
   @ApiProperty()
   lastName!: string;
 
-  @ApiProperty()
-  birthNumber!: string;
+  @ApiProperty({ required: false, nullable: true })
+  birthNumber?: string | null;
 
-  @ApiProperty()
-  birthdate!: Date;
+  @ApiProperty({ required: false, nullable: true })
+  birthdate?: Date | null;
 
-  @ApiProperty()
-  phone!: string;
+  @ApiProperty({ required: false, nullable: true })
+  phone?: string | null;
 
   @ApiProperty()
   email!: string;

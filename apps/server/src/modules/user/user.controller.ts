@@ -46,6 +46,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE)
   @ApiOperation({ operationId: "get" })
   @ApiQuery({
     name: "role",
@@ -113,12 +114,17 @@ export class UserController {
   }
 
   @Get(":id")
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.CLIENT)
   @ApiOperation({ operationId: "getById" })
   @ApiOkResponse({ type: User })
+  @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   @ApiNotFoundResponse({ description: "User not found" })
-  async getById(@Param("id", ParseUUIDPipe) id: string) {
-    const entity = await this.userService.findById(id);
+  async getById(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string
+  ) {
+    const entity = await this.userService.findById(id, currentUser);
     return UserMapper.toDto(entity);
   }
 

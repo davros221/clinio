@@ -98,3 +98,31 @@ export function appointmentOutsideHours(): BadRequestException {
     message: "Appointment hour is outside of opening hours",
   });
 }
+
+export function googleEmailNotVerified(): UnauthorizedException {
+  return new UnauthorizedException({
+    errorCode: ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED,
+    message: "Google email is not verified",
+  });
+}
+
+export function patientProfileIncomplete(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.PATIENT_PROFILE_INCOMPLETE,
+    message: "Patient profile is incomplete",
+  });
+}
+
+export function medicalRecordNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.MEDICAL_RECORD_NOT_FOUND,
+    message: "Medical record not found",
+  });
+}
+
+export function appointmentAlreadyCompleted(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.APPOINTMENT_ALREADY_COMPLETED,
+    message: "Completed appointment cannot be deleted",
+  });
+}

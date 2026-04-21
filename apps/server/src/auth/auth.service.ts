@@ -3,18 +3,24 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
+import { UserRole } from "@clinio/shared";
 import {
   accountNotActive,
   resetTokenExpired,
   invalidResetToken,
   invalidCredentials,
   notFound,
+  googleEmailNotVerified,
 } from "../common/error-messages";
 import { UserService } from "../modules/user/user.service";
+import { UserEntity } from "../modules/user/user.entity";
 import { MailService } from "../modules/mail/mail.service";
+import { PatientService } from "../modules/patient/patient.service";
+import { PatientEntity } from "../modules/patient/patient.entity";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponse, MeResponse } from "./dto/auth-response.dto";
 import { JwtPayload } from "./strategies/jwt.strategy";
+import { GoogleProfile } from "./strategies/google.strategy";
 import { UserMapper } from "../modules/user/mapper/UserMapper";
 import { addHours, format } from "date-fns";
 
@@ -24,7 +30,8 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private mailService: MailService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private patientService: PatientService
   ) {}
 
   async login(dto: LoginDto): Promise<AuthResponse> {
@@ -48,7 +55,8 @@ export class AuthService {
       role: user.role,
     };
     const accessToken = this.jwtService.sign(payload);
-    const authData = UserMapper.toAuthData(user);
+    const patient = await this.loadPatientIfClient(user);
+    const authData = UserMapper.toAuthData(user, patient);
 
     return {
       accessToken,
@@ -111,9 +119,43 @@ export class AuthService {
     return { email: user.email };
   }
 
+  async validateGoogleUser(profile: GoogleProfile): Promise<UserEntity> {
+    if (!profile.emailVerified) {
+      throw googleEmailNotVerified();
+    }
+
+    const byGoogleId = await this.userService.findByGoogleId(profile.googleId);
+    if (byGoogleId) {
+      return byGoogleId;
+    }
+
+    const byEmail = await this.userService.findByEmail(profile.email);
+    if (byEmail) {
+      byEmail.googleId = profile.googleId;
+      return this.userService.update(byEmail);
+    }
+
+    return this.userService.createGoogleUser({
+      googleId: profile.googleId,
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    });
+  }
+
+  googleLogin(user: UserEntity): { accessToken: string } {
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    return { accessToken: this.jwtService.sign(payload) };
+  }
+
   async me(userId: string): Promise<MeResponse> {
     const user = await this.userService.findById(userId);
-    const authData = UserMapper.toAuthData(user);
+    const patient = await this.loadPatientIfClient(user);
+    const authData = UserMapper.toAuthData(user, patient);
 
     return {
       auth: true,
@@ -123,5 +165,12 @@ export class AuthService {
 
   private createResetToken(): string {
     return crypto.randomBytes(32).toString("hex");
+  }
+
+  private async loadPatientIfClient(
+    user: UserEntity
+  ): Promise<PatientEntity | null> {
+    if (user.role !== UserRole.CLIENT) return null;
+    return this.patientService.findByUserId(user.id);
   }
 }

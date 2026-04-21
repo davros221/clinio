@@ -281,6 +281,63 @@ describe("UserService", () => {
         InternalServerErrorException
       );
     });
+
+    it("should allow CLIENT to read own record", async () => {
+      const clientEntity: UserEntity = {
+        ...mockUser,
+        id: "client-id",
+        role: UserRole.CLIENT,
+      };
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: clientEntity.email,
+        role: UserRole.CLIENT,
+      };
+      repository.findOneBy.mockResolvedValue(clientEntity);
+
+      await expect(service.findById("client-id", clientAuth)).resolves.toEqual(
+        clientEntity
+      );
+    });
+
+    it("should forbid CLIENT from reading another user's record", async () => {
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: "client@example.com",
+        role: UserRole.CLIENT,
+      };
+      repository.findOneBy.mockResolvedValue(mockUser);
+
+      await expect(service.findById(mockUser.id, clientAuth)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should allow DOCTOR to read any user's record", async () => {
+      const doctorAuth: AuthUser = {
+        id: "doctor-id",
+        email: "doctor@example.com",
+        role: UserRole.DOCTOR,
+      };
+      repository.findOneBy.mockResolvedValue(mockUser);
+
+      await expect(service.findById(mockUser.id, doctorAuth)).resolves.toEqual(
+        mockUser
+      );
+    });
+
+    it("should allow ADMIN to read any user's record", async () => {
+      const adminAuth: AuthUser = {
+        id: "admin-id",
+        email: "admin@example.com",
+        role: UserRole.ADMIN,
+      };
+      repository.findOneBy.mockResolvedValue(mockUser);
+
+      await expect(service.findById(mockUser.id, adminAuth)).resolves.toEqual(
+        mockUser
+      );
+    });
   });
 
   describe("findByEmail", () => {

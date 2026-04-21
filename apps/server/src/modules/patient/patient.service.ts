@@ -50,6 +50,10 @@ export class PatientService {
     return { items, total };
   }
 
+  async findByUserId(userId: string): Promise<PatientEntity | null> {
+    return this.patientRepository.findOne({ where: { userId } });
+  }
+
   async findById(id: string, currentUser?: AuthUser): Promise<PatientEntity> {
     let patient: PatientEntity | null;
     try {

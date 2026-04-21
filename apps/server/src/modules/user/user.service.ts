@@ -83,7 +83,7 @@ export class UserService {
     return { items, total };
   }
 
-  async findById(id: string): Promise<UserEntity> {
+  async findById(id: string, currentUser?: AuthUser): Promise<UserEntity> {
     let user: UserEntity | null;
 
     try {
@@ -96,15 +96,55 @@ export class UserService {
       throw notFound("User", ErrorCode.USER_NOT_FOUND);
     }
 
+    if (currentUser) {
+      this.assertReadAccess(user, currentUser);
+    }
+
     return user;
+  }
+
+  private assertReadAccess(user: UserEntity, currentUser: AuthUser): void {
+    const { isPatient } = AuthHelper.getRoles(currentUser);
+    if (isPatient && user.id !== currentUser.id) {
+      throw forbidden();
+    }
   }
 
   async findByEmail(email: string): Promise<UserEntity | null> {
     return this.userRepository.findOneBy({ email });
   }
 
+  async findByGoogleId(googleId: string): Promise<UserEntity | null> {
+    return this.userRepository.findOneBy({ googleId });
+  }
+
   async findByResetToken(token: string): Promise<UserEntity | null> {
     return this.userRepository.findOneBy({ resetToken: token });
+  }
+
+  async createGoogleUser(params: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    googleId: string;
+  }): Promise<UserEntity> {
+    return this.dataSource.transaction(async (manager) => {
+      const user = manager.create(UserEntity, {
+        email: params.email,
+        firstName: params.firstName,
+        lastName: params.lastName,
+        googleId: params.googleId,
+        role: UserRole.CLIENT,
+      });
+      const savedUser = await manager.save(user);
+
+      const patient = manager.create(PatientEntity, {
+        userId: savedUser.id,
+      });
+      await manager.save(patient);
+
+      return savedUser;
+    });
   }
 
   /**

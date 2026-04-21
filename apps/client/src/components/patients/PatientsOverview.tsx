@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Box, Button, Group, Stack, Title } from "@mantine/core";
-import { PatientsOverviewTable } from "./PatientsOverviewTable";
 import { useT, useUser } from "@hooks";
 import { CreateUserModal } from "../user/CreateUserModal/CreateUserModal.tsx";
+import { DataTable } from "../DataTable";
+import { usePatientOverview } from "./usePatientOverview.ts";
 
 export function PatientsOverview() {
   const t = useT();
@@ -10,6 +11,7 @@ export function PatientsOverview() {
   const [modalOpened, setModalOpened] = useState(false);
   const isAdmin = user?.role === "ADMIN";
   const mode = isAdmin ? "staff" : "patient";
+  const { patientOverviewTableOptions } = usePatientOverview();
 
   return (
     <Box>
@@ -21,7 +23,7 @@ export function PatientsOverview() {
           </Button>
         </Group>
 
-        <PatientsOverviewTable />
+        <DataTable {...patientOverviewTableOptions} />
       </Stack>
 
       <CreateUserModal

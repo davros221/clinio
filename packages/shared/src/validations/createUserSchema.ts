@@ -88,6 +88,11 @@ type BuildCreateUserSchemaOptions = {
   passwordFields?: boolean;
 };
 
+export const createUserSchema = createUserBaseSchema.refine(
+  clientFieldsRefine,
+  { message: clientFieldsMessage }
+);
+
 export const buildCreateUserSchema = (opts?: BuildCreateUserSchemaOptions) => {
   if (opts?.passwordFields) {
     return createUserBaseSchema
@@ -102,9 +107,5 @@ export const buildCreateUserSchema = (opts?: BuildCreateUserSchemaOptions) => {
       });
   }
 
-  return createUserBaseSchema.refine(clientFieldsRefine, {
-    message: clientFieldsMessage,
-  });
+  return createUserSchema;
 };
-
-export const createUserSchema = buildCreateUserSchema();
