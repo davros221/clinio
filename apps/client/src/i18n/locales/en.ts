@@ -54,7 +54,18 @@ const en = {
           "This appointment slot is already taken",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
           "Appointment is outside office hours",
+        [ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED]: "Google email is not verified",
+        [ErrorCode.PATIENT_PROFILE_INCOMPLETE]: "Patient profile is incomplete",
+        [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Medical record not found",
+        [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
+          "Appointment is already completed",
       } satisfies Record<ErrorCode, string>),
+    },
+    confirmModal: {
+      title: "Are you sure?",
+      message: "This action cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
     },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
@@ -131,6 +142,7 @@ const en = {
     },
     notification: {
       createSuccess: "Appointment created",
+      deleteSuccess: "Appointment deleted",
     },
   },
   login: {
