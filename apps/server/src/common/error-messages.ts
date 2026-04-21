@@ -112,3 +112,10 @@ export function patientProfileIncomplete(): ForbiddenException {
     message: "Patient profile is incomplete",
   });
 }
+
+export function medicalRecordNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.MEDICAL_RECORD_NOT_FOUND,
+    message: "Medical record not found",
+  });
+}
