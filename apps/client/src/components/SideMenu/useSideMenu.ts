@@ -32,7 +32,7 @@ export const useSideMenu = () => {
       {
         to: ROUTER_PATHS.APPOINTMENTS,
         label: t("nav.appointments"),
-        allowed: [UserRole.CLIENT],
+        allowed: [UserRole.CLIENT, UserRole.NURSE, UserRole.DOCTOR],
       },
       {
         pushToBottom: true,

@@ -117,7 +117,7 @@ export type UpdatePatientDto = {
     phone?: string;
 };
 
-export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
+export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'CLOSED';
 
 export type CalendarAppointmentPatient = {
     id: string;

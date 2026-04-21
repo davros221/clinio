@@ -245,6 +245,9 @@ const cs: TranslationKeys = {
       createSuccessMessage: "Uživatel byl úspěšně vytvořen.",
     },
   },
+  calendar: {
+    today: "Dnes",
+  },
   patient: {
     overview: {
       title: "Pacienti",

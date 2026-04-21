@@ -1,10 +1,11 @@
 import { Modal, Stack, Badge, Group, Text } from "@mantine/core";
-import { Appointment, CAP_WORK_DAYS, ROOM_COLORS } from "../utils/types";
+import { CalendarSlot, CAP_WORK_DAYS } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
+import { GoNote } from "react-icons/go";
 
 type Props = {
-  appt: Appointment | null;
+  appt: CalendarSlot | null;
   onClose: () => void;
 };
 
@@ -22,16 +23,7 @@ export const AppointmentModal = ({ appt, onClose }: Props) => (
   >
     {appt && (
       <Stack gap="sm">
-        <Badge
-          size="md"
-          radius="sm"
-          style={{
-            //fallback colors if room is not defined in ROOM_COLORS
-            background:
-              ROOM_COLORS[appt.room]?.bg ?? "var(--mantine-color-gray-5)",
-            color: ROOM_COLORS[appt.room]?.text ?? "var(--mantine-color-white)",
-          }}
-        >
+        <Badge size="md" radius="sm">
           {appt.room}
         </Badge>
 
@@ -44,6 +36,13 @@ export const AppointmentModal = ({ appt, onClose }: Props) => (
           <IoMdTime />
           <Text size="sm">
             {appt.start} — délka: {appt.duration} min
+          </Text>
+        </Group>
+
+        <Group gap="xs">
+          <GoNote />
+          <Text size="sm" c="dimmed">
+            {appt.note}
           </Text>
         </Group>
       </Stack>

@@ -1,6 +1,6 @@
 import { Badge } from "@mantine/core";
 import { Appointment } from "@clinio/api";
-import { DataTable } from "../DataTable";
+import { DataTable } from "../DataTable/DataTable";
 import { useGetOfficeListQuery, useGetAppointmentListQuery } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
 import { useT } from "@hooks";

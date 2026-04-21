@@ -7,25 +7,33 @@ import {
 import { AppointmentStatus } from "@clinio/shared";
 import { t } from "../i18n";
 import { notifyError, notifySuccess } from "../utils/notification";
-import { appointmentKeys } from "./queryKeys";
+import { appointmentKeys, calendarKeys } from "./queryKeys";
 
 export type AppointmentListFilters = {
   status?: AppointmentStatus[];
   page?: number;
   limit?: number;
+  officeId?: string;
+  sortBy?: "date" | "status";
+  sortOrder?: "ASC" | "DESC";
 };
 
 export const useGetAppointmentListQuery = (
-  filters?: AppointmentListFilters
+  filters?: AppointmentListFilters,
+  enabled = true
 ) => {
   return useQuery<Appointment[]>({
     queryKey: appointmentKeys.list(filters),
+    enabled,
     queryFn: async () => {
       const { data } = await AppointmentService.getAppointments({
         query: {
           status: filters?.status,
           page: filters?.page,
           limit: filters?.limit,
+          officeId: filters?.officeId,
+          sortBy: filters?.sortBy,
+          sortOrder: filters?.sortOrder,
         },
         throwOnError: true,
       });
@@ -49,6 +57,7 @@ export const useCreateAppointmentMutation = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.createSuccess"), "");
     },
 
