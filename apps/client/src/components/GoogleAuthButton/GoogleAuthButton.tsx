@@ -1,15 +1,17 @@
 import { Button } from "@mantine/core";
 import { useT } from "@hooks";
 
-const GOOGLE_AUTH_URL = `${import.meta.env.VITE_API_URL}/api/auth/google`;
-
 export const GoogleAuthButton = () => {
   const t = useT();
+  const returnTo = encodeURIComponent(window.location.origin);
+  const href = `${
+    import.meta.env.VITE_API_URL
+  }/api/auth/google?returnTo=${returnTo}`;
 
   return (
     <Button
       component="a"
-      href={GOOGLE_AUTH_URL}
+      href={href}
       variant="default"
       radius="md"
       size="md"

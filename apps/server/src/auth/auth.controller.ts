@@ -9,7 +9,10 @@ import {
   UsePipes,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AuthGuard } from "@nestjs/passport";
+import {
+  GoogleAuthGuard,
+  validateAllowedClientUrl,
+} from "./guards/google-auth.guard";
 import {
   ApiOkResponse,
   ApiOperation,
@@ -98,7 +101,7 @@ export class AuthController {
 
   @Public()
   @Get("google")
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({ operationId: "googleAuth" })
   googleAuth(): void {
     // Passport triggers the redirect to Google
@@ -106,12 +109,16 @@ export class AuthController {
 
   @Public()
   @Get("google/callback")
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(GoogleAuthGuard)
   @ApiOperation({ operationId: "googleAuthCallback" })
   googleAuthCallback(@Req() req: Request, @Res() res: Response): void {
     const user = req.user as UserEntity;
     const { accessToken } = this.authService.googleLogin(user);
-    const clientUrl = this.configService.getOrThrow<string>("client.url");
-    res.redirect(`${clientUrl}/auth/google/callback?token=${accessToken}`);
+    const allowed =
+      this.configService.getOrThrow<string[]>("client.allowedUrls");
+    const returnTo = validateAllowedClientUrl(req.query.state, allowed);
+    const target =
+      returnTo ?? this.configService.getOrThrow<string>("client.url");
+    res.redirect(`${target}/auth/google/callback?token=${accessToken}`);
   }
 }
