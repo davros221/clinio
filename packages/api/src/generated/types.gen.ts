@@ -308,6 +308,32 @@ export type SuggestResponse = {
     items: Array<SuggestItem>;
 };
 
+export type MedicalRecord = {
+    id: string;
+    patientId: string;
+    createdBy: string;
+    createdAt: string;
+    examinationSummary?: {
+        [key: string]: unknown;
+    } | null;
+    diagnosis?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type PaginatedMedicalRecordResponse = {
+    items: Array<MedicalRecord>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
+export type CreateMedicalRecordDto = {
+    examinationSummary?: string;
+    diagnosis?: string;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -753,6 +779,43 @@ export type CreateAppointmentResponses = {
 
 export type CreateAppointmentResponse = CreateAppointmentResponses[keyof CreateAppointmentResponses];
 
+export type DeleteAppointmentData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/appointments/{id}';
+};
+
+export type DeleteAppointmentErrors = {
+    /**
+     * Appointment already completed
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Appointment not found
+     */
+    404: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type DeleteAppointmentResponses = {
+    /**
+     * Appointment deleted
+     */
+    204: void;
+};
+
+export type DeleteAppointmentResponse = DeleteAppointmentResponses[keyof DeleteAppointmentResponses];
+
 export type GetAppointmentByIdData = {
     body?: never;
     path: {
@@ -974,3 +1037,103 @@ export type SuggestAddressResponses = {
 };
 
 export type SuggestAddressResponse = SuggestAddressResponses[keyof SuggestAddressResponses];
+
+export type GetPatientMedicalRecordsData = {
+    body?: never;
+    path: {
+        patientId: string;
+    };
+    query?: {
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Sort field (default: createdAt)
+         */
+        sortBy?: 'createdAt';
+        /**
+         * Sort order (default: DESC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
+    };
+    url: '/api/patients/{patientId}/medical-records';
+};
+
+export type GetPatientMedicalRecordsErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type GetPatientMedicalRecordsResponses = {
+    200: PaginatedMedicalRecordResponse;
+};
+
+export type GetPatientMedicalRecordsResponse = GetPatientMedicalRecordsResponses[keyof GetPatientMedicalRecordsResponses];
+
+export type CreatePatientMedicalRecordData = {
+    body: CreateMedicalRecordDto;
+    path: {
+        patientId: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records';
+};
+
+export type CreatePatientMedicalRecordErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type CreatePatientMedicalRecordResponses = {
+    201: MedicalRecord;
+};
+
+export type CreatePatientMedicalRecordResponse = CreatePatientMedicalRecordResponses[keyof CreatePatientMedicalRecordResponses];
+
+export type GetPatientMedicalRecordByIdData = {
+    body?: never;
+    path: {
+        patientId: string;
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records/{id}';
+};
+
+export type GetPatientMedicalRecordByIdErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Medical record not found
+     */
+    404: unknown;
+};
+
+export type GetPatientMedicalRecordByIdResponses = {
+    200: MedicalRecord;
+};
+
+export type GetPatientMedicalRecordByIdResponse = GetPatientMedicalRecordByIdResponses[keyof GetPatientMedicalRecordByIdResponses];
