@@ -8,6 +8,7 @@ import { PatientEntity } from "../patient/patient.entity";
 import { OfficeEntity } from "../office/office.entity";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import {
+  appointmentAlreadyCompleted,
   appointmentNotFound,
   appointmentOutsideHours,
   appointmentSlotTaken,
@@ -145,6 +146,33 @@ export class AppointmentService {
 
     const entity = this.appointmentRepository.create(dto);
     return this.appointmentRepository.save(entity);
+  }
+
+  async remove(id: string, currentUser: AuthUser): Promise<void> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+    });
+
+    if (!appointment) {
+      throw appointmentNotFound();
+    }
+
+    const { isStaff } = AuthHelper.getRoles(currentUser);
+    if (!isStaff) {
+      throw forbidden();
+    }
+
+    await AuthHelper.assertStaffBelongsToOffice(
+      this.officeRepository,
+      currentUser.id,
+      appointment.officeId
+    );
+
+    if (appointment.status === AppointmentStatus.COMPLETED) {
+      throw appointmentAlreadyCompleted();
+    }
+
+    await this.appointmentRepository.delete(id);
   }
 
   private async findAllForPatient(
