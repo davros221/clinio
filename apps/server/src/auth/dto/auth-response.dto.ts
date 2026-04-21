@@ -1,6 +1,20 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserRole } from "@clinio/shared";
 
+export class AuthPatient {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty({ required: false, nullable: true })
+  birthNumber?: string | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  birthdate?: Date | null;
+
+  @ApiProperty({ required: false, nullable: true })
+  phone?: string | null;
+}
+
 export class AuthData {
   @ApiProperty()
   id!: string;
@@ -13,6 +27,9 @@ export class AuthData {
 
   @ApiProperty({ enum: UserRole })
   role!: UserRole;
+
+  @ApiProperty({ type: AuthPatient, required: false, nullable: true })
+  patient?: AuthPatient | null;
 }
 
 export class AuthResponse {

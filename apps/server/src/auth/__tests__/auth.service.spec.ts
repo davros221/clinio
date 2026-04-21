@@ -11,7 +11,10 @@ import * as bcrypt from "bcryptjs";
 import { AuthService } from "../auth.service";
 import { UserService } from "../../modules/user/user.service";
 import { MailService } from "../../modules/mail/mail.service";
+import { PatientService } from "../../modules/patient/patient.service";
 import { UserEntity } from "../../modules/user/user.entity";
+import { PatientEntity } from "../../modules/patient/patient.entity";
+import { GoogleProfile } from "../strategies/google.strategy";
 import { UserRole, ErrorCode } from "@clinio/shared";
 import { addHours } from "date-fns";
 
@@ -28,6 +31,8 @@ const mockUserService = () => ({
   findByEmail: jest.fn(),
   findById: jest.fn(),
   findByResetToken: jest.fn(),
+  findByGoogleId: jest.fn(),
+  createGoogleUser: jest.fn(),
   update: jest.fn(),
 });
 
@@ -37,6 +42,10 @@ const mockJwtService = () => ({
 
 const mockMailService = () => ({
   sendMail: jest.fn(),
+});
+
+const mockPatientService = () => ({
+  findByUserId: jest.fn(),
 });
 
 const mockConfigService = () => ({
@@ -55,11 +64,17 @@ describe("AuthService", () => {
   let userService: jest.Mocked<
     Pick<
       UserService,
-      "findByEmail" | "findById" | "findByResetToken" | "update"
+      | "findByEmail"
+      | "findById"
+      | "findByResetToken"
+      | "findByGoogleId"
+      | "createGoogleUser"
+      | "update"
     >
   >;
   let jwtService: jest.Mocked<Pick<JwtService, "sign">>;
   let mailService: jest.Mocked<Pick<MailService, "sendMail">>;
+  let patientService: jest.Mocked<Pick<PatientService, "findByUserId">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -69,6 +84,7 @@ describe("AuthService", () => {
         { provide: JwtService, useFactory: mockJwtService },
         { provide: MailService, useFactory: mockMailService },
         { provide: ConfigService, useFactory: mockConfigService },
+        { provide: PatientService, useFactory: mockPatientService },
       ],
     }).compile();
 
@@ -76,6 +92,7 @@ describe("AuthService", () => {
     userService = module.get(UserService);
     jwtService = module.get(JwtService);
     mailService = module.get(MailService);
+    patientService = module.get(PatientService);
   });
 
   describe("login", () => {
@@ -97,8 +114,49 @@ describe("AuthService", () => {
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
+          patient: null,
         },
       });
+    });
+
+    it("should include patient data in authData when user is CLIENT", async () => {
+      const clientUser: UserEntity = { ...mockUser, role: UserRole.CLIENT };
+      const patient: PatientEntity = {
+        id: "patient-id",
+        userId: clientUser.id,
+        user: clientUser,
+        birthNumber: "9001011234",
+        birthdate: new Date("1990-01-01"),
+        phone: "+420123456789",
+      };
+      userService.findByEmail.mockResolvedValue(clientUser);
+      patientService.findByUserId.mockResolvedValue(patient);
+      jest
+        .spyOn(bcrypt, "compare")
+        .mockImplementation(() => Promise.resolve(true));
+      jwtService.sign.mockReturnValue("jwt-token");
+
+      const result = await service.login(loginDto);
+
+      expect(patientService.findByUserId).toHaveBeenCalledWith(clientUser.id);
+      expect(result.authData.patient).toEqual({
+        id: patient.id,
+        birthNumber: patient.birthNumber,
+        birthdate: patient.birthdate,
+        phone: patient.phone,
+      });
+    });
+
+    it("should not fetch patient data for non-CLIENT roles", async () => {
+      userService.findByEmail.mockResolvedValue(mockUser);
+      jest
+        .spyOn(bcrypt, "compare")
+        .mockImplementation(() => Promise.resolve(true));
+      jwtService.sign.mockReturnValue("jwt-token");
+
+      await service.login(loginDto);
+
+      expect(patientService.findByUserId).not.toHaveBeenCalled();
     });
 
     it("should sign JWT with correct payload", async () => {
@@ -376,7 +434,32 @@ describe("AuthService", () => {
           firstName: mockUser.firstName,
           lastName: mockUser.lastName,
           role: mockUser.role,
+          patient: null,
         },
+      });
+    });
+
+    it("should include patient data in authData when user is CLIENT", async () => {
+      const clientUser: UserEntity = { ...mockUser, role: UserRole.CLIENT };
+      const patient: PatientEntity = {
+        id: "patient-id",
+        userId: clientUser.id,
+        user: clientUser,
+        birthNumber: "9001011234",
+        birthdate: new Date("1990-01-01"),
+        phone: "+420123456789",
+      };
+      userService.findById.mockResolvedValue(clientUser);
+      patientService.findByUserId.mockResolvedValue(patient);
+
+      const result = await service.me(clientUser.id);
+
+      expect(patientService.findByUserId).toHaveBeenCalledWith(clientUser.id);
+      expect(result.authData?.patient).toEqual({
+        id: patient.id,
+        birthNumber: patient.birthNumber,
+        birthdate: patient.birthdate,
+        phone: patient.phone,
       });
     });
 
@@ -386,6 +469,99 @@ describe("AuthService", () => {
       await service.me(mockUser.id);
 
       expect(userService.findById).toHaveBeenCalledWith(mockUser.id);
+    });
+  });
+
+  describe("validateGoogleUser", () => {
+    const baseProfile: GoogleProfile = {
+      googleId: "google-123",
+      email: "jane@example.com",
+      emailVerified: true,
+      firstName: "Jane",
+      lastName: "Smith",
+    };
+
+    it("should throw when email is not verified", async () => {
+      try {
+        await service.validateGoogleUser({
+          ...baseProfile,
+          emailVerified: false,
+        });
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException);
+        expect((error as UnauthorizedException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED,
+        });
+      }
+    });
+
+    it("should return existing user matched by googleId", async () => {
+      const existing: UserEntity = {
+        ...mockUser,
+        googleId: baseProfile.googleId,
+      };
+      userService.findByGoogleId.mockResolvedValue(existing);
+
+      const result = await service.validateGoogleUser(baseProfile);
+
+      expect(result).toBe(existing);
+      expect(userService.findByEmail).not.toHaveBeenCalled();
+      expect(userService.createGoogleUser).not.toHaveBeenCalled();
+    });
+
+    it("should link googleId to existing account matched by email", async () => {
+      const existing: UserEntity = { ...mockUser, email: baseProfile.email };
+      userService.findByGoogleId.mockResolvedValue(null);
+      userService.findByEmail.mockResolvedValue(existing);
+      userService.update.mockImplementation(async (u) => u);
+
+      const result = await service.validateGoogleUser(baseProfile);
+
+      expect(userService.update).toHaveBeenCalledWith(
+        expect.objectContaining({ googleId: baseProfile.googleId })
+      );
+      expect(result.googleId).toBe(baseProfile.googleId);
+      expect(userService.createGoogleUser).not.toHaveBeenCalled();
+    });
+
+    it("should create new CLIENT user when no match", async () => {
+      const created: UserEntity = {
+        id: "new-user",
+        email: baseProfile.email,
+        firstName: baseProfile.firstName,
+        lastName: baseProfile.lastName,
+        role: UserRole.CLIENT,
+        googleId: baseProfile.googleId,
+      };
+      userService.findByGoogleId.mockResolvedValue(null);
+      userService.findByEmail.mockResolvedValue(null);
+      userService.createGoogleUser.mockResolvedValue(created);
+
+      const result = await service.validateGoogleUser(baseProfile);
+
+      expect(userService.createGoogleUser).toHaveBeenCalledWith({
+        googleId: baseProfile.googleId,
+        email: baseProfile.email,
+        firstName: baseProfile.firstName,
+        lastName: baseProfile.lastName,
+      });
+      expect(result).toBe(created);
+    });
+  });
+
+  describe("googleLogin", () => {
+    it("should sign JWT with user id, email, role", () => {
+      jwtService.sign.mockReturnValue("jwt-token");
+
+      const result = service.googleLogin(mockUser);
+
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: mockUser.id,
+        email: mockUser.email,
+        role: mockUser.role,
+      });
+      expect(result).toEqual({ accessToken: "jwt-token" });
     });
   });
 });

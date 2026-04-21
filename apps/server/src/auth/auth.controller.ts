@@ -3,21 +3,25 @@ import {
   Controller,
   Get,
   Post,
+  Req,
+  Res,
   UseGuards,
   UsePipes,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { AuthGuard } from "@nestjs/passport";
 import {
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiBearerAuth,
   ApiTags,
 } from "@nestjs/swagger";
 import { ZodValidationPipe } from "nestjs-zod";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
+import type { Request, Response } from "express";
 import { Public } from "../common/decorators/public.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { AuthService } from "./auth.service";
@@ -29,6 +33,7 @@ import {
   AuthResponse,
   MeResponse,
 } from "./dto/auth-response.dto";
+import { UserEntity } from "../modules/user/user.entity";
 import {
   loginSchema,
   requestPasswordResetSchema,
@@ -38,7 +43,10 @@ import {
 @Controller("auth")
 @ApiTags("Auth")
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService
+  ) {}
 
   @Public()
   @Post("login")
@@ -86,5 +94,24 @@ export class AuthController {
   @ApiBearerAuth()
   me(@CurrentUser() user: { id: string }): Promise<MeResponse> {
     return this.authService.me(user.id);
+  }
+
+  @Public()
+  @Get("google")
+  @UseGuards(AuthGuard("google"))
+  @ApiOperation({ operationId: "googleAuth" })
+  googleAuth(): void {
+    // Passport triggers the redirect to Google
+  }
+
+  @Public()
+  @Get("google/callback")
+  @UseGuards(AuthGuard("google"))
+  @ApiOperation({ operationId: "googleAuthCallback" })
+  googleAuthCallback(@Req() req: Request, @Res() res: Response): void {
+    const user = req.user as UserEntity;
+    const { accessToken } = this.authService.googleLogin(user);
+    const clientUrl = this.configService.getOrThrow<string>("client.url");
+    res.redirect(`${clientUrl}/auth/google/callback?token=${accessToken}`);
   }
 }

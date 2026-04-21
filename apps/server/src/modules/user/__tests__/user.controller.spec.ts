@@ -191,10 +191,10 @@ describe("UserController", () => {
     it("should return mapped user DTO", async () => {
       service.findById.mockResolvedValue(mockUser);
 
-      const result = await controller.getById(mockUser.id);
+      const result = await controller.getById(mockAdmin, mockUser.id);
 
       expect(result).toEqual(mockUserDto);
-      expect(service.findById).toHaveBeenCalledWith(mockUser.id);
+      expect(service.findById).toHaveBeenCalledWith(mockUser.id, mockAdmin);
     });
   });
 
@@ -208,11 +208,11 @@ describe("UserController", () => {
     };
 
     it("should create user and return mapped DTO (public)", async () => {
-      const created: UserEntity = {
+      const created = {
         ...createDto,
         id: "new-id",
         password: "hashed",
-      };
+      } as UserEntity;
       service.create.mockResolvedValue(created);
 
       const result = await controller.create(undefined, createDto);
@@ -222,11 +222,11 @@ describe("UserController", () => {
     });
 
     it("should pass currentUser to service when authenticated", async () => {
-      const created: UserEntity = {
+      const created = {
         ...createDto,
         id: "new-id",
         password: "hashed",
-      };
+      } as UserEntity;
       service.create.mockResolvedValue(created);
 
       await controller.create(mockAdmin, createDto);
