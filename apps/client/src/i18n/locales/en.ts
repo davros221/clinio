@@ -61,6 +61,12 @@ const en = {
           "Appointment is already completed",
       } satisfies Record<ErrorCode, string>),
     },
+    confirmModal: {
+      title: "Are you sure?",
+      message: "This action cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
+    },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
     returnHome: "Go Back Home",

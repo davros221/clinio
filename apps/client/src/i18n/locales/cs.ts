@@ -61,6 +61,12 @@ const cs: TranslationKeys = {
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]: "Rezervace je již dokončena",
       } satisfies Record<ErrorCode, string>),
     },
+    confirmModal: {
+      title: "Opravdu chcete pokračovat?",
+      message: "Tato akce je nevratná.",
+      confirm: "Smazat",
+      cancel: "Zrušit",
+    },
     forbidden: "Zakázáno",
     forbiddenMessage: "Nemáte oprávnění přistoupit na tuto stránku.",
     returnHome: "Zpět na domovskou stránku",
