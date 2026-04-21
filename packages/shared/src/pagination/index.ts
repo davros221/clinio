@@ -84,3 +84,19 @@ export const appointmentListSchema = paginationSchema.extend({
 });
 
 export type AppointmentListQuery = z.infer<typeof appointmentListSchema>;
+
+export const MedicalRecordSortField = {
+  CREATED_AT: "createdAt",
+} as const;
+
+export type MedicalRecordSortField =
+  (typeof MedicalRecordSortField)[keyof typeof MedicalRecordSortField];
+
+export const medicalRecordListSchema = paginationSchema.extend({
+  sortBy: z
+    .nativeEnum(MedicalRecordSortField)
+    .default(MedicalRecordSortField.CREATED_AT),
+  sortOrder: z.nativeEnum(SortOrder).default(SortOrder.DESC),
+});
+
+export type MedicalRecordListQuery = z.infer<typeof medicalRecordListSchema>;
