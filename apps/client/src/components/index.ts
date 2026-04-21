@@ -6,7 +6,6 @@ export * from "./appointments";
 export * from "./SideMenu";
 export * from "./LanguageSwitcher.tsx";
 export * from "./SubmitButton/SubmitButton.tsx";
-export * from "./ConfirmModal/ConfirmModal.tsx";
 export * from "./AuthLinks/AuthFooter.tsx";
 export * from "./RoleGuard/RoleGuard.tsx";
 export * from "./DataTable/DataTable.tsx";
