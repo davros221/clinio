@@ -451,6 +451,7 @@ describe("AppointmentService", () => {
       "should throw PATIENT_PROFILE_INCOMPLETE when client missing %s",
       async (_field, missing) => {
         const incomplete = { ...mockPatient, ...missing } as PatientEntity;
+        officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
         appointmentRepo.findOne.mockResolvedValue(null);
         patientRepo.findOne.mockResolvedValue(incomplete);
 
