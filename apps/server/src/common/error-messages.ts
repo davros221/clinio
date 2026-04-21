@@ -98,3 +98,10 @@ export function appointmentOutsideHours(): BadRequestException {
     message: "Appointment hour is outside of opening hours",
   });
 }
+
+export function medicalRecordNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.MEDICAL_RECORD_NOT_FOUND,
+    message: "Medical record not found",
+  });
+}
