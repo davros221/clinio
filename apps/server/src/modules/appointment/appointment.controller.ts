@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -11,6 +14,7 @@ import {
   ApiOkResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiBadRequestResponse,
   ApiForbiddenResponse,
@@ -149,5 +153,21 @@ export class AppointmentController {
   ) {
     const entity = await this.appointmentService.create(dto, currentUser);
     return AppointmentMapper.toDto(entity);
+  }
+
+  @Delete(":id")
+  @Roles(UserRole.DOCTOR, UserRole.NURSE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ operationId: "deleteAppointment" })
+  @ApiNoContentResponse({ description: "Appointment deleted" })
+  @ApiBadRequestResponse({ description: "Appointment already completed" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Appointment not found" })
+  @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
+  async remove(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: AuthUser
+  ): Promise<void> {
+    await this.appointmentService.remove(id, currentUser);
   }
 }

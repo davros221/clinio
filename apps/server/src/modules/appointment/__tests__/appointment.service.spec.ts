@@ -90,6 +90,7 @@ const mockAppointmentRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  delete: jest.fn(),
 });
 
 const mockPatientRepository = () => ({
@@ -105,7 +106,7 @@ describe("AppointmentService", () => {
   let appointmentRepo: jest.Mocked<
     Pick<
       Repository<AppointmentEntity>,
-      "find" | "findAndCount" | "findOne" | "create" | "save"
+      "find" | "findAndCount" | "findOne" | "create" | "save" | "delete"
     >
   >;
   let patientRepo: jest.Mocked<Pick<Repository<PatientEntity>, "findOne">>;
@@ -535,6 +536,93 @@ describe("AppointmentService", () => {
       const result = await service.create(createDto, adminUser);
 
       expect(result).toEqual(mockAppointment);
+    });
+  });
+
+  describe("remove", () => {
+    it("should delete appointment for staff belonging to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.delete.mockResolvedValue({ affected: 1, raw: [] });
+
+      await service.remove(mockAppointment.id, doctorUser);
+
+      expect(appointmentRepo.findOne).toHaveBeenCalledWith({
+        where: { id: mockAppointment.id },
+      });
+      expect(appointmentRepo.delete).toHaveBeenCalledWith(mockAppointment.id);
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+
+      try {
+        await service.remove("non-existent-id", doctorUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect((error as NotFoundException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
+        });
+      }
+      expect(appointmentRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it("should throw ForbiddenException when non-staff user tries to delete", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+
+      await expect(
+        service.remove(mockAppointment.id, adminUser)
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.remove(mockAppointment.id, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+      expect(appointmentRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it("should throw ForbiddenException when staff does not belong to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue(mockAppointment);
+      officeRepo.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [{ id: "other-doctor" }],
+      } as OfficeEntity);
+
+      await expect(
+        service.remove(mockAppointment.id, doctorUser)
+      ).rejects.toThrow(ForbiddenException);
+      expect(appointmentRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it("should throw BadRequestException when appointment is COMPLETED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.COMPLETED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      try {
+        await service.remove(mockAppointment.id, doctorUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_ALREADY_COMPLETED,
+        });
+      }
+      expect(appointmentRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it("should delete cancelled appointment", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.CANCELLED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.delete.mockResolvedValue({ affected: 1, raw: [] });
+
+      await service.remove(mockAppointment.id, doctorUser);
+
+      expect(appointmentRepo.delete).toHaveBeenCalledWith(mockAppointment.id);
     });
   });
 });

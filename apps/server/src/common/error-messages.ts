@@ -119,3 +119,10 @@ export function medicalRecordNotFound(): NotFoundException {
     message: "Medical record not found",
   });
 }
+
+export function appointmentAlreadyCompleted(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.APPOINTMENT_ALREADY_COMPLETED,
+    message: "Completed appointment cannot be deleted",
+  });
+}
