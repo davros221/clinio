@@ -23,7 +23,7 @@ import {
   useCreateAppointmentMutation,
   useGetAppointmentListQuery,
   useGetOfficeListQuery,
-  useGetPatientsQuery,
+  useGetPatientList,
 } from "@api";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
@@ -68,7 +68,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
   const { data: offices = [] } = useGetOfficeListQuery();
-  const { data: patients = [] } = useGetPatientsQuery(isStaff);
+  const { data: patientData } = useGetPatientList();
+  const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
     mode: "uncontrolled",
