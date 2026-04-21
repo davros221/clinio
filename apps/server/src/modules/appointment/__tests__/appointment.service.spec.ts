@@ -21,7 +21,7 @@ import {
 } from "@clinio/shared";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
 import { AuthUser } from "../../../auth/strategies/jwt.strategy";
-import { SettingsService } from "../../../common/services/settings.service";
+import { OfficeHoursTemplate } from "@clinio/shared";
 
 const adminUser: AuthUser = {
   id: "admin-1",
@@ -61,9 +61,20 @@ const mockAppointment: AppointmentEntity = {
   note: "Initial consultation",
 };
 
+const fullWeekHours: OfficeHoursTemplate = {
+  monday: [{ from: 8, to: 16 }],
+  tuesday: [{ from: 8, to: 16 }],
+  wednesday: [{ from: 8, to: 16 }],
+  thursday: [{ from: 8, to: 16 }],
+  friday: [{ from: 8, to: 16 }],
+  saturday: [],
+  sunday: [],
+};
+
 const mockOffice: Partial<OfficeEntity> = {
   id: "office-1",
   staff: [{ id: doctorUser.id }] as OfficeEntity["staff"],
+  officeHoursTemplate: fullWeekHours,
 };
 
 const defaultQuery = {
@@ -89,12 +100,6 @@ const mockOfficeRepository = () => ({
   findOne: jest.fn(),
 });
 
-const mockSettingsService = () => ({
-  getOpeningHours: jest
-    .fn()
-    .mockReturnValue({ startingHour: 6, endingHour: 20 }),
-});
-
 describe("AppointmentService", () => {
   let service: AppointmentService;
   let appointmentRepo: jest.Mocked<
@@ -105,7 +110,6 @@ describe("AppointmentService", () => {
   >;
   let patientRepo: jest.Mocked<Pick<Repository<PatientEntity>, "findOne">>;
   let officeRepo: jest.Mocked<Pick<Repository<OfficeEntity>, "findOne">>;
-  let settingsService: jest.Mocked<Pick<SettingsService, "getOpeningHours">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -123,10 +127,6 @@ describe("AppointmentService", () => {
           provide: getRepositoryToken(OfficeEntity),
           useFactory: mockOfficeRepository,
         },
-        {
-          provide: SettingsService,
-          useFactory: mockSettingsService,
-        },
       ],
     }).compile();
 
@@ -134,7 +134,6 @@ describe("AppointmentService", () => {
     appointmentRepo = module.get(getRepositoryToken(AppointmentEntity));
     patientRepo = module.get(getRepositoryToken(PatientEntity));
     officeRepo = module.get(getRepositoryToken(OfficeEntity));
-    settingsService = module.get(SettingsService);
   });
 
   describe("findAll", () => {
@@ -365,6 +364,7 @@ describe("AppointmentService", () => {
     };
 
     it("should create and return appointment for admin", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(null); // no existing slot
       appointmentRepo.create.mockReturnValue(mockAppointment);
       appointmentRepo.save.mockResolvedValue(mockAppointment);
@@ -374,6 +374,14 @@ describe("AppointmentService", () => {
       expect(result).toEqual(mockAppointment);
       expect(appointmentRepo.create).toHaveBeenCalledWith(createDto);
       expect(appointmentRepo.save).toHaveBeenCalledWith(mockAppointment);
+    });
+
+    it("should throw NotFoundException when office does not exist", async () => {
+      officeRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.create(createDto, adminUser)).rejects.toThrow(
+        NotFoundException
+      );
     });
 
     it("should validate staff belongs to office when doctor creates", async () => {
@@ -411,6 +419,7 @@ describe("AppointmentService", () => {
     });
 
     it("should allow client to create appointment for any office", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(null);
       patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
       appointmentRepo.create.mockReturnValue(mockAppointment);
@@ -419,13 +428,13 @@ describe("AppointmentService", () => {
       const result = await service.create(createDto, clientUser);
 
       expect(result).toEqual(mockAppointment);
-      expect(officeRepo.findOne).not.toHaveBeenCalled();
       expect(patientRepo.findOne).toHaveBeenCalledWith({
         where: { userId: clientUser.id },
       });
     });
 
     it("should throw NotFoundException when client has no patient record", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(null);
       patientRepo.findOne.mockResolvedValue(null);
 
@@ -457,7 +466,9 @@ describe("AppointmentService", () => {
       }
     );
 
-    it("should throw BadRequestException when hour is outside opening hours", async () => {
+    it("should throw BadRequestException when hour is outside office hours for the weekday", async () => {
+      // 2026-04-01 is Wednesday; template has 8-16; hour 5 is outside
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       const dto: CreateAppointmentDto = { ...createDto, hour: 5 };
 
       await expect(service.create(dto, adminUser)).rejects.toThrow(
@@ -465,7 +476,18 @@ describe("AppointmentService", () => {
       );
     });
 
+    it("should throw BadRequestException when the weekday is closed", async () => {
+      // 2026-04-04 is Saturday; template has empty slots for Saturday
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      const dto: CreateAppointmentDto = { ...createDto, date: "2026-04-04" };
+
+      await expect(service.create(dto, adminUser)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
     it("should throw BadRequestException with APPOINTMENT_OUTSIDE_HOURS error code", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       const dto: CreateAppointmentDto = { ...createDto, hour: 21 };
 
       try {
@@ -480,6 +502,7 @@ describe("AppointmentService", () => {
     });
 
     it("should throw ConflictException when slot is already taken", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(mockAppointment);
 
       await expect(service.create(createDto, adminUser)).rejects.toThrow(
@@ -488,6 +511,7 @@ describe("AppointmentService", () => {
     });
 
     it("should throw ConflictException with APPOINTMENT_SLOT_TAKEN error code", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(mockAppointment);
 
       try {
@@ -502,6 +526,7 @@ describe("AppointmentService", () => {
     });
 
     it("should allow creating appointment when existing slot is cancelled", async () => {
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
       appointmentRepo.findOne.mockResolvedValue(null); // Not(CANCELLED) returns no match
       appointmentRepo.create.mockReturnValue(mockAppointment);
       appointmentRepo.save.mockResolvedValue(mockAppointment);
