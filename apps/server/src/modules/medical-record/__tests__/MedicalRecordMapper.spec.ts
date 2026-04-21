@@ -50,7 +50,7 @@ describe("MedicalRecordMapper", () => {
       expect(dto).toEqual({
         id: mockEntity.id,
         patientId: mockEntity.patientId,
-        createdBy: mockEntity.createdBy,
+        createdBy: `${mockCreator.firstName} ${mockCreator.lastName}`,
         createdAt: mockEntity.createdAt,
         examinationSummary: mockEntity.examinationSummary,
         diagnosis: mockEntity.diagnosis,
