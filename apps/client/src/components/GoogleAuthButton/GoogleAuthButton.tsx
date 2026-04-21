@@ -12,10 +12,10 @@ export const GoogleAuthButton = () => {
     <Button
       component="a"
       href={href}
-      variant="default"
-      radius="md"
-      size="md"
       fullWidth
+      variant={"outline"}
+      radius={"xl"}
+      size={"md"}
     >
       {t("login.googleButton")}
     </Button>
