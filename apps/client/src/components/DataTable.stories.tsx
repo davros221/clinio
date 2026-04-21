@@ -1,5 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
+import { ErrorCode } from "@clinio/shared";
 import { DataTable } from "./DataTable";
+import { DataTableColumn } from "./DataTable/DataTableProps";
 
 type SampleRow = {
   id: string;
@@ -29,11 +31,13 @@ const sampleData: SampleRow[] = [
   },
 ];
 
-const sampleColumns = [
-  { key: "firstName", header: "First Name" },
-  { key: "lastName", header: "Last Name" },
-  { key: "email", header: "Email" },
+const sampleColumns: DataTableColumn<SampleRow>[] = [
+  { key: "firstName", header: "First Name", render: (row) => row.firstName },
+  { key: "lastName", header: "Last Name", render: (row) => row.lastName },
+  { key: "email", header: "Email", render: (row) => row.email },
 ];
+
+const keyExtractor = (row: SampleRow) => row.id;
 
 const meta = {
   component: DataTable,
@@ -44,8 +48,9 @@ const meta = {
     keyExtractor: { table: { disable: true } },
     actions: { table: { disable: true } },
     error: { table: { disable: true } },
+    pagination: { table: { disable: true } },
   },
-} satisfies Meta<typeof DataTable>;
+} satisfies Meta<typeof DataTable<SampleRow>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -54,7 +59,7 @@ export const Default: Story = {
   args: {
     data: sampleData,
     columns: sampleColumns,
-    keyExtractor: (row) => (row as SampleRow).id,
+    keyExtractor,
   },
 };
 
@@ -62,7 +67,7 @@ export const WithActions: Story = {
   args: {
     data: sampleData,
     columns: sampleColumns,
-    keyExtractor: (row) => (row as SampleRow).id,
+    keyExtractor,
     actions: [
       {
         label: "Edit",
@@ -87,8 +92,17 @@ export const Loading: Story = {
   args: {
     data: [],
     columns: sampleColumns,
-    keyExtractor: (row) => (row as SampleRow).id,
+    keyExtractor,
     isLoading: true,
+  },
+};
+
+export const Fetching: Story = {
+  args: {
+    data: sampleData,
+    columns: sampleColumns,
+    keyExtractor,
+    isFetching: true,
   },
 };
 
@@ -96,9 +110,12 @@ export const Error: Story = {
   args: {
     data: [],
     columns: sampleColumns,
-    keyExtractor: (row) => (row as SampleRow).id,
+    keyExtractor,
     isError: true,
-    error: new globalThis.Error("Failed to fetch data"),
+    error: {
+      errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
+      message: "Failed to fetch data",
+    },
   },
 };
 
@@ -106,7 +123,22 @@ export const Empty: Story = {
   args: {
     data: [],
     columns: sampleColumns,
-    keyExtractor: (row) => (row as SampleRow).id,
+    keyExtractor,
     emptyMessage: "No patients found",
+  },
+};
+
+export const WithPagination: Story = {
+  args: {
+    data: sampleData,
+    columns: sampleColumns,
+    keyExtractor,
+    pagination: {
+      total: 5,
+      current: 1,
+      onChange: (page) => {
+        console.log("Page changed:", page);
+      },
+    },
   },
 };
