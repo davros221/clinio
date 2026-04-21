@@ -8,7 +8,11 @@ import {
 } from "@mantine/core";
 import { useT } from "@hooks";
 import classes from "./DataTable.module.css";
-import { DataTableAction, DataTableColumn } from "./DataTableProps.ts";
+import {
+  DataTableAction,
+  DataTableColumn,
+  DataTableRowClick,
+} from "./DataTableProps.ts";
 import { DataTableBody } from "./components/DataTableBody.tsx";
 import { MdErrorOutline } from "react-icons/md";
 import { ApiError } from "@clinio/shared";
@@ -18,6 +22,7 @@ export type DataTableProps<T> = {
   columns: DataTableColumn<T>[];
   keyExtractor: (row: T) => string;
   actions?: DataTableAction<T>[];
+  onRowClick?: DataTableRowClick<T>;
   isLoading?: boolean;
   isFetching?: boolean;
   isError?: boolean;
@@ -41,6 +46,7 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
     columns,
     keyExtractor,
     actions,
+    onRowClick,
     isLoading,
     isFetching,
     isError,
@@ -104,6 +110,7 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
                 emptyMessage={resolvedEmptyMessage}
                 isLoading={isLoading}
                 actions={actions}
+                onRowClick={onRowClick}
               />
             </Table.Tbody>
           </Table>

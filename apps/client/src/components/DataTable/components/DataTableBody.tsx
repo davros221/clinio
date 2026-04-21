@@ -1,5 +1,9 @@
 import { Table, Text } from "@mantine/core";
-import { DataTableAction, DataTableColumn } from "../DataTableProps.ts";
+import {
+  DataTableAction,
+  DataTableColumn,
+  DataTableRowClick,
+} from "../DataTableProps.ts";
 import { DataTableActions } from "./DataTableActions.tsx";
 import { DataTableSkeleton } from "./DataTableSkeleton.tsx";
 
@@ -11,6 +15,7 @@ export type Props<TData> = {
   keyExtractor: (row: TData) => string;
   isLoading?: boolean;
   emptyMessage?: string;
+  onRowClick?: DataTableRowClick<TData>;
 };
 
 export const DataTableBody = <TData,>(props: Props<TData>) => {
@@ -22,6 +27,7 @@ export const DataTableBody = <TData,>(props: Props<TData>) => {
     actions,
     data,
     hasActions,
+    onRowClick,
   } = props;
 
   if (isLoading) {
@@ -41,7 +47,11 @@ export const DataTableBody = <TData,>(props: Props<TData>) => {
   }
 
   return data.map((row) => (
-    <Table.Tr key={keyExtractor(row)}>
+    <Table.Tr
+      key={keyExtractor(row)}
+      onClick={onRowClick ? () => onRowClick(row) : undefined}
+      style={onRowClick ? { cursor: "pointer" } : undefined}
+    >
       {columns.map((col) => (
         <Table.Td key={col.key} style={col.style}>
           {col.render(row)}
