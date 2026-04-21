@@ -247,6 +247,11 @@ const cs: TranslationKeys = {
       createSuccessMessage: "Uživatel byl úspěšně vytvořen.",
     },
   },
+  settings: {
+    onboardingWarningTitle: "Dokončete svůj profil",
+    onboardingWarningMessage:
+      "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
+  },
   calendar: {
     today: "Dnes",
   },

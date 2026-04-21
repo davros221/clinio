@@ -14,6 +14,7 @@ import {
   ResetPasswordPage,
   PatientDetailPage,
   GoogleAuthCallback,
+  SettingsPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -79,7 +80,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
-                element: <div>Settings - placeholder - TBD</div>, //
+                element: <SettingsPage />,
               },
             ],
           },
