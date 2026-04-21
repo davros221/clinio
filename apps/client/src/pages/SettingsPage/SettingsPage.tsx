@@ -1,21 +1,24 @@
 import { Stack, Title, Alert, TextInput, Button } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { useSettingsPage } from "./useSettingsPage.ts";
+import { PhoneInputField } from "@components";
 
 export const SettingsPage = () => {
   const t = useT();
-  const { isOnboardingClient } = useUserRole();
+  const { isOnboardingClient, isClient } = useUserRole();
   const { form, handleSubmit, isPending } = useSettingsPage();
 
   return (
     <Stack maw={450}>
       <Title order={2}>{t("nav.settings")}</Title>
 
-      {isOnboardingClient && (
+      {isClient && (
         <>
-          <Alert color="yellow" title={t("settings.onboardingWarningTitle")}>
-            {t("settings.onboardingWarningMessage")}
-          </Alert>
+          {isOnboardingClient && (
+            <Alert color="yellow" title={t("settings.onboardingWarningTitle")}>
+              {t("settings.onboardingWarningMessage")}
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit}>
             <Stack>
@@ -29,10 +32,11 @@ export const SettingsPage = () => {
                 label={t("patient.form.birthdate")}
                 {...form.getInputProps("birthdate")}
               />
-              <TextInput
+              <PhoneInputField
                 label={t("patient.form.phone")}
-                placeholder="+420111222333"
-                {...form.getInputProps("phone")}
+                value={form.getValues().phone}
+                onChange={(phone) => form.setFieldValue("phone", phone)}
+                error={form.errors.phone as string}
               />
               <Button type="submit" loading={isPending}>
                 {t("common.action.save")}

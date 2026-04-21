@@ -1,14 +1,21 @@
 import { useForm, schemaResolver } from "@mantine/form";
 import { z } from "zod";
+import { isValidBirthNumber } from "@clinio/shared";
 import { useUser } from "@hooks";
 import { useUpdatePatientMutation } from "@api";
 import { useNavigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
 
 const schema = z.object({
-  birthNumber: z.string().min(1, "required"),
+  birthNumber: z
+    .string()
+    .min(1, "required")
+    .refine(isValidBirthNumber, { message: "Invalid birth number" }),
   birthdate: z.string().min(1, "required"),
-  phone: z.string().min(1, "required"),
+  phone: z
+    .string()
+    .min(1, "required")
+    .regex(/^\+\d{7,15}$/, "Invalid phone number"),
 });
 
 export const useSettingsPage = () => {
