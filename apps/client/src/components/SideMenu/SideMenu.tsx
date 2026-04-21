@@ -1,9 +1,11 @@
 import { Stack, Avatar, Text, Group, Divider } from "@mantine/core";
 import { SideMenuItem } from "./SideMenuItem.tsx";
 import { useSideMenu } from "./useSideMenu.ts";
+import { useUserRole } from "@hooks";
 
 export const SideMenu = () => {
   const { navItems, initials, user } = useSideMenu();
+  const { isOnboardingClient } = useUserRole();
 
   return (
     <Stack gap="xs" h="100%">
@@ -24,7 +26,11 @@ export const SideMenu = () => {
 
       <Divider />
 
-      <Stack h={"100%"} gap={"xxs"}>
+      <Stack
+        h={"100%"}
+        gap={"xxs"}
+        justify={isOnboardingClient ? "end" : "start"}
+      >
         {navItems.map((item, i) => (
           <SideMenuItem key={i} {...item} />
         ))}
