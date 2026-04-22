@@ -1,4 +1,6 @@
 .card {
+  --mobile-header-height: 48px;
+
   position: relative;
   width: 100dvw;
   height: 100dvh;
@@ -15,7 +17,13 @@
   position: absolute;
   top: 0;
   height: 100%;
-  background: var(--mantine-primary-color-7);
+}
+
+/* Desktop: solid sidebar background */
+@media (min-width: 48em) {
+  .card :global(.mantine-AppShell-navbar) {
+    background: var(--mantine-primary-color-7);
+  }
 }
 
 .card :global(.mantine-AppShell-main) {
@@ -23,6 +31,47 @@
   height: 100%;
   overflow: auto;
   scrollbar-color: var(--mantine-primary-color-9) transparent;
+}
+
+/* Mobile top bar — floats over content so backdrop-filter blurs the page beneath */
+.mobileHeader {
+  position: absolute;
+  top: var(--mantine-spacing-xxxs);
+  left: var(--mantine-spacing-xxxs);
+  right: var(--mantine-spacing-xxxs);
+  height: var(--mobile-header-height);
+  z-index: 1000;
+  background: color-mix(
+    in srgb,
+    var(--mantine-primary-color-6) 70%,
+    transparent
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--mantine-radius-md);
+}
+
+@media (max-width: 47.9375em) {
+  .card :global(.mantine-AppShell-main) {
+    padding-top: var(--mobile-header-height);
+  }
+
+  .card :global(.mantine-AppShell-navbar) {
+    top: 0;
+    height: 100%;
+    padding-top: calc(
+      var(--mobile-header-height) + var(--mantine-spacing-xs)
+    ) !important;
+    z-index: 200;
+    background: color-mix(
+      in srgb,
+      var(--mantine-primary-color-2) 50%,
+      transparent
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 }
 
 @media (min-width: 992px) {
