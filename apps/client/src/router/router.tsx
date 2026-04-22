@@ -13,6 +13,7 @@ import {
   ActivateAccountPage,
   ResetPasswordPage,
   PatientDetailPage,
+  OfficeDetailPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -59,6 +60,14 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.OFFICES,
                 element: <OfficesOverview />,
+              },
+              {
+                path: ROUTER_PATHS.OFFICE_NEW,
+                element: <OfficeDetailPage />,
+              },
+              {
+                path: ROUTER_PATHS.OFFICE_DETAIL,
+                element: <OfficeDetailPage />,
               },
               {
                 path: ROUTER_PATHS.APPOINTMENTS,
