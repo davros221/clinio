@@ -35,7 +35,7 @@ import {
 import { ParseEnumArrayPipe } from "../../common/pipes/parse-enum-array.pipe";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
-import { AuthUser } from "../../auth/strategies/jwt.strategy";
+import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AppointmentService } from "./appointment.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
 import { Appointment } from "./dto/appointment.dto";
