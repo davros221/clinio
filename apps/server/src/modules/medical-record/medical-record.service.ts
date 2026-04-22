@@ -78,7 +78,18 @@ export class MedicalRecordService {
       createdBy: currentUser.id,
     });
 
-    return this.medicalRecordRepository.save(entity);
+    const saved = await this.medicalRecordRepository.save(entity);
+
+    const withCreator = await this.medicalRecordRepository.findOne({
+      where: { id: saved.id },
+      relations: ["creator"],
+    });
+
+    if (!withCreator) {
+      throw internalError();
+    }
+
+    return withCreator;
   }
 
   private async assertPatientAccess(

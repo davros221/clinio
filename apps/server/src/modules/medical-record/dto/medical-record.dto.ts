@@ -1,4 +1,15 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
+
+export class MedicalRecordCreator {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  firstName!: string;
+
+  @ApiProperty()
+  lastName!: string;
+}
 
 export class MedicalRecord {
   @ApiProperty()
@@ -7,15 +18,15 @@ export class MedicalRecord {
   @ApiProperty()
   patientId!: string;
 
-  @ApiProperty()
-  createdBy!: string;
+  @ApiProperty({ type: () => MedicalRecordCreator })
+  creator!: MedicalRecordCreator;
 
   @ApiProperty()
   createdAt!: Date;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ nullable: true, type: String })
   examinationSummary!: string | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ nullable: true, type: String })
   diagnosis!: string | null;
 }
