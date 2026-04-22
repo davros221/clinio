@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
-import { useUser } from "../hooks/useUser.ts";
-import { useUserRole } from "../hooks/useUserRole.ts";
+import { useUser } from "../../hooks/useUser.ts";
+import { useUserRole } from "../../hooks/useUserRole.ts";
 import { ROUTER_PATHS } from "@router";
 
 export const RequireAuth = ({ allowedRoles }: { allowedRoles?: string[] }) => {
