@@ -14,7 +14,7 @@ async function bootstrap() {
 
   // Enable CORS for the client URL specified in the configuration
   const clientUrl = configService.get("client.url");
-  app.enableCors({ origin: ["http://localhost:3000", clientUrl] });
+  app.enableCors({ origin: [/^http:\/\/localhost:\d+$/, clientUrl] });
 
   // Set a global prefix for all routes (e.g., /api)
   const globalPrefix = "api";
