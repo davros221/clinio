@@ -20,10 +20,7 @@ export function MedicalRecordDetailModal({ record, opened, onClose }: Props) {
 
   if (!record) return null;
 
-  const raw = String(record.createdAt);
-  const hasTimezone = /Z|[+-]\d{2}:?\d{2}$/.test(raw);
-  const iso = hasTimezone ? raw : raw.replace(" ", "T") + "Z";
-  const createdAtDisplay = new Date(iso).toLocaleDateString();
+  const createdAtDisplay = new Date(record.createdAt).toLocaleDateString();
 
   return (
     <Modal
@@ -42,17 +39,13 @@ export function MedicalRecordDetailModal({ record, opened, onClose }: Props) {
 
         <TextInput
           label={t("medicalRecord.createModal.fields.createdBy")}
-          value={record.createdBy}
+          value={`${record.creator.firstName} ${record.creator.lastName}`}
           readOnly
         />
 
         <Textarea
           label={t("medicalRecord.createModal.fields.examinationSummary")}
-          value={
-            typeof record.examinationSummary === "string"
-              ? record.examinationSummary
-              : ""
-          }
+          value={record.examinationSummary ?? ""}
           readOnly
           autosize
           minRows={3}
@@ -60,7 +53,7 @@ export function MedicalRecordDetailModal({ record, opened, onClose }: Props) {
 
         <Textarea
           label={t("medicalRecord.createModal.fields.diagnosis")}
-          value={typeof record.diagnosis === "string" ? record.diagnosis : ""}
+          value={record.diagnosis ?? ""}
           readOnly
           autosize
           minRows={3}

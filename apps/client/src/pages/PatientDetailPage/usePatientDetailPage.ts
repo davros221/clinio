@@ -8,18 +8,15 @@ export const usePatientDetailPage = () => {
   const { id } = params;
   const { data, isFetching } = useGetPatientDetailQuery(id!);
 
-  const toStr = (v: unknown): string | undefined => {
-    if (v == null) return undefined;
-    if (typeof v === "string") return v;
-    return undefined;
-  };
-
   const info = [
     { title: t("patient.form.firstName"), value: data?.firstName },
     { title: t("patient.form.lastName"), value: data?.lastName },
-    { title: t("patient.form.birthdate"), value: toStr(data?.birthdate) },
-    { title: t("patient.form.birthNumber"), value: toStr(data?.birthNumber) },
-    { title: t("patient.form.phone"), value: toStr(data?.phone) },
+    { title: t("patient.form.birthdate"), value: data?.birthdate ?? undefined },
+    {
+      title: t("patient.form.birthNumber"),
+      value: data?.birthNumber ?? undefined,
+    },
+    { title: t("patient.form.phone"), value: data?.phone ?? undefined },
     { title: t("patient.form.email"), value: data?.email },
   ];
 

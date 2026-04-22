@@ -21,18 +21,11 @@ import { useT } from "@hooks";
 import { MedicalRecord } from "@clinio/api";
 
 function formatDate(raw: string): string {
-  const s = String(raw);
-  const hasTimezone = /Z|[+-]\d{2}:?\d{2}$/.test(s);
-  const iso = hasTimezone ? s : s.replace(" ", "T") + "Z";
-  return new Date(iso).toLocaleDateString();
+  return new Date(raw).toLocaleDateString();
 }
 
-function formatText(
-  value: Record<string, unknown> | string | null | undefined
-): string {
-  if (!value) return "—";
-  if (typeof value === "string") return value;
-  return JSON.stringify(value);
+function formatText(value: string | null | undefined): string {
+  return value ?? "—";
 }
 
 export const PatientDetailPage = () => {
@@ -72,7 +65,7 @@ export const PatientDetailPage = () => {
       header: t("medicalRecord.overview.table.createdBy"),
       render: (row: MedicalRecord) => (
         <Text truncate="end" maw={220}>
-          {row.createdBy}
+          {`${row.creator.firstName} ${row.creator.lastName}`}
         </Text>
       ),
     },
