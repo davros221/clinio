@@ -9,8 +9,8 @@ import {
 } from "@mantine/core";
 import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import { SideMenu } from "@components";
-import { useUser } from "../../hooks/useUser.ts";
-import { useMobileView } from "../../hooks/useMobileView.ts";
+import { useUser } from "@hooks";
+import { useMobileView } from "@hooks";
 import { StringUtils } from "@utils";
 import { Outlet, useLocation } from "react-router";
 import { useEffect } from "react";
@@ -78,7 +78,11 @@ export const AuthenticatedLayout = () => {
       </AppShell>
 
       {opened && (
-        <Overlay backgroundOpacity={0.5} zIndex={199} onClick={close} />
+        <Overlay
+          backgroundOpacity={0.5}
+          style={{ zIndex: "var(--z-backdrop)" }}
+          onClick={close}
+        />
       )}
     </div>
   );
