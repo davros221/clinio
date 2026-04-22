@@ -41,15 +41,9 @@ export type LoginDto = {
 
 export type AuthPatient = {
     id: string;
-    birthNumber?: {
-        [key: string]: unknown;
-    } | null;
-    birthdate?: {
-        [key: string]: unknown;
-    } | null;
-    phone?: {
-        [key: string]: unknown;
-    } | null;
+    birthNumber?: string | null;
+    birthdate?: string | null;
+    phone?: string | null;
 };
 
 export type AuthData = {
@@ -118,12 +112,8 @@ export type CalendarAppointmentPatient = {
     firstName: string;
     lastName: string;
     email: string;
-    phone?: {
-        [key: string]: unknown;
-    } | null;
-    birthNumber?: {
-        [key: string]: unknown;
-    } | null;
+    phone?: string | null;
+    birthNumber?: string | null;
 };
 
 export type CalendarAppointment = {
@@ -147,9 +137,7 @@ export type CalendarDay = {
 export type Appointment = {
     id: string;
     officeId: string;
-    patientId?: {
-        [key: string]: unknown;
-    } | null;
+    patientId: string | null;
     date: string;
     hour: number;
     status: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
@@ -302,17 +290,19 @@ export type SuggestResponse = {
     items: Array<SuggestItem>;
 };
 
+export type MedicalRecordCreator = {
+    id: string;
+    firstName: string;
+    lastName: string;
+};
+
 export type MedicalRecord = {
     id: string;
     patientId: string;
-    createdBy: string;
+    creator: MedicalRecordCreator;
     createdAt: string;
-    examinationSummary?: {
-        [key: string]: unknown;
-    } | null;
-    diagnosis?: {
-        [key: string]: unknown;
-    } | null;
+    examinationSummary: string | null;
+    diagnosis: string | null;
 };
 
 export type PaginatedMedicalRecordResponse = {
