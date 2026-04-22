@@ -117,7 +117,7 @@ export type UpdatePatientDto = {
     phone?: string;
 };
 
-export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'NOT_AVAILABLE';
+export type CalendarHourState = 'AVAILABLE' | 'BOOKED' | 'CLOSED';
 
 export type CalendarAppointmentPatient = {
     id: string;
@@ -306,6 +306,32 @@ export type SuggestItem = {
 
 export type SuggestResponse = {
     items: Array<SuggestItem>;
+};
+
+export type MedicalRecord = {
+    id: string;
+    patientId: string;
+    createdBy: string;
+    createdAt: string;
+    examinationSummary?: {
+        [key: string]: unknown;
+    } | null;
+    diagnosis?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type PaginatedMedicalRecordResponse = {
+    items: Array<MedicalRecord>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
+export type CreateMedicalRecordDto = {
+    examinationSummary?: string;
+    diagnosis?: string;
 };
 
 export type HealthCheckData = {
@@ -974,3 +1000,103 @@ export type SuggestAddressResponses = {
 };
 
 export type SuggestAddressResponse = SuggestAddressResponses[keyof SuggestAddressResponses];
+
+export type GetPatientMedicalRecordsData = {
+    body?: never;
+    path: {
+        patientId: string;
+    };
+    query?: {
+        /**
+         * Page number (default: 1)
+         */
+        page?: number;
+        /**
+         * Items per page (default: 20, max: 100)
+         */
+        limit?: number;
+        /**
+         * Sort field (default: createdAt)
+         */
+        sortBy?: 'createdAt';
+        /**
+         * Sort order (default: DESC)
+         */
+        sortOrder?: 'ASC' | 'DESC';
+    };
+    url: '/api/patients/{patientId}/medical-records';
+};
+
+export type GetPatientMedicalRecordsErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type GetPatientMedicalRecordsResponses = {
+    200: PaginatedMedicalRecordResponse;
+};
+
+export type GetPatientMedicalRecordsResponse = GetPatientMedicalRecordsResponses[keyof GetPatientMedicalRecordsResponses];
+
+export type CreatePatientMedicalRecordData = {
+    body: CreateMedicalRecordDto;
+    path: {
+        patientId: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records';
+};
+
+export type CreatePatientMedicalRecordErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
+export type CreatePatientMedicalRecordResponses = {
+    201: MedicalRecord;
+};
+
+export type CreatePatientMedicalRecordResponse = CreatePatientMedicalRecordResponses[keyof CreatePatientMedicalRecordResponses];
+
+export type GetPatientMedicalRecordByIdData = {
+    body?: never;
+    path: {
+        patientId: string;
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records/{id}';
+};
+
+export type GetPatientMedicalRecordByIdErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Medical record not found
+     */
+    404: unknown;
+};
+
+export type GetPatientMedicalRecordByIdResponses = {
+    200: MedicalRecord;
+};
+
+export type GetPatientMedicalRecordByIdResponse = GetPatientMedicalRecordByIdResponses[keyof GetPatientMedicalRecordByIdResponses];
