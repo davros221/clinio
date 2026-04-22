@@ -259,6 +259,41 @@ const cs: TranslationKeys = {
   calendar: {
     today: "Dnes",
   },
+  medicalRecord: {
+    detailModal: {
+      title: "Detail zdravotního záznamu",
+    },
+    createModal: {
+      title: "Nový zdravotní záznam",
+      fields: {
+        createdAt: "Datum",
+        createdBy: "Vytvořil",
+        examinationSummary: "Stručný popis",
+        examinationSummaryPlaceholder:
+          "Stručný popis průběhu vyšetření pacienta",
+        diagnosis: "Diagnóza",
+        diagnosisPlaceholder: "Závěr nebo diagnóza z vyšetření",
+      },
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Vytvořit",
+      },
+    },
+    overview: {
+      createButton: "Nový zdravotní záznam",
+      title: "Zdravotní záznamy",
+      table: {
+        date: "Datum",
+        createdBy: "Vytvořil",
+        examinationSummary: "Stručný popis",
+        diagnosis: "Diagnóza",
+      },
+    },
+    notification: {
+      createSuccess: "Zdravotní záznam byl vytvořen",
+      deleteSuccess: "Zdravotní záznam byl smazán",
+    },
+  },
   patient: {
     overview: {
       title: "Pacienti",

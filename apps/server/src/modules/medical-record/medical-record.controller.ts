@@ -6,7 +6,6 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
@@ -73,11 +72,11 @@ export class MedicalRecordController {
   @ApiOkResponse({ type: PaginatedMedicalRecordResponse })
   @ApiForbiddenResponse({ description: "Forbidden" })
   @ApiNotFoundResponse({ description: "Patient not found" })
-  @UsePipes(new ZodValidationPipe(medicalRecordListSchema))
   async getAll(
     @CurrentUser() currentUser: AuthUser,
     @Param("patientId", ParseUUIDPipe) patientId: string,
-    @Query() query: MedicalRecordListQueryDto
+    @Query(new ZodValidationPipe(medicalRecordListSchema))
+    query: MedicalRecordListQueryDto
   ) {
     const { items, total } = await this.medicalRecordService.findAllForPatient(
       patientId,
