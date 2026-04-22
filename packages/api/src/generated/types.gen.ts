@@ -88,15 +88,9 @@ export type Patient = {
     userId: string;
     firstName: string;
     lastName: string;
-    birthNumber?: {
-        [key: string]: unknown;
-    } | null;
-    birthdate?: {
-        [key: string]: unknown;
-    } | null;
-    phone?: {
-        [key: string]: unknown;
-    } | null;
+    birthNumber?: string | null;
+    birthdate?: string | null;
+    phone?: string | null;
     email: string;
 };
 
