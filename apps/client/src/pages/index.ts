@@ -4,6 +4,6 @@ export * from "./PatientDetailPage/PatientDetailPage.tsx";
 export * from "./ActivateAccountPage/ActivateAccountPage.tsx";
 export * from "./ResetPassword/ResetPasswordPage.tsx";
 export * from "./ForbiddenPage.tsx";
-export * from "./GoogleAuthCallback/GoogleAuthCallback.tsx";
+export * from "./LoginPage/GoogleAuthCallback.tsx";
 export * from "./SettingsPage/SettingsPage.tsx";
 export * from "./dashboards";
