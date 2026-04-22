@@ -58,8 +58,14 @@ const en = {
         [ErrorCode.PATIENT_PROFILE_INCOMPLETE]: "Patient profile is incomplete",
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Medical record not found",
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
-          "Appointment has already been completed",
+          "Appointment is already completed",
       } satisfies Record<ErrorCode, string>),
+    },
+    confirmModal: {
+      title: "Are you sure?",
+      message: "This action cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
     },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
@@ -137,6 +143,7 @@ const en = {
     },
     notification: {
       createSuccess: "Appointment created",
+      deleteSuccess: "Appointment deleted",
     },
   },
   login: {

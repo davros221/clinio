@@ -65,3 +65,25 @@ export const useCreateAppointmentMutation = () => {
       notifyError(t("common.error.createFailed"), error.message),
   });
 };
+
+export const useDeleteAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async (id) => {
+      await AppointmentService.deleteAppointment({
+        path: { id },
+        throwOnError: true,
+      });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.deleteSuccess"), "");
+    },
+
+    onError: (error) =>
+      notifyError(t("common.error.deleteFailed"), error.message),
+  });
+};

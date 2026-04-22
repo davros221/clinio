@@ -55,14 +55,17 @@ const cs: TranslationKeys = {
         [ErrorCode.APPOINTMENT_SLOT_TAKEN]: "Tento termín je již obsazen",
         [ErrorCode.APPOINTMENT_OUTSIDE_HOURS]:
           "Termín je mimo ordinační hodiny",
-        [ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED]:
-          "E-mail z Google účtu není ověřený",
-        [ErrorCode.PATIENT_PROFILE_INCOMPLETE]:
-          "Profil pacienta není kompletní",
+        [ErrorCode.GOOGLE_EMAIL_NOT_VERIFIED]: "Google e-mail není ověřen",
+        [ErrorCode.PATIENT_PROFILE_INCOMPLETE]: "Profil pacienta není úplný",
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Zdravotní záznam nebyl nalezen",
-        [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
-          "Rezervace již byla dokončena",
+        [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]: "Rezervace je již dokončena",
       } satisfies Record<ErrorCode, string>),
+    },
+    confirmModal: {
+      title: "Opravdu chcete pokračovat?",
+      message: "Tato akce je nevratná.",
+      confirm: "Smazat",
+      cancel: "Zrušit",
     },
     forbidden: "Zakázáno",
     forbiddenMessage: "Nemáte oprávnění přistoupit na tuto stránku.",
@@ -140,6 +143,7 @@ const cs: TranslationKeys = {
     },
     notification: {
       createSuccess: "Rezervace byla vytvořena",
+      deleteSuccess: "Rezervace byla smazána",
     },
   },
   login: {
