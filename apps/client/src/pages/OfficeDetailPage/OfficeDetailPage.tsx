@@ -45,6 +45,7 @@ export function OfficeDetailPage() {
     handleSave,
     handleAddStaff,
     handleRemoveStaff,
+    watchedStaffIds,
     handleRoleChange,
     setSelectedUserId,
   } = useOfficeDetailForm(office, editing, isNew, stopEdit);
@@ -119,7 +120,7 @@ export function OfficeDetailPage() {
             <OfficeDetailPersonnel
               editing={editing}
               users={users}
-              staffIds={office?.staffIds ?? []}
+              staffIds={editing ? watchedStaffIds : office?.staffIds ?? []}
               selectedRole={selectedRole}
               selectedUserId={selectedUserId}
               roleSelectData={roleSelectData}

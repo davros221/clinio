@@ -47,6 +47,7 @@ export function useOfficeDetailForm(
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [addressValue, setAddressValue] = useState("");
+  const [watchedStaffIds, setWatchedStaffIds] = useState<string[]>([]);
   const [mapPosition, setMapPosition] = useState<{
     lon: number;
     lat: number;
@@ -98,6 +99,9 @@ export function useOfficeDetailForm(
   // Must be called at top level — `form.watch` uses hooks internally.
   form.watch("address", ({ value }) => {
     setAddressValue(value);
+  });
+  form.watch("staffIds", ({ value }) => {
+    setWatchedStaffIds(value);
   });
   const [debouncedAddress] = useDebouncedValue(addressValue, DEBOUNCE_MS);
   const { data: suggestions = [] } = useAddressSuggestQuery(
@@ -222,14 +226,14 @@ export function useOfficeDetailForm(
   };
 
   const userSelectData = useMemo(() => {
-    const { staffIds } = form.getValues();
     return users
       .filter(
         (u) =>
-          !staffIds.includes(u.id) && (!selectedRole || u.role === selectedRole)
+          !watchedStaffIds.includes(u.id) &&
+          (!selectedRole || u.role === selectedRole)
       )
       .map((u) => ({ value: u.id, label: `${u.firstName} ${u.lastName}` }));
-  }, [users, selectedRole]);
+  }, [users, selectedRole, watchedStaffIds]);
 
   return {
     form,
@@ -246,6 +250,7 @@ export function useOfficeDetailForm(
     handleSave,
     handleAddStaff,
     handleRemoveStaff,
+    watchedStaffIds,
     handleRoleChange,
     setSelectedUserId,
   };

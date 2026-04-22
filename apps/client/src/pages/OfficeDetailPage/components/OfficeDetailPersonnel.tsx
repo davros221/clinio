@@ -8,7 +8,6 @@ import {
   Title,
 } from "@mantine/core";
 import { useT } from "@hooks";
-import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeModal/ManageOfficeFormContext";
 import { User } from "@clinio/api";
 
 type Props = {
@@ -39,7 +38,6 @@ export function OfficeDetailPersonnel({
   staffIds,
 }: Props) {
   const t = useT();
-  const form = useManageOfficeFormContext();
 
   const staffMembers = staffIds
     .map((id) => users.find((u) => u.id === id))
@@ -91,7 +89,7 @@ export function OfficeDetailPersonnel({
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {form.getValues().staffIds.map((staffId, index) => {
+            {staffIds.map((staffId, index) => {
               const member = users.find((u) => u.id === staffId);
               if (!member) return null;
               return (

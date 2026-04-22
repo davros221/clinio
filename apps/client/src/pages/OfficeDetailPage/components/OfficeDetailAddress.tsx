@@ -35,6 +35,7 @@ export function OfficeDetailAddress({
           <>
             <Autocomplete
               key={form.key("address")}
+              aria-label={t("office.overview.officesListHeader.address")}
               placeholder={t(
                 "office.createOfficeModal.fields.addressPlaceholder"
               )}

@@ -1,5 +1,5 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { MapPreview } from "../MapPreview";
 import { useGetOfficeListQuery } from "@api";
 import {
@@ -50,16 +50,16 @@ function OfficeHoursSummary({
 
 function OfficeCard({ office }: { office: Office }) {
   const t = useT();
-  const navigate = useNavigate();
 
   return (
     <Card
+      component={Link}
+      to={ROUTER_PATHS.OFFICE_DETAIL_ID(office.id)}
       shadow="sm"
       padding="lg"
       radius="md"
       withBorder
       className={classes.card}
-      onClick={() => navigate(ROUTER_PATHS.OFFICE_DETAIL_ID(office.id))}
     >
       <Stack justify="space-between" h="100%" className={classes.cardContent}>
         <Group>

@@ -17,6 +17,7 @@ import {
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
+import { UserRole } from "@clinio/shared";
 
 export const routes: RouteObject[] = [
   {
@@ -62,8 +63,13 @@ export const routes: RouteObject[] = [
                 element: <OfficesOverview />,
               },
               {
-                path: ROUTER_PATHS.OFFICE_NEW,
-                element: <OfficeDetailPage />,
+                element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.OFFICE_NEW,
+                    element: <OfficeDetailPage />,
+                  },
+                ],
               },
               {
                 path: ROUTER_PATHS.OFFICE_DETAIL,

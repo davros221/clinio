@@ -1,5 +1,7 @@
 .card {
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
