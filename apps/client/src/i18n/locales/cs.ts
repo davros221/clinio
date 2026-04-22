@@ -8,6 +8,8 @@ const cs: TranslationKeys = {
       delete: "Smazat",
       cancel: "Zrušit",
       activate: "Aktivovat",
+      back: "Zpět",
+      edit: "Upravit",
     },
     appName: "ClinIO",
     auth: {

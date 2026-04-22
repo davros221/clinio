@@ -7,6 +7,8 @@ const en = {
       delete: "Delete",
       cancel: "Cancel",
       activate: "Activate",
+      back: "Back",
+      edit: "Edit",
     },
     appName: "ClinIO",
     auth: {
