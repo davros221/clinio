@@ -1,12 +1,14 @@
 import { memo } from "react";
-import { Box, Group, Stack, Title } from "@mantine/core";
-import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
+import { useNavigate } from "react-router";
+import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { OfficesOverviewOfficesTable } from "./OfficesOverviewOfficesTable.tsx";
+import { ROUTER_PATHS } from "../../router/routes.ts";
 
 function OfficesOverviewComponent() {
   const t = useT();
   const { isAdmin } = useUserRole();
+  const navigate = useNavigate();
 
   return (
     <Box>
@@ -14,7 +16,11 @@ function OfficesOverviewComponent() {
         <Group justify="space-between">
           <Title order={1}>{t("office.overview.title")}</Title>
 
-          {isAdmin && <ManageOfficeModalOpenBtn />}
+          {isAdmin && (
+            <Button onClick={() => navigate(ROUTER_PATHS.OFFICE_NEW)}>
+              {t("office.createOfficeModal.title.create")}
+            </Button>
+          )}
         </Group>
 
         <OfficesOverviewOfficesTable />
