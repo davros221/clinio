@@ -88,15 +88,9 @@ export type Patient = {
     userId: string;
     firstName: string;
     lastName: string;
-    birthNumber?: {
-        [key: string]: unknown;
-    } | null;
-    birthdate?: {
-        [key: string]: unknown;
-    } | null;
-    phone?: {
-        [key: string]: unknown;
-    } | null;
+    birthNumber?: string | null;
+    birthdate?: string | null;
+    phone?: string | null;
     email: string;
 };
 
@@ -778,6 +772,43 @@ export type CreateAppointmentResponses = {
 };
 
 export type CreateAppointmentResponse = CreateAppointmentResponses[keyof CreateAppointmentResponses];
+
+export type DeleteAppointmentData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/appointments/{id}';
+};
+
+export type DeleteAppointmentErrors = {
+    /**
+     * Appointment already completed
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Appointment not found
+     */
+    404: unknown;
+    /**
+     * Internal Server Error
+     */
+    500: unknown;
+};
+
+export type DeleteAppointmentResponses = {
+    /**
+     * Appointment deleted
+     */
+    204: void;
+};
+
+export type DeleteAppointmentResponse = DeleteAppointmentResponses[keyof DeleteAppointmentResponses];
 
 export type GetAppointmentByIdData = {
     body?: never;

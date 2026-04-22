@@ -279,6 +279,7 @@ describe("MedicalRecordService", () => {
       patientRepo.findOne.mockResolvedValue(mockPatient);
       recordRepo.create.mockReturnValue(mockRecord);
       recordRepo.save.mockResolvedValue(mockRecord);
+      recordRepo.findOne.mockResolvedValue(mockRecord);
 
       const result = await service.create(
         mockPatient.id,
@@ -293,6 +294,21 @@ describe("MedicalRecordService", () => {
         createdBy: doctorUser.id,
       });
       expect(recordRepo.save).toHaveBeenCalledWith(mockRecord);
+      expect(recordRepo.findOne).toHaveBeenCalledWith({
+        where: { id: mockRecord.id },
+        relations: ["creator"],
+      });
+    });
+
+    it("should throw InternalServerErrorException when re-fetch after save fails", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      recordRepo.create.mockReturnValue(mockRecord);
+      recordRepo.save.mockResolvedValue(mockRecord);
+      recordRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.create(mockPatient.id, createDto, doctorUser)
+      ).rejects.toThrow(InternalServerErrorException);
     });
 
     it("should throw NotFoundException when patient does not exist", async () => {

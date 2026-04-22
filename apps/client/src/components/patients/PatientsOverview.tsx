@@ -4,6 +4,7 @@ import { useT, useUser } from "@hooks";
 import { CreateUserModal } from "../user/CreateUserModal/CreateUserModal.tsx";
 import { DataTable } from "../DataTable";
 import { usePatientOverview } from "./usePatientOverview.ts";
+import { useStaffOverview } from "./useStaffOverview.ts";
 
 export function PatientsOverview() {
   const t = useT();
@@ -12,6 +13,7 @@ export function PatientsOverview() {
   const isAdmin = user?.role === "ADMIN";
   const mode = isAdmin ? "staff" : "patient";
   const { patientOverviewTableOptions } = usePatientOverview();
+  const { staffOverviewTableOptions } = useStaffOverview();
 
   return (
     <Box>
@@ -23,7 +25,11 @@ export function PatientsOverview() {
           </Button>
         </Group>
 
-        <DataTable {...patientOverviewTableOptions} />
+        {isAdmin ? (
+          <DataTable {...staffOverviewTableOptions} />
+        ) : (
+          <DataTable {...patientOverviewTableOptions} />
+        )}
       </Stack>
 
       <CreateUserModal

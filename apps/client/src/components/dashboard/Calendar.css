@@ -11,25 +11,25 @@
 
 /* Week navigation ─────────────────────────────────────────────────────────*/
 
-.weekNav {
+.calendar__week-nav {
   position: relative;
 }
 
-.todayBtn {
+.calendar__today-btn {
   position: absolute;
   right: 0;
 }
 
 /* Wrapper ─────────────────────────────────────────────────────────────────*/
 
-:global(.calendar) {
+.calendar {
   width: 100%;
   padding-bottom: var(--mantine-spacing-xl);
 }
 
 /* Table ─────────────────────────────────────────────────────────────────*/
 
-:global(.week-table) {
+.week-table {
   border: var(--cal-border-outer);
   border-radius: var(--mantine-radius-md);
   overflow: hidden;
@@ -38,45 +38,45 @@
 
 /* Header ─────────────────────────────────────────────────────────────────*/
 
-:global(.week-table__header) {
+.week-table__header {
   display: grid;
   grid-template-columns: 48px repeat(5, 1fr);
   border-bottom: var(--cal-border-outer);
 }
 
-:global(.week-table__header-corner) {
+.week-table__header-corner {
   background: var(--cal-header-bg);
   border-right: var(--cal-border);
 }
 
-:global(.week-table__header-cell) {
+.week-table__header-cell {
   background: var(--cal-header-bg);
   text-align: center;
   padding: var(--mantine-spacing-xs) 4px;
   border-right: var(--cal-border);
 }
 
-:global(.week-table__header-cell) .mantine-Text-root {
+.week-table__header-cell .mantine-Text-root {
   color: var(--mantine-color-dark-9);
 }
 
-:global(.week-table__header-cell:last-child) {
+.week-table__header-cell:last-child {
   border-right: none;
 }
 
 /* Body ────────────────────────────────────────────────────────────────────*/
 
-:global(.week-table__body) {
+.week-table__body {
   display: grid;
   grid-template-columns: 48px repeat(5, 1fr);
 }
 
-:global(.week-table__time-axis) {
+.week-table__time-axis {
   display: flex;
   flex-direction: column;
 }
 
-:global(.week-table__hour-label) {
+.week-table__hour-label {
   height: var(--cal-slot-height);
   border-bottom: var(--cal-border);
   border-right: var(--cal-border);
@@ -89,39 +89,44 @@
   color: var(--mantine-color-text);
 }
 
-:global(.week-table__day-col) {
+.week-table__day-col {
   position: relative;
   border-right: var(--cal-border);
 }
 
-:global(.week-table__day-col:last-child) {
+.week-table__day-col:last-child {
   border-right: none;
 }
 
-:global(.week-table__hour-row) {
+.week-table__hour-row {
   height: var(--cal-slot-height);
   border-bottom: var(--cal-border);
 }
 
 /* 30 minutes slots ───────────────────────────────────────────────────────*/
 
-:global(.week-table__half-slot) {
+.week-table__half-slot {
   height: var(--cal-half-slot);
   background: var(--cal-slot-bg);
   transition: background-color 0.1s;
 }
 
-:global(.week-table__half-slot--bottom) {
+.week-table__half-slot--bottom {
   border-bottom: 1px solid var(--mantine-color-gray-3);
 }
 
-:global(.week-table__half-slot--over) {
+.week-table__half-slot--over {
   background: var(--mantine-color-blue-light);
+}
+
+.week-table__half-slot--closed {
+  background: var(--mantine-color-gray-1);
+  cursor: not-allowed;
 }
 
 /* Appointments ─────────────────────────────────────────────────────────────────*/
 
-:global(.week-table__appt) {
+.week-table__appt {
   position: absolute;
   left: 2px;
   right: 2px;
@@ -144,18 +149,18 @@
   color: var(--appt-color);
 }
 
-:global(.week-table__appt:hover) {
+.week-table__appt:hover {
   opacity: 0.85;
 }
 
-:global(.week-table__appt-room) {
+.week-table__appt-room {
   font-size: 10px;
   opacity: 0.75;
 }
 
 /* DragOverlay ─────────────────────────────────────────────────────────────*/
 
-:global(.week-table__drag-overlay) {
+.week-table__drag-overlay {
   padding: 2px var(--mantine-spacing-xs);
   font-size: var(--mantine-font-size-xs);
   font-weight: 500;
@@ -166,7 +171,7 @@
   opacity: 0.95;
 }
 
-:global(.week-table__drag-overlay-room) {
+.week-table__drag-overlay-room {
   font-size: 10px;
   opacity: 0.75;
 }

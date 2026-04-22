@@ -7,6 +7,8 @@ import {
   setMinutes,
   getHours,
   getMinutes,
+  getISODay,
+  parseISO,
 } from "date-fns";
 
 export class DateUtils {
@@ -14,8 +16,8 @@ export class DateUtils {
    * Returns the Monday of the week offset by the given number of weeks
    * @param offset
    */
-  public static getWeekStart(offset: number): Date {
-    return startOfWeek(addWeeks(new Date(), offset), { weekStartsOn: 1 });
+  public static getWeekStart(offset: number, anchor: Date = new Date()): Date {
+    return startOfWeek(addWeeks(anchor, offset), { weekStartsOn: 1 });
   }
 
   /**
@@ -41,6 +43,13 @@ export class DateUtils {
   }
 
   /**
+   * Formats a Date to "yyyy-MM-dd" using local time (avoids UTC offset issues)
+   */
+  public static toIsoDate(d: Date): string {
+    return format(d, "yyyy-MM-dd");
+  }
+
+  /**
    * Converts "HH:MM" to minutes since midnight
    * @param time
    */
@@ -60,5 +69,19 @@ export class DateUtils {
       minutes % 60
     );
     return format(date, "HH:mm");
+  }
+
+  /**
+   * Returns the ISO weekday index (0 = Monday, 6 = Sunday) from a "yyyy-MM-dd" string
+   */
+  public static isoWeekday(dateStr: string): number {
+    return getISODay(parseISO(dateStr)) - 1;
+  }
+
+  /**
+   * Adds the given number of weeks to a timestamp and returns a new timestamp
+   */
+  public static addWeeks(timestamp: number, weeks: number): number {
+    return addWeeks(timestamp, weeks).getTime();
   }
 }

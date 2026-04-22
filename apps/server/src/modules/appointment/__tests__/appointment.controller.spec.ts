@@ -45,12 +45,13 @@ const mockAppointmentService = () => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  remove: jest.fn(),
 });
 
 describe("AppointmentController", () => {
   let controller: AppointmentController;
   let service: jest.Mocked<
-    Pick<AppointmentService, "findAll" | "findById" | "create">
+    Pick<AppointmentService, "findAll" | "findById" | "create" | "remove">
   >;
 
   beforeEach(async () => {
@@ -228,6 +229,36 @@ describe("AppointmentController", () => {
 
       expect(result).toEqual(mockAppointmentDto);
       expect(service.create).toHaveBeenCalledWith(createDto, doctorUser);
+    });
+  });
+
+  describe("remove", () => {
+    it("should delegate to service and return void", async () => {
+      service.remove.mockResolvedValue(undefined);
+
+      const result = await controller.remove(mockAppointment.id, doctorUser);
+
+      expect(result).toBeUndefined();
+      expect(service.remove).toHaveBeenCalledWith(
+        mockAppointment.id,
+        doctorUser
+      );
+    });
+
+    it("should propagate NotFoundException from service", async () => {
+      service.remove.mockRejectedValue(appointmentNotFound());
+
+      await expect(
+        controller.remove("non-existent-id", doctorUser)
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should propagate ForbiddenException from service", async () => {
+      service.remove.mockRejectedValue(new ForbiddenException());
+
+      await expect(
+        controller.remove(mockAppointment.id, doctorUser)
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

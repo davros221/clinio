@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Button, Text, Group, Stack, Paper } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
@@ -10,67 +10,71 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { CalendarDay } from "@clinio/api";
 import { AppointmentCard } from "./AppointmentCard";
 import { AppointmentModal } from "./AppointmentModal";
 import { CalendarHeader } from "./CalendarHeader";
-import { CalendarLegend } from "./CalendarLegend";
 import { DroppableSlot } from "./DroppableSlot";
 import {
-  Appointment,
+  CalendarSlot,
   CAP_WORK_DAYS,
   HOURS,
   SLOT_HEIGHT,
-  ROOM_COLORS,
 } from "../utils/types";
-import classes from "./Calendar.module.css";
+import "./Calendar.css";
 import { useT } from "@hooks";
 import { DateUtils } from "@utils";
 
 type Props = {
-  appointments: Appointment[];
-  // Callback when moving appointment by d&d — parent will provide API call
+  calendarDays: CalendarDay[];
+  officeName?: string;
   onAppointmentMove?: (id: string, day: number, start: string) => void;
+  weekTimestamp?: number;
+  onWeekTimestampChange?: (timestamp: number) => void;
 };
 
 /**
  * Responsive week-view calendar for scheduling appointments.
  * Supports drag-and-drop rescheduling, room color coding, and mobile single-day navigation.
  */
-export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
+export const Calendar = ({
+  calendarDays,
+  officeName = "",
+  onAppointmentMove,
+  weekTimestamp: weekTimestampProp,
+  onWeekTimestampChange,
+}: Props) => {
   const t = useT();
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedAppt, setSelectedAppt] = useState<Appointment | null>(null);
-  const [draggingAppt, setDraggingAppt] = useState<Appointment | null>(null);
+  const [weekTimestampInternal, setWeekTimestampInternal] = useState(() =>
+    Date.now()
+  );
+  const weekTimestamp = weekTimestampProp ?? weekTimestampInternal;
+  const setWeekTimestamp = (next: number) => {
+    setWeekTimestampInternal(next);
+    onWeekTimestampChange?.(next);
+  };
+
+  const [selectedAppt, setSelectedAppt] = useState<CalendarSlot | null>(null);
+  const [draggingAppt, setDraggingAppt] = useState<CalendarSlot | null>(null);
   const [mobileDayIdx, setMobileDayIdx] = useState(0);
 
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const weekStart = useMemo(
-    () => DateUtils.getWeekStart(weekOffset),
-    [weekOffset]
-  );
+  // All days share the same hour range — take from first available weekday
+  const displayHours =
+    calendarDays.find((d) => d.day < 5)?.hours.map((h) => h.hour) ?? HOURS;
+  const gridStart = displayHours[0] * 60;
 
-  const weekEnd = useMemo(() => {
-    const d = new Date(weekStart);
-    d.setDate(weekStart.getDate() + 4);
-    return d;
-  }, [weekStart]);
-
-  // Recalculated only when isMobile or mobileDayIdx changes
-  const visibleDayIndices = useMemo(
-    () => (isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4]),
-    [isMobile, mobileDayIdx]
-  );
-
-  // Start of grid in minutes — never changes
-  const gridStart = useMemo(() => HOURS[0] * 60, []);
+  const weekStart = DateUtils.getWeekStart(0, new Date(weekTimestamp));
+  const weekEnd = DateUtils.getWeekDay(weekStart, 4);
+  const visibleDayIndices = isMobile ? [mobileDayIdx] : [0, 1, 2, 3, 4];
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setDraggingAppt(event.active.data.current?.appt as Appointment);
+    setDraggingAppt(event.active.data.current?.appt as CalendarSlot);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -89,16 +93,17 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
       isNaN(minute) ||
       dayIdx < 0 ||
       dayIdx > 4 ||
-      hour < 7 ||
-      hour > 17 ||
+      hour < displayHours[0] ||
+      hour > displayHours[displayHours.length - 1] ||
       (minute !== 0 && minute !== 30)
     )
       return;
 
-    const newDay = dayIdx + 1;
-    const newStart = DateUtils.minutesToTime(hour * 60 + minute);
-
-    onAppointmentMove?.(String(active.id), newDay, newStart);
+    onAppointmentMove?.(
+      String(active.id),
+      dayIdx + 1,
+      DateUtils.minutesToTime(hour * 60 + minute)
+    );
   };
 
   return (
@@ -117,11 +122,13 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
         }
       >
         {/* Week Navigation */}
-        <Group justify="center" gap="xs" className={classes.weekNav}>
+        <Group justify="center" gap="xs" className="calendar__week-nav">
           <Button
             variant="default"
             size="xs"
-            onClick={() => setWeekOffset((o) => o - 1)}
+            onClick={() =>
+              setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, -1))
+            }
           >
             ←
           </Button>
@@ -132,15 +139,25 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
           <Button
             variant="default"
             size="xs"
-            onClick={() => setWeekOffset((o) => o + 1)}
+            onClick={() =>
+              setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, 1))
+            }
           >
             →
           </Button>
           <Button
             variant="subtle"
             size="xs"
-            onClick={() => setWeekOffset(0)}
-            className={classes.todayBtn}
+            className="calendar__today-btn"
+            onClick={() => {
+              setWeekTimestamp(Date.now());
+              setMobileDayIdx(
+                Math.min(
+                  DateUtils.isoWeekday(DateUtils.toIsoDate(new Date())),
+                  4
+                )
+              );
+            }}
           >
             {t("calendar.today")}
           </Button>
@@ -186,83 +203,94 @@ export const Calendar = ({ appointments, onAppointmentMove }: Props) => {
           >
             {/* Time Axis */}
             <div className="week-table__time-axis">
-              {HOURS.map((hour) => (
+              {displayHours.map((hour) => (
                 <div key={hour} className="week-table__hour-label">
                   {hour}:00
                 </div>
               ))}
             </div>
 
-            {/* Days - columns */}
+            {/* Day columns */}
             {visibleDayIndices.map((dayIdx) => {
-              const dayAppts = appointments.filter((a) => a.day === dayIdx + 1);
+              const day = calendarDays.find((d) => d.day === dayIdx);
               return (
                 <div key={dayIdx} className="week-table__day-col">
-                  {/* Half-hour droppable slots */}
-                  {HOURS.map((hour) => (
-                    <div key={hour} className="week-table__hour-row">
-                      <DroppableSlot dayIdx={dayIdx} hour={hour} minute={0} />
-                      <DroppableSlot dayIdx={dayIdx} hour={hour} minute={30} />
+                  {/* Droppable slots */}
+                  {day?.hours.map((slot) => (
+                    <div key={slot.hour} className="week-table__hour-row">
+                      <DroppableSlot
+                        dayIdx={dayIdx}
+                        hour={slot.hour}
+                        minute={0}
+                        closed={slot.state === "CLOSED"}
+                      />
+                      <DroppableSlot
+                        dayIdx={dayIdx}
+                        hour={slot.hour}
+                        minute={30}
+                        closed={slot.state === "CLOSED"}
+                      />
                     </div>
                   ))}
 
-                  {/* Appointments */}
-                  {dayAppts.map((appt) => {
-                    const top =
-                      ((DateUtils.timeToMinutes(appt.start) - gridStart) / 60) *
-                      SLOT_HEIGHT;
-                    const height = (appt.duration / 60) * SLOT_HEIGHT;
-                    return (
-                      <AppointmentCard
-                        key={appt.id}
-                        appt={appt}
-                        top={top}
-                        height={height}
-                        onClick={() => setSelectedAppt(appt)}
-                      />
-                    );
-                  })}
+                  {/* Appointment cards */}
+                  {day?.hours
+                    .filter(
+                      (slot) => slot.state === "BOOKED" && slot.appointment
+                    )
+                    .map((slot) => {
+                      const appt: CalendarSlot = {
+                        id: slot.appointment!.id,
+                        patientName: slot.appointment!.patient
+                          ? `${slot.appointment!.patient.firstName} ${
+                              slot.appointment!.patient.lastName
+                            }`.trim()
+                          : "Pacient",
+                        room: officeName,
+                        start: `${String(slot.hour).padStart(2, "0")}:00`,
+                        duration: 60,
+                        day: dayIdx + 1,
+                        note: slot.appointment!.note,
+                      };
+                      return (
+                        <AppointmentCard
+                          key={slot.hour}
+                          appt={appt}
+                          top={
+                            ((slot.hour * 60 - gridStart) / 60) * SLOT_HEIGHT
+                          }
+                          height={SLOT_HEIGHT}
+                          onClick={() => setSelectedAppt(appt)}
+                        />
+                      );
+                    })}
                 </div>
               );
             })}
           </div>
         </div>
 
-        <CalendarLegend />
-
         {/* DragOverlay */}
         <DragOverlay>
-          {draggingAppt &&
-            (() => {
-              const colors = ROOM_COLORS[draggingAppt.room] ?? {
-                bg: "#e0e0e0",
-                text: "#333",
-              };
+          {draggingAppt && (
+            <Paper
+              shadow="md"
+              radius="sm"
+              className="week-table__drag-overlay"
+              style={{
+                background: "var(--mantine-color-blue-6)",
+                color: "var(--mantine-color-white)",
+                height: SLOT_HEIGHT - 2,
+              }}
+            >
+              <span>{draggingAppt.patientName}</span>
               <span className="week-table__drag-overlay-room">
-                {draggingAppt.start} · ord. {draggingAppt.roomNumber}
-              </span>;
-              const height = (draggingAppt.duration / 60) * SLOT_HEIGHT;
-              return (
-                <Paper
-                  shadow="md"
-                  radius="sm"
-                  className="week-table__drag-overlay"
-                  style={{
-                    background: colors.bg,
-                    color: colors.text,
-                    height: height - 2,
-                  }}
-                >
-                  <span>{draggingAppt.patientName}</span>
-                  <span className="week-table__drag-overlay-room">
-                    {draggingAppt.start} · ord. {draggingAppt.roomNumber}
-                  </span>
-                </Paper>
-              );
-            })()}
+                {draggingAppt.start} · {draggingAppt.room}
+              </span>
+            </Paper>
+          )}
         </DragOverlay>
 
-        {/* Modal */}
         <AppointmentModal
           appt={selectedAppt}
           onClose={() => setSelectedAppt(null)}

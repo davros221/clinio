@@ -9,20 +9,21 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { z } from "zod";
 import {
   AppointmentStatus,
-  UserRole,
   createAppointmentSchema,
   DAYS,
 } from "@clinio/shared";
 import { OfficeHoursTemplateDto } from "@clinio/api";
 import { useT, useUserRole } from "@hooks";
+import { DateUtils } from "@utils";
 import {
   useCreateAppointmentMutation,
+  useGetAppointmentListQuery,
   useGetOfficeListQuery,
-  useGetUsersQuery,
+  useGetPatientList,
 } from "@api";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
@@ -38,8 +39,7 @@ function getHoursForDate(
   date: string
 ): number[] {
   if (!officeHoursTemplate || !date) return [];
-  const [year, month, day] = date.split("-").map(Number);
-  const dayName = DAYS[(new Date(year, month - 1, day).getDay() + 6) % 7];
+  const dayName = DAYS[DateUtils.isoWeekday(date)];
   const intervals = officeHoursTemplate[dayName] ?? [];
   const hours: number[] = [];
   for (const { from, to } of intervals) {
@@ -62,14 +62,14 @@ type Props = {
 export function CreateAppointmentModal({ opened, onClose }: Props) {
   const t = useT();
   const { isStaff } = useUserRole();
+  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
   const { data: offices = [] } = useGetOfficeListQuery();
-  const { data: clientUsers = [] } = useGetUsersQuery(
-    [UserRole.CLIENT],
-    isStaff
-  );
+  const { data: patientData } = useGetPatientList();
+  const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
     mode: "uncontrolled",
@@ -81,7 +81,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       note: "",
     },
     validate: zod4Resolver(
-      isStaff
+      (isStaff
         ? formSchema.refine((d) => !!d.patientId, {
             path: ["patientId"],
             message: t("common.validation.required"),
@@ -90,26 +90,45 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
             (d) => !d.date || d.date >= new Date().toISOString().slice(0, 10),
             { path: ["date"], message: t("common.validation.datePast") }
           )
+      ).refine((d) => !!d.officeId, {
+        path: ["officeId"],
+        message: t("common.validation.required"),
+      })
     ),
   });
 
   const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));
 
-  const patientSelectData = clientUsers.map((u) => ({
-    value: u.id,
-    label: `${u.firstName} ${u.lastName}`,
+  const patientSelectData = patients.map((p) => ({
+    value: p.id,
+    label: `${p.firstName} ${p.lastName}`,
   }));
 
+  const { data: officeAppointments = [] } = useGetAppointmentListQuery(
+    selectedOfficeId ? { officeId: selectedOfficeId } : undefined,
+    !!selectedOfficeId
+  );
+
   const availableHours = useMemo(() => {
-    const values = form.getValues();
-    const selectedOffice = offices.find((o) => o.id === values.officeId);
+    if (!selectedOfficeId || !selectedDate) return [];
+    const selectedOffice = offices.find((o) => o.id === selectedOfficeId);
     if (!selectedOffice) return [];
+
     const hours = getHoursForDate(
       selectedOffice.officeHoursTemplate,
-      values.date
+      selectedDate
     );
-    return hours.map((h) => ({ value: String(h), label: `${h}:00` }));
-  }, [form.getValues().officeId, form.getValues().date, offices]);
+
+    const bookedHours = new Set(
+      officeAppointments
+        .filter((a) => a.date === selectedDate)
+        .map((a) => a.hour)
+    );
+
+    return hours
+      .filter((h) => !bookedHours.has(h))
+      .map((h) => ({ value: String(h), label: `${h}:00` }));
+  }, [selectedOfficeId, selectedDate, offices, officeAppointments]);
 
   const handleOfficeOrDateChange = () => {
     form.setFieldValue("hour", null);
@@ -118,7 +137,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
   const handleSubmit = (values: FormValues) => {
     createAppointment(
       {
-        officeId: values.officeId,
+        officeId: values.officeId!,
         patientId: values.patientId,
         date: values.date,
         hour: values.hour!,
@@ -128,6 +147,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       {
         onSuccess: () => {
           form.reset();
+          setSelectedOfficeId(null);
+          setSelectedDate(null);
           onClose();
         },
       }
@@ -136,6 +157,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
 
   const handleClose = () => {
     form.reset();
+    setSelectedOfficeId(null);
+    setSelectedDate(null);
     onClose();
   };
 
@@ -157,6 +180,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
             {...form.getInputProps("officeId")}
             onChange={(v) => {
               form.getInputProps("officeId").onChange(v);
+              setSelectedOfficeId(v);
               handleOfficeOrDateChange();
             }}
           />
@@ -182,6 +206,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
             {...form.getInputProps("date")}
             onChange={(e) => {
               form.getInputProps("date").onChange(e.currentTarget.value);
+              setSelectedDate(e.currentTarget.value || null);
               handleOfficeOrDateChange();
             }}
           />

@@ -9,6 +9,7 @@ const createQueryKeys = (entity: string) => ({
 export const addressKeys = createQueryKeys("addresses");
 export const suggestKeys = createQueryKeys("suggest");
 export const appointmentKeys = createQueryKeys("appointments");
+export const calendarKeys = createQueryKeys("calendar");
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
 export const patientKeys = createQueryKeys("patients");
