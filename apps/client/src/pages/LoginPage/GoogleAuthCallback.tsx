@@ -1,17 +1,18 @@
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AuthToken } from "@utils";
 import { authKeys } from "@api";
 import { ROUTER_PATHS } from "@router";
 
 export const GoogleAuthCallback = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    const token =
+      new URLSearchParams(window.location.hash.substring(1)).get("token") ??
+      new URLSearchParams(window.location.search).get("token");
 
     if (!token) {
       navigate(ROUTER_PATHS.LOGIN, { replace: true });
@@ -20,11 +21,18 @@ export const GoogleAuthCallback = () => {
 
     AuthToken.set(token);
 
-    // Remove token from URL so it doesn't stay in browser history
+    let cancelled = false;
+
     void queryClient.invalidateQueries({ queryKey: [authKeys.me] }).then(() => {
-      navigate(ROUTER_PATHS.HOME, { replace: true });
+      if (!cancelled) {
+        navigate(ROUTER_PATHS.HOME, { replace: true });
+      }
     });
-  }, [searchParams, navigate, queryClient]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, queryClient]);
 
   return null;
 };

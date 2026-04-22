@@ -119,6 +119,6 @@ export class AuthController {
     const returnTo = validateAllowedClientUrl(req.query.state, allowed);
     const target =
       returnTo ?? this.configService.getOrThrow<string>("client.url");
-    res.redirect(`${target}/auth/google/callback?token=${accessToken}`);
+    res.redirect(`${target}/auth/google/callback#token=${accessToken}`);
   }
 }
