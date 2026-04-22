@@ -147,7 +147,7 @@ describe("AuthController", () => {
 
       expect(service.googleLogin).toHaveBeenCalledWith(user);
       expect(res.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/google/callback?token=jwt-token"
+        "http://localhost:3000/auth/google/callback#token=jwt-token"
       );
     });
 
@@ -159,7 +159,7 @@ describe("AuthController", () => {
       controller.googleAuthCallback(req, res);
 
       expect(res.redirect).toHaveBeenCalledWith(
-        "https://clinio.cz/auth/google/callback?token=jwt-token"
+        "https://clinio.cz/auth/google/callback#token=jwt-token"
       );
     });
 
@@ -171,7 +171,7 @@ describe("AuthController", () => {
       controller.googleAuthCallback(req, res);
 
       expect(res.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/google/callback?token=jwt-token"
+        "http://localhost:3000/auth/google/callback#token=jwt-token"
       );
     });
   });
