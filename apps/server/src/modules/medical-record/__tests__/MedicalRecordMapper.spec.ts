@@ -50,11 +50,28 @@ describe("MedicalRecordMapper", () => {
       expect(dto).toEqual({
         id: mockEntity.id,
         patientId: mockEntity.patientId,
-        createdBy: mockEntity.createdBy,
+        creator: {
+          id: mockCreator.id,
+          firstName: mockCreator.firstName,
+          lastName: mockCreator.lastName,
+        },
         createdAt: mockEntity.createdAt,
         examinationSummary: mockEntity.examinationSummary,
         diagnosis: mockEntity.diagnosis,
       });
+    });
+
+    it("should expose only id, firstName, lastName from creator (no email/phone/role)", () => {
+      const dto = MedicalRecordMapper.toDto(mockEntity);
+
+      expect(dto.creator).not.toHaveProperty("email");
+      expect(dto.creator).not.toHaveProperty("password");
+      expect(dto.creator).not.toHaveProperty("role");
+      expect(Object.keys(dto.creator).sort()).toEqual([
+        "firstName",
+        "id",
+        "lastName",
+      ]);
     });
 
     it("should preserve null for optional text fields", () => {
