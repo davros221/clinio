@@ -1,7 +1,7 @@
 import { Paper, Table, Title } from "@mantine/core";
 import { useT } from "@hooks";
-import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeModal/ManageOfficeFormContext";
-import { ManageOfficeModalDayRow } from "../../../components/office/ManageOfficeModal/ManageOfficeModalDayRow.tsx";
+import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeForm/ManageOfficeFormContext";
+import { ManageOfficeFormDayRow } from "../../../components/office/ManageOfficeForm/ManageOfficeFormDayRow.tsx";
 import { DAYS } from "@clinio/shared";
 import { OfficeHoursTemplateDto } from "@clinio/api";
 import { ParseKeys } from "i18next";
@@ -16,24 +16,30 @@ export function OfficeDetailHours({ template, editing }: Props) {
   const form = useManageOfficeFormContext();
 
   return (
-    <Paper p="lg" radius="md" withBorder style={{ flex: "1 1 400px" }}>
+    <Paper
+      p="lg"
+      radius="md"
+      shadow="sm"
+      withBorder
+      style={{ flex: "1 1 400px" }}
+    >
       <Title order={4} mb="xs">
-        {t("office.createOfficeModal.sections.hours")}
+        {t("office.form.sections.hours")}
       </Title>
       {editing ? (
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>{t("office.createOfficeModal.table.open")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.day")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.from")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.to")}</Table.Th>
+              <Table.Th>{t("office.form.table.open")}</Table.Th>
+              <Table.Th>{t("office.form.table.day")}</Table.Th>
+              <Table.Th>{t("office.form.table.from")}</Table.Th>
+              <Table.Th>{t("office.form.table.to")}</Table.Th>
               <Table.Th />
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {form.getValues().days.map((day, index) => (
-              <ManageOfficeModalDayRow
+              <ManageOfficeFormDayRow
                 key={day.key}
                 index={index}
                 label={t(`common.time.daysShort.${day.key}` as ParseKeys)}
@@ -45,9 +51,9 @@ export function OfficeDetailHours({ template, editing }: Props) {
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>{t("office.createOfficeModal.table.day")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.from")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.to")}</Table.Th>
+              <Table.Th>{t("office.form.table.day")}</Table.Th>
+              <Table.Th>{t("office.form.table.from")}</Table.Th>
+              <Table.Th>{t("office.form.table.to")}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>

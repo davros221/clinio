@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useDebouncedValue } from "@mantine/hooks";
 import {
@@ -13,11 +13,11 @@ import {
   DEFAULT_INTERVAL,
   type DayEntryType,
   type ManageOfficeFormValues,
-} from "../../components/office/ManageOfficeModal/ManageOfficeFormContext";
+} from "../../components/office/ManageOfficeForm/ManageOfficeFormContext";
 import { DAYS, UserRole } from "@clinio/shared";
 import { CreateOfficeDto, Office } from "@clinio/api";
 import { DEBOUNCE_MS } from "../../constants.ts";
-import { ROUTER_PATHS } from "../../router/routes.ts";
+import { ROUTER_PATHS } from "@router";
 import { CAP_WORK_DAYS, CAP_DAYS } from "../../components/utils/types.ts";
 
 const INITIAL_DAYS: DayEntryType[] = CAP_DAYS.map((day) => ({
@@ -25,6 +25,8 @@ const INITIAL_DAYS: DayEntryType[] = CAP_DAYS.map((day) => ({
   checked: CAP_WORK_DAYS.includes(day),
   intervals: [{ ...DEFAULT_INTERVAL }],
 }));
+
+export type OfficeDetailFormReturn = ReturnType<typeof useOfficeDetailForm>;
 
 export function useOfficeDetailForm(
   office: Office | null | undefined,
@@ -96,7 +98,8 @@ export function useOfficeDetailForm(
     },
   });
 
-  // Must be called at top level — `form.watch` uses hooks internally.
+  // `form.watch` uses `useEffect` internally, so it must be called at the
+  // top level of this hook — not inside another effect.
   form.watch("address", ({ value }) => {
     setAddressValue(value);
   });
@@ -113,54 +116,60 @@ export function useOfficeDetailForm(
     setMapPosition(match?.position ?? null);
   };
 
-  // Populate form when entering edit mode (existing office only).
   // `form` is omitted from deps intentionally — it is a stable ref (uncontrolled mode)
   // and including it would cause infinite re-render loops.
-  useEffect(() => {
-    if (editing && office && !isNew) {
-      const hours = office.officeHoursTemplate as Record<
-        string,
-        Array<{ from: number; to: number }>
-      > | null;
+  const populateFromOffice = useCallback(() => {
+    if (!office) return;
+    const hours = office.officeHoursTemplate as Record<
+      string,
+      Array<{ from: number; to: number }>
+    > | null;
 
-      const mappedDays = DAYS.map((day) => {
-        const dayIntervals = hours?.[day] ?? [];
-        if (dayIntervals.length === 0) {
-          return {
-            key: day,
-            checked: false,
-            intervals: [{ from: null, to: null }],
-          };
-        }
+    const mappedDays = DAYS.map((day) => {
+      const dayIntervals = hours?.[day] ?? [];
+      if (dayIntervals.length === 0) {
         return {
           key: day,
-          checked: true,
-          intervals: dayIntervals.map((slot) => ({
-            from: slot.from,
-            to: slot.to,
-          })),
+          checked: false,
+          intervals: [{ from: null, to: null }],
         };
-      });
+      }
+      return {
+        key: day,
+        checked: true,
+        intervals: dayIntervals.map((slot) => ({
+          from: slot.from,
+          to: slot.to,
+        })),
+      };
+    });
 
-      form.setValues({
-        name: office.name,
-        specialization: office.specialization,
-        address: office.address,
-        staffIds: office.staffIds,
-        days: mappedDays,
-      });
-      setMapPosition(null);
-    }
-  }, [editing, office, isNew]);
+    form.setValues({
+      name: office.name,
+      specialization: office.specialization,
+      address: office.address,
+      staffIds: office.staffIds,
+      days: mappedDays,
+    });
+    setMapPosition(null);
+  }, [office]);
+
+  // Populate form whenever office data loads or changes, but never while the
+  // user is mid-edit — otherwise a background refetch would wipe their edits.
+  useEffect(() => {
+    if (!office || isNew || editing) return;
+    populateFromOffice();
+  }, [office, isNew, editing, populateFromOffice]);
 
   const handleCancel = () => {
-    form.reset();
     setSelectedUserId(null);
     setSelectedRole(null);
     setMapPosition(null);
     if (isNew) {
       navigate(ROUTER_PATHS.OFFICES);
     } else {
+      // Flipping editing → false re-runs the populate effect, which rehydrates
+      // the form from the latest office data. No explicit reset needed here.
       stopEdit();
     }
   };
@@ -193,9 +202,9 @@ export function useOfficeDetailForm(
           });
         },
       });
-    } else {
+    } else if (office) {
       updateOffice(
-        { path: { id: office!.id }, body: dto },
+        { path: { id: office.id }, body: dto },
         { onSuccess: () => stopEdit() }
       );
     }

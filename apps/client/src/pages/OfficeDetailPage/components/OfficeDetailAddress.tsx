@@ -1,6 +1,6 @@
 import { Autocomplete, Paper, Stack, Text, Title } from "@mantine/core";
 import { useT } from "@hooks";
-import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeModal/ManageOfficeFormContext";
+import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeForm/ManageOfficeFormContext";
 import { MapPreview } from "../../../components/MapPreview";
 import { Office } from "@clinio/api";
 
@@ -22,11 +22,15 @@ export function OfficeDetailAddress({
   const t = useT();
   const form = useManageOfficeFormContext();
 
-  const mapStyle = { borderRadius: 8, minHeight: 200, maxHeight: 400 };
+  const mapStyle = {
+    borderRadius: "var(--mantine-radius-md)",
+    minHeight: 200,
+    maxHeight: 400,
+  };
   const address = form.getValues().address || office?.address || "";
 
   return (
-    <Paper p="lg" radius="md" withBorder>
+    <Paper p="lg" radius="md" shadow="sm" withBorder>
       <Stack gap="xs">
         <Title order={4}>
           {t("office.overview.officesListHeader.address")}
@@ -36,9 +40,7 @@ export function OfficeDetailAddress({
             <Autocomplete
               key={form.key("address")}
               aria-label={t("office.overview.officesListHeader.address")}
-              placeholder={t(
-                "office.createOfficeModal.fields.addressPlaceholder"
-              )}
+              placeholder={t("office.form.fields.addressPlaceholder")}
               {...form.getInputProps("address")}
               data={suggestions.map((s) => `${s.name}, ${s.location}`)}
               onOptionSubmit={onAddressSelect}

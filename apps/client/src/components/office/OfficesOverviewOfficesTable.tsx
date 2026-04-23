@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useT } from "@hooks";
 import { DAYS } from "@clinio/shared";
-import { ROUTER_PATHS } from "../../router/routes.ts";
+import { ROUTER_PATHS } from "@router";
 import classes from "./OfficesOverviewOfficesTable.module.css";
 
 function OfficeHoursSummary({

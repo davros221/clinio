@@ -7,6 +7,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { useMemo } from "react";
 import { useT } from "@hooks";
 import { User } from "@clinio/api";
 
@@ -39,29 +40,38 @@ export function OfficeDetailPersonnel({
 }: Props) {
   const t = useT();
 
-  const staffMembers = staffIds
-    .map((id) => users.find((u) => u.id === id))
-    .filter((u): u is User => !!u);
+  const staffMembers = useMemo(() => {
+    const usersById = new Map(users.map((u) => [u.id, u]));
+    return staffIds
+      .map((id) => usersById.get(id))
+      .filter((u): u is User => !!u);
+  }, [staffIds, users]);
 
   return (
-    <Paper p="lg" radius="md" withBorder style={{ flex: "1 1 400px" }}>
+    <Paper
+      p="lg"
+      radius="md"
+      shadow="sm"
+      withBorder
+      style={{ flex: "1 1 400px" }}
+    >
       <Title order={4} mb="xs">
-        {t("office.createOfficeModal.sections.personnel")}
+        {t("office.form.sections.personnel")}
       </Title>
 
       {editing && (
         <Group grow align="flex-end" mb="md" wrap="wrap">
           <Select
-            label={t("office.createOfficeModal.fields.role")}
-            placeholder={t("office.createOfficeModal.fields.rolePlaceholder")}
+            label={t("office.form.fields.role")}
+            placeholder={t("office.form.fields.rolePlaceholder")}
             data={roleSelectData}
             value={selectedRole}
             onChange={onRoleChange}
             clearable
           />
           <Select
-            label={t("office.createOfficeModal.fields.user")}
-            placeholder={t("office.createOfficeModal.fields.userPlaceholder")}
+            label={t("office.form.fields.user")}
+            placeholder={t("office.form.fields.userPlaceholder")}
             data={userSelectData}
             value={selectedUserId}
             onChange={onUserChange}
@@ -74,7 +84,7 @@ export function OfficeDetailPersonnel({
             disabled={!selectedUserId}
             onClick={onAddStaff}
           >
-            {t("office.createOfficeModal.table.add")}
+            {t("office.form.table.add")}
           </Button>
         </Group>
       )}
@@ -83,9 +93,9 @@ export function OfficeDetailPersonnel({
         <Table verticalSpacing="xs">
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>{t("office.createOfficeModal.fields.user")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.role")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.actions")}</Table.Th>
+              <Table.Th>{t("office.form.fields.user")}</Table.Th>
+              <Table.Th>{t("office.form.table.role")}</Table.Th>
+              <Table.Th>{t("office.form.table.actions")}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -105,7 +115,7 @@ export function OfficeDetailPersonnel({
                       size="xs"
                       onClick={() => onRemoveStaff(index)}
                     >
-                      {t("office.createOfficeModal.table.remove")}
+                      {t("office.form.table.remove")}
                     </Button>
                   </Table.Td>
                 </Table.Tr>
@@ -117,8 +127,8 @@ export function OfficeDetailPersonnel({
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>{t("office.createOfficeModal.fields.user")}</Table.Th>
-              <Table.Th>{t("office.createOfficeModal.table.role")}</Table.Th>
+              <Table.Th>{t("office.form.fields.user")}</Table.Th>
+              <Table.Th>{t("office.form.table.role")}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -134,7 +144,7 @@ export function OfficeDetailPersonnel({
         </Table>
       ) : (
         <Text c="dimmed" size="sm">
-          {t("common.noData")}
+          {t("office.form.noPersonnel")}
         </Text>
       )}
     </Paper>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import { Box, Button, Group, Stack, Title } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { OfficesOverviewOfficesTable } from "./OfficesOverviewOfficesTable.tsx";
-import { ROUTER_PATHS } from "../../router/routes.ts";
+import { ROUTER_PATHS } from "@router";
 
 function OfficesOverviewComponent() {
   const t = useT();
@@ -18,7 +18,7 @@ function OfficesOverviewComponent() {
 
           {isAdmin && (
             <Button onClick={() => navigate(ROUTER_PATHS.OFFICE_NEW)}>
-              {t("office.createOfficeModal.title.create")}
+              {t("office.form.title.create")}
             </Button>
           )}
         </Group>

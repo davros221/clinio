@@ -4,5 +4,7 @@ export * from "./PatientDetailPage/PatientDetailPage.tsx";
 export * from "./ActivateAccountPage/ActivateAccountPage.tsx";
 export * from "./ResetPassword/ResetPasswordPage.tsx";
 export * from "./ForbiddenPage.tsx";
-export * from "./OfficeDetailPage/OfficeDetailPage.tsx";
+export * from "./SettingsPage.tsx";
+export * from "./OfficeDetailPage/OfficeDetailLayout.tsx";
+export * from "./OfficeDetailPage/OfficeDetailContent.tsx";
 export * from "./dashboards";

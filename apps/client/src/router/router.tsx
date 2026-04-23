@@ -13,7 +13,9 @@ import {
   ActivateAccountPage,
   ResetPasswordPage,
   PatientDetailPage,
-  OfficeDetailPage,
+  OfficeDetailLayout,
+  OfficeDetailContent,
+  SettingsPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -67,13 +69,17 @@ export const routes: RouteObject[] = [
                 children: [
                   {
                     path: ROUTER_PATHS.OFFICE_NEW,
-                    element: <OfficeDetailPage />,
+                    element: <OfficeDetailLayout />,
+                    children: [
+                      { index: true, element: <OfficeDetailContent /> },
+                    ],
                   },
                 ],
               },
               {
                 path: ROUTER_PATHS.OFFICE_DETAIL,
-                element: <OfficeDetailPage />,
+                element: <OfficeDetailLayout />,
+                children: [{ index: true, element: <OfficeDetailContent /> }],
               },
               {
                 path: ROUTER_PATHS.APPOINTMENTS,
@@ -89,7 +95,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
-                element: <div>Settings - placeholder - TBD</div>, //
+                element: <SettingsPage />,
               },
             ],
           },
