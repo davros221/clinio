@@ -1,7 +1,7 @@
 import { Autocomplete, Paper, Stack, Text, Title } from "@mantine/core";
 import { useT } from "@hooks";
 import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeForm/ManageOfficeFormContext";
-import { MapPreview } from "../../../components/MapPreview";
+import { MapPreview } from "../../../components/common/MapPreview";
 import { Office } from "@clinio/api";
 
 type Props = {
