@@ -104,6 +104,29 @@ export class MedicalRecordService {
     return withRelations;
   }
 
+  async remove(
+    patientId: string,
+    id: string,
+    currentUser: AuthUser
+  ): Promise<void> {
+    await this.assertPatientAccess(patientId, currentUser);
+
+    const { isStaff } = AuthHelper.getRoles(currentUser);
+    if (!isStaff) {
+      throw forbidden();
+    }
+
+    const record = await this.medicalRecordRepository.findOne({
+      where: { id, patientId },
+    });
+
+    if (!record) {
+      throw medicalRecordNotFound();
+    }
+
+    await this.medicalRecordRepository.softDelete(id);
+  }
+
   private async assertPatientAccess(
     patientId: string,
     currentUser: AuthUser

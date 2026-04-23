@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   Index,
   JoinColumn,
@@ -47,4 +48,7 @@ export class MedicalRecordEntity {
 
   @Column({ type: "text", nullable: true })
   diagnosis!: string | null;
+
+  @DeleteDateColumn({ type: "timestamptz", nullable: true })
+  deletedAt!: Date | null;
 }
