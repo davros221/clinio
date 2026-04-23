@@ -10,6 +10,7 @@ const en = {
       back: "Back",
       edit: "Edit",
     },
+    comingSoon: "Coming soon",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Your account exists, but it's not activated yet",
@@ -159,7 +160,7 @@ const en = {
     signUp: "Sign Up",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Create new office",
         detail: "Office details",
@@ -195,6 +196,7 @@ const en = {
         cancel: "Cancel",
         submit: "Create",
       },
+      noPersonnel: "No personnel at the moment",
     },
     deleteModal: {
       title: "Delete office",

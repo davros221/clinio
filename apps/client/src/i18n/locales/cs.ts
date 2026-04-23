@@ -11,6 +11,7 @@ const cs: TranslationKeys = {
       back: "Zpět",
       edit: "Upravit",
     },
+    comingSoon: "Již brzy",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Váš účet existuje, ale ještě není aktivován",
@@ -159,7 +160,7 @@ const cs: TranslationKeys = {
     signUp: "Registrace",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Vytvořit novou ordinaci",
         detail: "Detail ordinace",
@@ -195,6 +196,7 @@ const cs: TranslationKeys = {
         cancel: "Zrušit",
         submit: "Vytvořit",
       },
+      noPersonnel: "Momentálně žádný personál",
     },
     deleteModal: {
       title: "Smazat ordinaci",

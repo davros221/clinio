@@ -1,5 +1,6 @@
 import { Button } from "@mantine/core";
 import { type To, useNavigate } from "react-router";
+import { MdChevronLeft } from "react-icons/md";
 import { useT } from "@hooks";
 
 type Props = {
@@ -12,9 +13,9 @@ export function BackButton({ to }: Props) {
 
   return (
     <Button
-      variant="subtle"
+      variant="outline"
       onClick={() => (to ? navigate(to) : navigate(-1))}
-      leftSection={<span>&lsaquo;</span>}
+      leftSection={<MdChevronLeft />}
     >
       {t("common.action.back")}
     </Button>
