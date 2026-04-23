@@ -37,7 +37,7 @@ export const useStaffOverview = () => {
       },
       {
         key: "role",
-        header: t("office.createOfficeModal.fields.role"),
+        header: t("office.form.fields.role"),
         render: (row) =>
           t(`user.roles.${row.role.toLowerCase() as Lowercase<UserRole>}`),
       },

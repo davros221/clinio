@@ -1,5 +1,6 @@
 export * from "./layers/RequireAuth.tsx";
 export * from "./layers/DashboardSwitch.tsx";
+export * from "./common/BackButton.tsx";
 export * from "./office";
 export * from "./patients";
 export * from "./appointments";

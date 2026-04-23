@@ -7,7 +7,10 @@ const en = {
       delete: "Delete",
       cancel: "Cancel",
       activate: "Activate",
+      back: "Back",
+      edit: "Edit",
     },
+    comingSoon: "Coming soon",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Your account exists, but it's not activated yet",
@@ -162,7 +165,7 @@ const en = {
     googleButton: "Continue with Google",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Create new office",
         detail: "Office details",
@@ -198,6 +201,7 @@ const en = {
         cancel: "Cancel",
         submit: "Create",
       },
+      noPersonnel: "No personnel at the moment",
     },
     deleteModal: {
       title: "Delete office",

@@ -1,3 +1,19 @@
+.card {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.card:active {
+  transform: scale(0.99);
+}
+
 .cardContent {
   flex: 1;
   min-width: 0;

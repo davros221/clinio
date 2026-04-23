@@ -15,9 +15,12 @@ import {
   PatientDetailPage,
   GoogleAuthCallback,
   SettingsPage,
+  OfficeDetailLayout,
+  OfficeDetailContent,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
+import { UserRole } from "@clinio/shared";
 
 export const routes: RouteObject[] = [
   {
@@ -65,6 +68,23 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.OFFICES,
                 element: <OfficesOverview />,
+              },
+              {
+                element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.OFFICE_NEW,
+                    element: <OfficeDetailLayout />,
+                    children: [
+                      { index: true, element: <OfficeDetailContent /> },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: ROUTER_PATHS.OFFICE_DETAIL,
+                element: <OfficeDetailLayout />,
+                children: [{ index: true, element: <OfficeDetailContent /> }],
               },
               {
                 path: ROUTER_PATHS.APPOINTMENTS,

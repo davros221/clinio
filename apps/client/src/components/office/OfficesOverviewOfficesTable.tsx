@@ -1,11 +1,10 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
-import { useCallback } from "react";
-import { MapPreview } from "../common/MapPreview.tsx";
-import { useDeleteOfficeMutation, useGetOfficeListQuery } from "@api";
+import { Link } from "react-router";
+import { MapPreview } from "../common/MapPreview";
+import { useGetOfficeListQuery } from "@api";
 import {
   Alert,
   Badge,
-  Button,
   Card,
   Group,
   Loader,
@@ -14,10 +13,9 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { modals } from "@mantine/modals";
-import { ManageOfficeModalOpenBtn } from "./ManageOfficeModal/ManageOfficeModalOpenBtn.tsx";
-import { useT, useUserRole } from "@hooks";
+import { useT } from "@hooks";
 import { DAYS } from "@clinio/shared";
+import { ROUTER_PATHS } from "@router";
 import classes from "./OfficesOverviewOfficesTable.module.css";
 
 function OfficeHoursSummary({
@@ -50,18 +48,19 @@ function OfficeHoursSummary({
   );
 }
 
-function OfficeCard({
-  office,
-  onDelete,
-}: {
-  office: Office;
-  onDelete: (id: string) => void;
-}) {
+function OfficeCard({ office }: { office: Office }) {
   const t = useT();
-  const { isAdmin } = useUserRole();
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Card
+      component={Link}
+      to={ROUTER_PATHS.OFFICE_DETAIL_ID(office.id)}
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      className={classes.card}
+    >
       <Stack justify="space-between" h="100%" className={classes.cardContent}>
         <Group>
           <Title size="lg">{office.name}</Title>
@@ -70,28 +69,13 @@ function OfficeCard({
           </Badge>
         </Group>
 
-        <Stack>
-          <Group>
-            <ManageOfficeModalOpenBtn officeId={office.id} />
-            {isAdmin && (
-              <Button
-                size="xs"
-                variant="outline"
-                color="red"
-                onClick={() => onDelete(office.id)}
-              >
-                {t("common.action.delete")}
-              </Button>
-            )}
-          </Group>
-
-          <Stack gap="none">
-            <Text size="sm" c="dimmed">
-              {t("office.overview.officesListHeader.address")}:
-            </Text>
-            <Text size="md">{office.address}</Text>
-          </Stack>
+        <Stack gap="none">
+          <Text size="sm" c="dimmed">
+            {t("office.overview.officesListHeader.address")}:
+          </Text>
+          <Text size="md">{office.address}</Text>
         </Stack>
+
         <Group h="100%" align="stretch" className={classes.body}>
           <Stack gap="4xs">
             <Text size="sm" c="dimmed">
@@ -119,24 +103,6 @@ export function OfficesOverviewOfficesTable() {
     isError,
     error,
   } = useGetOfficeListQuery();
-  const { mutate: deleteOffice } = useDeleteOfficeMutation();
-
-  const handleDelete = useCallback(
-    (id: string) => {
-      modals.openConfirmModal({
-        title: t("office.deleteModal.title"),
-        centered: true,
-        children: <Text size="sm">{t("office.deleteModal.message")}</Text>,
-        labels: {
-          confirm: t("office.deleteModal.confirm"),
-          cancel: t("office.deleteModal.cancel"),
-        },
-        confirmProps: { color: "red" },
-        onConfirm: () => deleteOffice({ path: { id } }),
-      });
-    },
-    [t, deleteOffice]
-  );
 
   if (isLoading) {
     return <Loader />;
@@ -151,9 +117,9 @@ export function OfficesOverviewOfficesTable() {
   }
 
   return (
-    <SimpleGrid cols={{ base: 2 }} spacing="lg">
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
       {offices.map((office) => (
-        <OfficeCard key={office.id} office={office} onDelete={handleDelete} />
+        <OfficeCard key={office.id} office={office} />
       ))}
     </SimpleGrid>
   );

@@ -8,7 +8,10 @@ const cs: TranslationKeys = {
       delete: "Smazat",
       cancel: "Zrušit",
       activate: "Aktivovat",
+      back: "Zpět",
+      edit: "Upravit",
     },
+    comingSoon: "Již brzy",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Váš účet existuje, ale ještě není aktivován",
@@ -162,7 +165,7 @@ const cs: TranslationKeys = {
     googleButton: "Pokračovat přes Google",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Vytvořit novou ordinaci",
         detail: "Detail ordinace",
@@ -198,6 +201,7 @@ const cs: TranslationKeys = {
         cancel: "Zrušit",
         submit: "Vytvořit",
       },
+      noPersonnel: "Momentálně žádný personál",
     },
     deleteModal: {
       title: "Smazat ordinaci",
