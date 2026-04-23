@@ -14,6 +14,7 @@ import {
 } from "@clinio/shared";
 import { MedicalRecordService } from "../medical-record.service";
 import { MedicalRecordEntity } from "../medical-record.entity";
+import { OfficeEntity } from "../../office/office.entity";
 import { PatientEntity } from "../../patient/patient.entity";
 import { UserEntity } from "../../user/user.entity";
 import { CreateMedicalRecordDto } from "../dto/create-medical-record.dto";
@@ -74,11 +75,23 @@ const mockRecord: MedicalRecordEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   patientId: mockPatient.id,
   patient: mockPatient,
+  officeId: null,
+  office: null,
   createdBy: doctorUser.id,
   creator: mockCreator,
   createdAt: new Date("2026-04-01T10:00:00Z"),
   examinationSummary: "Standard checkup",
   diagnosis: "Healthy",
+  deletedAt: null,
+};
+
+const mockOffice: OfficeEntity = {
+  id: "office-uuid-0001",
+  name: "Ordinace 1",
+  address: "Prague",
+  specialization: "GP",
+  officeHoursTemplate: null,
+  staff: [],
 };
 
 const defaultQuery = {
@@ -93,9 +106,14 @@ const mockMedicalRecordRepository = () => ({
   findAndCount: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  softDelete: jest.fn(),
 });
 
 const mockPatientRepository = () => ({
+  findOne: jest.fn(),
+});
+
+const mockOfficeRepository = () => ({
   findOne: jest.fn(),
 });
 
@@ -104,10 +122,11 @@ describe("MedicalRecordService", () => {
   let recordRepo: jest.Mocked<
     Pick<
       Repository<MedicalRecordEntity>,
-      "findOne" | "findAndCount" | "create" | "save"
+      "findOne" | "findAndCount" | "create" | "save" | "softDelete"
     >
   >;
   let patientRepo: jest.Mocked<Pick<Repository<PatientEntity>, "findOne">>;
+  let officeRepo: jest.Mocked<Pick<Repository<OfficeEntity>, "findOne">>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -121,12 +140,17 @@ describe("MedicalRecordService", () => {
           provide: getRepositoryToken(PatientEntity),
           useFactory: mockPatientRepository,
         },
+        {
+          provide: getRepositoryToken(OfficeEntity),
+          useFactory: mockOfficeRepository,
+        },
       ],
     }).compile();
 
     service = module.get<MedicalRecordService>(MedicalRecordService);
     recordRepo = module.get(getRepositoryToken(MedicalRecordEntity));
     patientRepo = module.get(getRepositoryToken(PatientEntity));
+    officeRepo = module.get(getRepositoryToken(OfficeEntity));
   });
 
   describe("findAllForPatient", () => {
@@ -143,7 +167,7 @@ describe("MedicalRecordService", () => {
       expect(result).toEqual({ items: [mockRecord], total: 1 });
       expect(recordRepo.findAndCount).toHaveBeenCalledWith({
         where: { patientId: mockPatient.id },
-        relations: ["patient", "patient.user", "creator"],
+        relations: ["patient", "patient.user", "creator", "office"],
         order: { createdAt: "DESC" },
         skip: 0,
         take: 20,
@@ -202,7 +226,7 @@ describe("MedicalRecordService", () => {
       expect(result).toEqual(mockRecord);
       expect(recordRepo.findOne).toHaveBeenCalledWith({
         where: { id: mockRecord.id, patientId: mockPatient.id },
-        relations: ["patient", "patient.user", "creator"],
+        relations: ["patient", "patient.user", "creator", "office"],
       });
     });
 
@@ -296,7 +320,7 @@ describe("MedicalRecordService", () => {
       expect(recordRepo.save).toHaveBeenCalledWith(mockRecord);
       expect(recordRepo.findOne).toHaveBeenCalledWith({
         where: { id: mockRecord.id },
-        relations: ["creator"],
+        relations: ["creator", "office"],
       });
     });
 
@@ -317,6 +341,119 @@ describe("MedicalRecordService", () => {
       await expect(
         service.create("missing", createDto, doctorUser)
       ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should create a record linked to an office when officeId is provided", async () => {
+      const dtoWithOffice: CreateMedicalRecordDto = {
+        ...createDto,
+        officeId: mockOffice.id,
+      };
+      const recordWithOffice: MedicalRecordEntity = {
+        ...mockRecord,
+        officeId: mockOffice.id,
+        office: mockOffice,
+      };
+
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      officeRepo.findOne.mockResolvedValue(mockOffice);
+      recordRepo.create.mockReturnValue(recordWithOffice);
+      recordRepo.save.mockResolvedValue(recordWithOffice);
+      recordRepo.findOne.mockResolvedValue(recordWithOffice);
+
+      const result = await service.create(
+        mockPatient.id,
+        dtoWithOffice,
+        doctorUser
+      );
+
+      expect(result).toEqual(recordWithOffice);
+      expect(officeRepo.findOne).toHaveBeenCalledWith({
+        where: { id: mockOffice.id },
+      });
+      expect(recordRepo.create).toHaveBeenCalledWith({
+        ...dtoWithOffice,
+        patientId: mockPatient.id,
+        createdBy: doctorUser.id,
+      });
+    });
+
+    it("should throw NotFoundException when provided office does not exist", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      officeRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.create(
+          mockPatient.id,
+          { ...createDto, officeId: "missing-office" },
+          doctorUser
+        )
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should not look up an office when officeId is omitted", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      recordRepo.create.mockReturnValue(mockRecord);
+      recordRepo.save.mockResolvedValue(mockRecord);
+      recordRepo.findOne.mockResolvedValue(mockRecord);
+
+      await service.create(mockPatient.id, createDto, doctorUser);
+
+      expect(officeRepo.findOne).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("remove", () => {
+    it("should soft delete the record for staff", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      recordRepo.findOne.mockResolvedValue(mockRecord);
+
+      await service.remove(mockPatient.id, mockRecord.id, doctorUser);
+
+      expect(recordRepo.findOne).toHaveBeenCalledWith({
+        where: { id: mockRecord.id, patientId: mockPatient.id },
+      });
+      expect(recordRepo.softDelete).toHaveBeenCalledWith(mockRecord.id);
+    });
+
+    it("should throw ForbiddenException when called by CLIENT", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+
+      await expect(
+        service.remove(mockPatient.id, mockRecord.id, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+      expect(recordRepo.softDelete).not.toHaveBeenCalled();
+    });
+
+    it("should forbid ADMIN from deleting medical records", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+
+      await expect(
+        service.remove(mockPatient.id, mockRecord.id, adminUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw NotFoundException when patient does not exist", async () => {
+      patientRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.remove("missing", mockRecord.id, doctorUser)
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should throw NotFoundException when record does not belong to patient", async () => {
+      patientRepo.findOne.mockResolvedValue(mockPatient);
+      recordRepo.findOne.mockResolvedValue(null);
+
+      try {
+        await service.remove(mockPatient.id, "missing", doctorUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect((error as NotFoundException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.MEDICAL_RECORD_NOT_FOUND,
+        });
+      }
+      expect(recordRepo.softDelete).not.toHaveBeenCalled();
     });
   });
 });

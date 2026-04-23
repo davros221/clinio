@@ -1,6 +1,6 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
 import { Link } from "react-router";
-import { MapPreview } from "../MapPreview";
+import { MapPreview } from "../common/MapPreview";
 import { useGetOfficeListQuery } from "@api";
 import {
   Alert,

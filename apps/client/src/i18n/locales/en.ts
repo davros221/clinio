@@ -91,6 +91,7 @@ const en = {
       datePast: "date cannot be in the past",
       dateFuture: "date cannot be in the future",
       birthNumberLength: "Birth number must be exactly 10 digits",
+      invalidBirthNumber: "Invalid birth number",
     },
   },
   component: {
@@ -108,6 +109,8 @@ const en = {
     staff: "Staff",
     settings: "Settings",
     logout: "Logout",
+    openMenu: "Open navigation menu",
+    closeMenu: "Close navigation menu",
   },
   appointment: {
     createModal: {
@@ -158,6 +161,8 @@ const en = {
     login: "Login",
     forgotPassword: "Forgot password",
     signUp: "Sign Up",
+    orDivider: "or",
+    googleButton: "Continue with Google",
   },
   office: {
     form: {
@@ -260,6 +265,11 @@ const en = {
       createSuccessTitle: "Done!",
       createSuccessMessage: "User was successfully created.",
     },
+  },
+  settings: {
+    onboardingWarningTitle: "Complete your profile",
+    onboardingWarningMessage:
+      "Please fill in all required fields below to get full access to the application.",
   },
   calendar: {
     today: "Today",

@@ -13,9 +13,10 @@ import {
   ActivateAccountPage,
   ResetPasswordPage,
   PatientDetailPage,
+  GoogleAuthCallback,
+  SettingsPage,
   OfficeDetailLayout,
   OfficeDetailContent,
-  SettingsPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -28,6 +29,10 @@ export const routes: RouteObject[] = [
       {
         path: ROUTER_PATHS.FORBIDDEN,
         element: <ForbiddenPage />,
+      },
+      {
+        path: ROUTER_PATHS.GOOGLE_AUTH_CALLBACK,
+        element: <GoogleAuthCallback />,
       },
       {
         element: <PublicLayout />,

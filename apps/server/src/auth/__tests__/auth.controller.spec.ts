@@ -17,8 +17,9 @@ const mockAuthService = () => ({
 
 const mockConfigService = () => ({
   getOrThrow: jest.fn((key: string) => {
-    const config: Record<string, string> = {
+    const config: Record<string, string | string[]> = {
       "client.url": "http://localhost:3000",
+      "client.allowedUrls": ["http://localhost:3000", "https://clinio.cz"],
     };
     return config[key];
   }),
@@ -120,22 +121,57 @@ describe("AuthController", () => {
   });
 
   describe("googleAuthCallback", () => {
-    it("should redirect to client URL with access token", () => {
-      const user = { id: "user-id" } as UserEntity;
-      const req = { user } as unknown as Parameters<
+    const buildReq = (
+      user: UserEntity,
+      state?: string
+    ): Parameters<typeof controller.googleAuthCallback>[0] =>
+      ({ user, query: state ? { state } : {} } as unknown as Parameters<
         typeof controller.googleAuthCallback
-      >[0];
-      const res = { redirect: jest.fn() } as unknown as Parameters<
-        typeof controller.googleAuthCallback
-      >[1];
+      >[0]);
 
+    const buildRes = (): {
+      redirect: jest.Mock;
+    } & Parameters<typeof controller.googleAuthCallback>[1] =>
+      ({ redirect: jest.fn() } as unknown as {
+        redirect: jest.Mock;
+      } & Parameters<typeof controller.googleAuthCallback>[1]);
+
+    const user = { id: "user-id" } as UserEntity;
+
+    it("redirects to client URL fallback when no state is provided", () => {
+      const req = buildReq(user);
+      const res = buildRes();
       service.googleLogin.mockReturnValue({ accessToken: "jwt-token" });
 
       controller.googleAuthCallback(req, res);
 
       expect(service.googleLogin).toHaveBeenCalledWith(user);
       expect(res.redirect).toHaveBeenCalledWith(
-        "http://localhost:3000/auth/google/callback?token=jwt-token"
+        "http://localhost:3000/auth/google/callback#token=jwt-token"
+      );
+    });
+
+    it("redirects to whitelisted state URL", () => {
+      const req = buildReq(user, "https://clinio.cz");
+      const res = buildRes();
+      service.googleLogin.mockReturnValue({ accessToken: "jwt-token" });
+
+      controller.googleAuthCallback(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(
+        "https://clinio.cz/auth/google/callback#token=jwt-token"
+      );
+    });
+
+    it("falls back to client URL when state is not whitelisted", () => {
+      const req = buildReq(user, "https://evil.com");
+      const res = buildRes();
+      service.googleLogin.mockReturnValue({ accessToken: "jwt-token" });
+
+      controller.googleAuthCallback(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(
+        "http://localhost:3000/auth/google/callback#token=jwt-token"
       );
     });
   });

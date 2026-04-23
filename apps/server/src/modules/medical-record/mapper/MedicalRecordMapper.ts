@@ -11,6 +11,9 @@ export class MedicalRecordMapper {
         firstName: entity.creator.firstName,
         lastName: entity.creator.lastName,
       },
+      office: entity.office
+        ? { id: entity.office.id, name: entity.office.name }
+        : null,
       createdAt: entity.createdAt,
       examinationSummary: entity.examinationSummary,
       diagnosis: entity.diagnosis,

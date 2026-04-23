@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { type MedicalRecordListQuery } from "@clinio/shared";
 import { MedicalRecordEntity } from "./medical-record.entity";
+import { OfficeEntity } from "../office/office.entity";
 import { PatientEntity } from "../patient/patient.entity";
 import { CreateMedicalRecordDto } from "./dto/create-medical-record.dto";
 import {
@@ -20,7 +21,9 @@ export class MedicalRecordService {
     @InjectRepository(MedicalRecordEntity)
     private medicalRecordRepository: Repository<MedicalRecordEntity>,
     @InjectRepository(PatientEntity)
-    private patientRepository: Repository<PatientEntity>
+    private patientRepository: Repository<PatientEntity>,
+    @InjectRepository(OfficeEntity)
+    private officeRepository: Repository<OfficeEntity>
   ) {}
 
   async findAllForPatient(
@@ -32,7 +35,7 @@ export class MedicalRecordService {
 
     const [items, total] = await this.medicalRecordRepository.findAndCount({
       where: { patientId },
-      relations: ["patient", "patient.user", "creator"],
+      relations: ["patient", "patient.user", "creator", "office"],
       order: { [query.sortBy]: query.sortOrder },
       skip: (query.page - 1) * query.limit,
       take: query.limit,
@@ -52,7 +55,7 @@ export class MedicalRecordService {
     try {
       record = await this.medicalRecordRepository.findOne({
         where: { id, patientId },
-        relations: ["patient", "patient.user", "creator"],
+        relations: ["patient", "patient.user", "creator", "office"],
       });
     } catch {
       throw internalError();
@@ -72,6 +75,15 @@ export class MedicalRecordService {
   ): Promise<MedicalRecordEntity> {
     await this.assertPatientAccess(patientId, currentUser);
 
+    if (dto.officeId) {
+      const office = await this.officeRepository.findOne({
+        where: { id: dto.officeId },
+      });
+      if (!office) {
+        throw notFound("Office");
+      }
+    }
+
     const entity = this.medicalRecordRepository.create({
       ...dto,
       patientId,
@@ -80,16 +92,39 @@ export class MedicalRecordService {
 
     const saved = await this.medicalRecordRepository.save(entity);
 
-    const withCreator = await this.medicalRecordRepository.findOne({
+    const withRelations = await this.medicalRecordRepository.findOne({
       where: { id: saved.id },
-      relations: ["creator"],
+      relations: ["creator", "office"],
     });
 
-    if (!withCreator) {
+    if (!withRelations) {
       throw internalError();
     }
 
-    return withCreator;
+    return withRelations;
+  }
+
+  async remove(
+    patientId: string,
+    id: string,
+    currentUser: AuthUser
+  ): Promise<void> {
+    await this.assertPatientAccess(patientId, currentUser);
+
+    const { isStaff } = AuthHelper.getRoles(currentUser);
+    if (!isStaff) {
+      throw forbidden();
+    }
+
+    const record = await this.medicalRecordRepository.findOne({
+      where: { id, patientId },
+    });
+
+    if (!record) {
+      throw medicalRecordNotFound();
+    }
+
+    await this.medicalRecordRepository.softDelete(id);
   }
 
   private async assertPatientAccess(

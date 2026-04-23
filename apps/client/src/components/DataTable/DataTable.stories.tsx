@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { ErrorCode } from "@clinio/shared";
-import { DataTable } from "./DataTable";
-import { DataTableColumn } from "./DataTable/DataTableProps";
+import { DataTable } from "./index";
+import { DataTableColumn } from "./DataTableProps";
 
 type SampleRow = {
   id: string;

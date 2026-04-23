@@ -2,6 +2,10 @@ export default () => ({
   port: parseInt(process.env.PORT || "8000", 10),
   client: {
     url: process.env.CLIENT_URL,
+    allowedUrls: (process.env.ALLOWED_CLIENT_URLS || "")
+      .split(",")
+      .map((u) => u.trim())
+      .filter(Boolean),
   },
   database: {
     host: process.env.DB_HOST,

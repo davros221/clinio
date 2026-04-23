@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
@@ -11,6 +14,7 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -130,5 +134,20 @@ export class MedicalRecordController {
       currentUser
     );
     return MedicalRecordMapper.toDto(entity);
+  }
+
+  @Delete(":id")
+  @Roles(UserRole.DOCTOR, UserRole.NURSE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ operationId: "deletePatientMedicalRecord" })
+  @ApiNoContentResponse({ description: "Medical record deleted" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Medical record not found" })
+  async remove(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("patientId", ParseUUIDPipe) patientId: string,
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<void> {
+    await this.medicalRecordService.remove(patientId, id, currentUser);
   }
 }

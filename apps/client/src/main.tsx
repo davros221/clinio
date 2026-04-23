@@ -9,6 +9,7 @@ import "@mantine/core/styles.css";
 // always import additional mantine styles after core styles to ensure proper theming
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
+import "react-international-phone/style.css";
 import "./index.css";
 
 setupZodErrorMap();
