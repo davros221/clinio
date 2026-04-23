@@ -7,7 +7,10 @@ const en = {
       delete: "Delete",
       cancel: "Cancel",
       activate: "Activate",
+      back: "Back",
+      edit: "Edit",
     },
+    comingSoon: "Coming soon",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Your account exists, but it's not activated yet",
@@ -88,6 +91,7 @@ const en = {
       datePast: "date cannot be in the past",
       dateFuture: "date cannot be in the future",
       birthNumberLength: "Birth number must be exactly 10 digits",
+      invalidBirthNumber: "Invalid birth number",
     },
   },
   component: {
@@ -157,9 +161,11 @@ const en = {
     login: "Login",
     forgotPassword: "Forgot password",
     signUp: "Sign Up",
+    orDivider: "or",
+    googleButton: "Continue with Google",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Create new office",
         detail: "Office details",
@@ -195,6 +201,7 @@ const en = {
         cancel: "Cancel",
         submit: "Create",
       },
+      noPersonnel: "No personnel at the moment",
     },
     deleteModal: {
       title: "Delete office",
@@ -258,6 +265,11 @@ const en = {
       createSuccessTitle: "Done!",
       createSuccessMessage: "User was successfully created.",
     },
+  },
+  settings: {
+    onboardingWarningTitle: "Complete your profile",
+    onboardingWarningMessage:
+      "Please fill in all required fields below to get full access to the application.",
   },
   calendar: {
     today: "Today",

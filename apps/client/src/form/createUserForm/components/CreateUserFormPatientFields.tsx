@@ -1,6 +1,7 @@
 import { useUserFormContext } from "@form";
 import { Stack, TextInput } from "@mantine/core";
 import { useT } from "@hooks";
+import { PhoneInputField } from "@components";
 
 export const CreateUserFormPatientFields = () => {
   const form = useUserFormContext();
@@ -16,9 +17,11 @@ export const CreateUserFormPatientFields = () => {
         label={t("patient.form.birthdate")}
         {...form.getInputProps("birthdate")}
       />
-      <TextInput
+      <PhoneInputField
         label={t("patient.form.phone")}
-        {...form.getInputProps("phone")}
+        value={form.getValues().phone ?? ""}
+        onChange={(phone) => form.setFieldValue("phone", phone)}
+        error={form.errors.phone as string}
       />
     </Stack>
   );

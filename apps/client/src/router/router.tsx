@@ -13,9 +13,14 @@ import {
   ActivateAccountPage,
   ResetPasswordPage,
   PatientDetailPage,
+  GoogleAuthCallback,
+  SettingsPage,
+  OfficeDetailLayout,
+  OfficeDetailContent,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
+import { UserRole } from "@clinio/shared";
 
 export const routes: RouteObject[] = [
   {
@@ -24,6 +29,10 @@ export const routes: RouteObject[] = [
       {
         path: ROUTER_PATHS.FORBIDDEN,
         element: <ForbiddenPage />,
+      },
+      {
+        path: ROUTER_PATHS.GOOGLE_AUTH_CALLBACK,
+        element: <GoogleAuthCallback />,
       },
       {
         element: <PublicLayout />,
@@ -61,6 +70,23 @@ export const routes: RouteObject[] = [
                 element: <OfficesOverview />,
               },
               {
+                element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.OFFICE_NEW,
+                    element: <OfficeDetailLayout />,
+                    children: [
+                      { index: true, element: <OfficeDetailContent /> },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: ROUTER_PATHS.OFFICE_DETAIL,
+                element: <OfficeDetailLayout />,
+                children: [{ index: true, element: <OfficeDetailContent /> }],
+              },
+              {
                 path: ROUTER_PATHS.APPOINTMENTS,
                 element: <AppointmentsOverview />,
               },
@@ -74,7 +100,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: ROUTER_PATHS.SETTINGS,
-                element: <div>Settings - placeholder - TBD</div>, //
+                element: <SettingsPage />,
               },
             ],
           },

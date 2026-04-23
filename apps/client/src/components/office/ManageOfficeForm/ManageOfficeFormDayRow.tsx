@@ -33,7 +33,7 @@ interface DayRowProps {
   label: string;
 }
 
-export const ManageOfficeModalDayRow = memo(({ index, label }: DayRowProps) => {
+export const ManageOfficeFormDayRow = memo(({ index, label }: DayRowProps) => {
   const form = useManageOfficeFormContext();
   // Uncontrolled mode doesn't trigger re-renders on value changes.
   // We need re-renders to recompute dependent options (e.g. "to" depends on "from"),

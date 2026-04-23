@@ -8,7 +8,10 @@ const cs: TranslationKeys = {
       delete: "Smazat",
       cancel: "Zrušit",
       activate: "Aktivovat",
+      back: "Zpět",
+      edit: "Upravit",
     },
+    comingSoon: "Již brzy",
     appName: "ClinIO",
     auth: {
       accountNotActive: "Váš účet existuje, ale ještě není aktivován",
@@ -88,6 +91,7 @@ const cs: TranslationKeys = {
       datePast: "datum nemůže být v minulosti",
       dateFuture: "datum nemůže být v budoucnosti",
       birthNumberLength: "Rodné číslo musí mít přesně 10 číslic",
+      invalidBirthNumber: "Neplatné rodné číslo",
     },
   },
   component: {
@@ -157,9 +161,11 @@ const cs: TranslationKeys = {
     submitButton: "Přihlásit se",
     forgotPassword: "Zapomenuté heslo",
     signUp: "Registrace",
+    orDivider: "nebo",
+    googleButton: "Pokračovat přes Google",
   },
   office: {
-    createOfficeModal: {
+    form: {
       title: {
         create: "Vytvořit novou ordinaci",
         detail: "Detail ordinace",
@@ -195,6 +201,7 @@ const cs: TranslationKeys = {
         cancel: "Zrušit",
         submit: "Vytvořit",
       },
+      noPersonnel: "Momentálně žádný personál",
     },
     deleteModal: {
       title: "Smazat ordinaci",
@@ -257,6 +264,11 @@ const cs: TranslationKeys = {
       createSuccessTitle: "Hotovo!",
       createSuccessMessage: "Uživatel byl úspěšně vytvořen.",
     },
+  },
+  settings: {
+    onboardingWarningTitle: "Dokončete svůj profil",
+    onboardingWarningMessage:
+      "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
   },
   calendar: {
     today: "Dnes",

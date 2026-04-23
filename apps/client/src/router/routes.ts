@@ -10,5 +10,9 @@ export const ROUTER_PATHS = {
   FORBIDDEN: "/forbidden",
   SETTINGS: "/settings",
   OFFICES: "/offices",
+  OFFICE_NEW: "/offices/new",
+  OFFICE_DETAIL: "/offices/:id",
+  OFFICE_DETAIL_ID: (id: string) => `/offices/${id}`,
   APPOINTMENTS: "/appointments",
+  GOOGLE_AUTH_CALLBACK: "/auth/google/callback",
 } as const;

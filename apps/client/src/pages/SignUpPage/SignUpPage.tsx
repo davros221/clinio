@@ -1,7 +1,7 @@
-import { Title, Box } from "@mantine/core";
+import { Title, Box, Divider } from "@mantine/core";
 import { useT } from "@hooks";
 import { useSignUpPage } from "./useSignUpPage.ts";
-import { AuthFooter, SubmitButton } from "@components";
+import { AuthFooter, GoogleAuthButton, SubmitButton } from "@components";
 import { CreateUserForm, UserFormProvider } from "@form";
 
 const FORM_ID = "createUserForm";
@@ -25,6 +25,10 @@ export const SignUpPage = () => {
       <SubmitButton type={"submit"} form={FORM_ID} loading={isPending}>
         {t("signUp.submitButton")}
       </SubmitButton>
+
+      <Divider my="sm" label={t("login.orDivider")} labelPosition="center" />
+
+      <GoogleAuthButton />
 
       <AuthFooter links={["login"]} />
     </Box>

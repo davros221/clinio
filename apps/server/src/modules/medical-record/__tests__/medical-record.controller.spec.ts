@@ -66,6 +66,7 @@ const mockRecord: MedicalRecordEntity = {
   createdAt: new Date("2026-04-01T10:00:00Z"),
   examinationSummary: "Standard checkup",
   diagnosis: "Healthy",
+  deletedAt: null,
 };
 
 const mockRecordDto = MedicalRecordMapper.toDto(mockRecord);
@@ -74,12 +75,16 @@ const mockMedicalRecordService = () => ({
   findAllForPatient: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  remove: jest.fn(),
 });
 
 describe("MedicalRecordController", () => {
   let controller: MedicalRecordController;
   let service: jest.Mocked<
-    Pick<MedicalRecordService, "findAllForPatient" | "findById" | "create">
+    Pick<
+      MedicalRecordService,
+      "findAllForPatient" | "findById" | "create" | "remove"
+    >
   >;
 
   beforeEach(async () => {
@@ -201,6 +206,39 @@ describe("MedicalRecordController", () => {
         createDto,
         doctorUser
       );
+    });
+  });
+
+  describe("remove", () => {
+    it("should delegate to service.remove and return void", async () => {
+      service.remove.mockResolvedValue(undefined);
+
+      const result = await controller.remove(
+        doctorUser,
+        mockPatient.id,
+        mockRecord.id
+      );
+
+      expect(result).toBeUndefined();
+      expect(service.remove).toHaveBeenCalledWith(
+        mockPatient.id,
+        mockRecord.id,
+        doctorUser
+      );
+    });
+
+    it("should propagate NotFoundException with MEDICAL_RECORD_NOT_FOUND code", async () => {
+      service.remove.mockRejectedValue(medicalRecordNotFound());
+
+      try {
+        await controller.remove(doctorUser, mockPatient.id, "missing");
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException);
+        expect((error as NotFoundException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.MEDICAL_RECORD_NOT_FOUND,
+        });
+      }
     });
   });
 });

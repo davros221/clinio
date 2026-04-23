@@ -52,6 +52,7 @@ const mockEntity: MedicalRecordEntity = {
   createdAt: new Date("2026-04-01T10:00:00Z"),
   examinationSummary: "Standard checkup",
   diagnosis: "Healthy",
+  deletedAt: null,
 };
 
 describe("MedicalRecordMapper", () => {
