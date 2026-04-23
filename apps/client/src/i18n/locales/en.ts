@@ -105,6 +105,8 @@ const en = {
     staff: "Staff",
     settings: "Settings",
     logout: "Logout",
+    openMenu: "Open navigation menu",
+    closeMenu: "Close navigation menu",
   },
   appointment: {
     createModal: {

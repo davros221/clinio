@@ -14,12 +14,14 @@ import { useMobileView } from "@hooks";
 import { StringUtils } from "@utils";
 import { Outlet, useLocation } from "react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./authLayout.module.css";
 
 export const AuthenticatedLayout = () => {
   const [opened, { toggle, close }] = useDisclosure();
   const isMobile = useMobileView();
   const { user } = useUser();
+  const { t } = useTranslation();
   const initials = StringUtils.getInitials(user?.firstName, user?.lastName);
   const location = useLocation();
 
@@ -27,6 +29,11 @@ export const AuthenticatedLayout = () => {
   useEffect(() => {
     close();
   }, [location.pathname, close]);
+
+  // Close mobile menu when crossing to desktop so the overlay can't get stranded
+  useEffect(() => {
+    if (!isMobile) close();
+  }, [isMobile, close]);
 
   // Close mobile menu on Escape
   useHotkeys(opened ? [["Escape", close]] : []);
@@ -61,6 +68,8 @@ export const AuthenticatedLayout = () => {
                 onClick={toggle}
                 size="sm"
                 color="white"
+                aria-label={t(opened ? "nav.closeMenu" : "nav.openMenu")}
+                aria-expanded={opened}
               />
             </Group>
           </div>
@@ -77,7 +86,7 @@ export const AuthenticatedLayout = () => {
         </AppShell.Main>
       </AppShell>
 
-      {opened && (
+      {isMobile && opened && (
         <Overlay
           backgroundOpacity={0.5}
           style={{ zIndex: "var(--z-backdrop)" }}

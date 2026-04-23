@@ -105,6 +105,8 @@ const cs: TranslationKeys = {
     staff: "Personál",
     settings: "Nastavení",
     logout: "Odhlásit se",
+    openMenu: "Otevřít navigační menu",
+    closeMenu: "Zavřít navigační menu",
   },
   appointment: {
     createModal: {
