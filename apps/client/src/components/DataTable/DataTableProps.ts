@@ -7,6 +7,8 @@ export type DataTableColumn<T> = {
   style?: CSSProperties;
 };
 
+export type DataTableRowClick<T> = (row: T) => void;
+
 export type DataTableAction<T> = {
   label: string;
   onClick: (row: T) => void;

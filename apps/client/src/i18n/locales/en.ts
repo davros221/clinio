@@ -106,6 +106,8 @@ const en = {
     staff: "Staff",
     settings: "Settings",
     logout: "Logout",
+    openMenu: "Open navigation menu",
+    closeMenu: "Close navigation menu",
   },
   appointment: {
     createModal: {
@@ -267,6 +269,40 @@ const en = {
   },
   calendar: {
     today: "Today",
+  },
+  medicalRecord: {
+    detailModal: {
+      title: "Medical Record Detail",
+    },
+    createModal: {
+      title: "New Medical Record",
+      fields: {
+        createdAt: "Date",
+        createdBy: "Created by",
+        examinationSummary: "Examination Summary",
+        examinationSummaryPlaceholder: "Brief description of the examination",
+        diagnosis: "Diagnosis",
+        diagnosisPlaceholder: "Diagnosis or conclusion",
+      },
+      buttons: {
+        cancel: "Cancel",
+        submit: "Create",
+      },
+    },
+    overview: {
+      createButton: "New Medical Record",
+      title: "Medical Records",
+      table: {
+        date: "Date",
+        createdBy: "Created by",
+        examinationSummary: "Examination Summary",
+        diagnosis: "Diagnosis",
+      },
+    },
+    notification: {
+      createSuccess: "Medical record created",
+      deleteSuccess: "Medical record deleted",
+    },
   },
   patient: {
     overview: {

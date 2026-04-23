@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import { AppointmentStatus } from "@clinio/shared";
 
 export class Appointment {
@@ -8,7 +8,7 @@ export class Appointment {
   @ApiProperty()
   officeId!: string;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiProperty({ nullable: true, type: String })
   patientId!: string | null;
 
   @ApiProperty()

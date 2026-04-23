@@ -1,4 +1,11 @@
 .card {
+  --mobile-header-inset: var(--mantine-spacing-xxxs);
+  --mobile-header-height: 48px;
+  --glass-blur: 10px;
+  --z-backdrop: 199;
+  --z-overlay: 200;
+  --z-header: 201;
+
   position: relative;
   width: 100dvw;
   height: 100dvh;
@@ -15,7 +22,13 @@
   position: absolute;
   top: 0;
   height: 100%;
-  background: var(--mantine-primary-color-7);
+}
+
+/* Desktop: solid sidebar background */
+@media (min-width: 48em) {
+  .card :global(.mantine-AppShell-navbar) {
+    background: var(--mantine-primary-color-7);
+  }
 }
 
 .card :global(.mantine-AppShell-main) {
@@ -23,6 +36,50 @@
   height: 100%;
   overflow: auto;
   scrollbar-color: var(--mantine-primary-color-9) transparent;
+}
+
+/* Mobile top bar — floats over content so backdrop-filter blurs the page beneath */
+.mobileHeader {
+  position: absolute;
+  top: var(--mobile-header-inset);
+  left: var(--mobile-header-inset);
+  right: var(--mobile-header-inset);
+  height: var(--mobile-header-height);
+  z-index: var(--z-header);
+  background: color-mix(
+    in srgb,
+    var(--mantine-primary-color-6) 70%,
+    transparent
+  );
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--mantine-radius-md);
+}
+
+/* Below Mantine "sm" breakpoint (48em - 1px) */
+@media (max-width: 47.9375em) {
+  .card :global(.mantine-AppShell-main) {
+    padding-top: calc(
+      var(--mobile-header-height) + var(--mobile-header-inset) * 2
+    );
+  }
+
+  .card :global(.mantine-AppShell-navbar) {
+    top: 0;
+    height: 100%;
+    padding-top: calc(
+      var(--mobile-header-height) + var(--mobile-header-inset) * 2
+    ) !important;
+    z-index: var(--z-overlay);
+    background: color-mix(
+      in srgb,
+      var(--mantine-primary-color-2) 50%,
+      transparent
+    );
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
 }
 
 @media (min-width: 992px) {

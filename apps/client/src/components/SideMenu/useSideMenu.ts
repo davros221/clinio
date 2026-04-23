@@ -5,12 +5,14 @@ import { ROUTER_PATHS } from "@router";
 import { UserRole } from "@clinio/shared";
 import { StringUtils } from "@utils";
 
-export const useSideMenu = () => {
+export const useSideMenu = (showUserInfo = true) => {
   const t = useT();
   const { logout, user } = useUser();
   const { isOnboardingClient } = useUserRole();
 
-  const initials = StringUtils.getInitials(user?.firstName, user?.lastName);
+  const initials = showUserInfo
+    ? StringUtils.getInitials(user?.firstName, user?.lastName)
+    : "";
   const userListTitle =
     user?.role === UserRole.ADMIN ? t("nav.staff") : t("nav.patients");
 
