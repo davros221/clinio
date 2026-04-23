@@ -20,6 +20,8 @@ import {
   UserRole,
 } from "@clinio/shared";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
+import { UpdateAppointmentDto } from "../dto/update-appointment.dto";
+import { RescheduleAppointmentDto } from "../dto/reschedule-appointment.dto";
 import { AuthUser } from "../../../auth/strategies/jwt.strategy";
 import { OfficeHoursTemplate } from "@clinio/shared";
 
@@ -623,6 +625,314 @@ describe("AppointmentService", () => {
       await service.remove(mockAppointment.id, doctorUser);
 
       expect(appointmentRepo.delete).toHaveBeenCalledWith(mockAppointment.id);
+    });
+  });
+
+  describe("update", () => {
+    const updateDto: UpdateAppointmentDto = {
+      note: "Updated note",
+    };
+
+    it("should update note for staff belonging to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.update(
+        mockAppointment.id,
+        updateDto,
+        doctorUser
+      );
+
+      expect(result.note).toBe("Updated note");
+      expect(appointmentRepo.save).toHaveBeenCalled();
+    });
+
+    it("should update status from PLANNED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.update(
+        mockAppointment.id,
+        { status: AppointmentStatus.COMPLETED },
+        doctorUser
+      );
+
+      expect(result.status).toBe(AppointmentStatus.COMPLETED);
+    });
+
+    it("should allow updating note even when appointment is COMPLETED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.COMPLETED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.update(
+        mockAppointment.id,
+        { note: "Post-visit notes" },
+        doctorUser
+      );
+
+      expect(result.note).toBe("Post-visit notes");
+    });
+
+    it("should throw when updating status on non-PLANNED appointment", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.COMPLETED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      try {
+        await service.update(
+          mockAppointment.id,
+          { status: AppointmentStatus.CANCELLED },
+          doctorUser
+        );
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_NOT_EDITABLE,
+        });
+      }
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.update("non-existent-id", updateDto, doctorUser)
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("should throw ForbiddenException for non-staff users", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+
+      await expect(
+        service.update(mockAppointment.id, updateDto, adminUser)
+      ).rejects.toThrow(ForbiddenException);
+      await expect(
+        service.update(mockAppointment.id, updateDto, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw ForbiddenException when staff does not belong to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+      officeRepo.findOne.mockResolvedValue({
+        ...mockOffice,
+        staff: [{ id: "other-doctor" }],
+      } as OfficeEntity);
+
+      await expect(
+        service.update(mockAppointment.id, updateDto, doctorUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe("reschedule", () => {
+    const rescheduleDto: RescheduleAppointmentDto = {
+      date: "2026-04-02",
+      hour: 14,
+    };
+
+    it("should reschedule appointment for staff", async () => {
+      appointmentRepo.findOne
+        .mockResolvedValueOnce({ ...mockAppointment }) // findByIdOrThrow
+        .mockResolvedValueOnce(null); // assertSlotAvailable
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.reschedule(
+        mockAppointment.id,
+        rescheduleDto,
+        doctorUser
+      );
+
+      expect(result.date).toBe("2026-04-02");
+      expect(result.hour).toBe(14);
+    });
+
+    it("should reschedule appointment for patient who owns it", async () => {
+      appointmentRepo.findOne
+        .mockResolvedValueOnce({ ...mockAppointment })
+        .mockResolvedValueOnce(null);
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.reschedule(
+        mockAppointment.id,
+        rescheduleDto,
+        clientUser
+      );
+
+      expect(result.date).toBe("2026-04-02");
+    });
+
+    it("should allow rescheduling to the same slot (excludes self from conflict check)", async () => {
+      appointmentRepo.findOne
+        .mockResolvedValueOnce({ ...mockAppointment })
+        .mockResolvedValueOnce({ ...mockAppointment }); // same appointment occupies the slot
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      await expect(
+        service.reschedule(mockAppointment.id, rescheduleDto, doctorUser)
+      ).resolves.toBeDefined();
+    });
+
+    it("should throw ConflictException when target slot is taken by another appointment", async () => {
+      appointmentRepo.findOne
+        .mockResolvedValueOnce({ ...mockAppointment })
+        .mockResolvedValueOnce({ ...mockAppointment, id: "other-id" });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      await expect(
+        service.reschedule(mockAppointment.id, rescheduleDto, doctorUser)
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it("should throw BadRequestException when new slot is outside office hours", async () => {
+      appointmentRepo.findOne.mockResolvedValueOnce({ ...mockAppointment });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      await expect(
+        service.reschedule(
+          mockAppointment.id,
+          { date: "2026-04-02", hour: 5 },
+          doctorUser
+        )
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should throw when appointment is not PLANNED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.CANCELLED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      try {
+        await service.reschedule(mockAppointment.id, rescheduleDto, doctorUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_NOT_EDITABLE,
+        });
+      }
+    });
+
+    it("should throw ForbiddenException for patient who does not own the appointment", async () => {
+      appointmentRepo.findOne.mockResolvedValueOnce({
+        ...mockAppointment,
+        patientId: "other-patient",
+      });
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+
+      await expect(
+        service.reschedule(mockAppointment.id, rescheduleDto, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.reschedule("non-existent-id", rescheduleDto, doctorUser)
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("cancel", () => {
+    it("should cancel appointment for staff belonging to the office", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.cancel(mockAppointment.id, doctorUser);
+
+      expect(result.status).toBe(AppointmentStatus.CANCELLED);
+    });
+
+    it("should cancel appointment for patient who owns it", async () => {
+      appointmentRepo.findOne.mockResolvedValue({ ...mockAppointment });
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+      appointmentRepo.save.mockImplementation(
+        async (entity) => entity as AppointmentEntity
+      );
+
+      const result = await service.cancel(mockAppointment.id, clientUser);
+
+      expect(result.status).toBe(AppointmentStatus.CANCELLED);
+    });
+
+    it("should throw when appointment is already CANCELLED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.CANCELLED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      try {
+        await service.cancel(mockAppointment.id, doctorUser);
+        fail("should have thrown");
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException);
+        expect((error as BadRequestException).getResponse()).toMatchObject({
+          errorCode: ErrorCode.APPOINTMENT_NOT_EDITABLE,
+        });
+      }
+    });
+
+    it("should throw when appointment is COMPLETED", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.COMPLETED,
+      });
+      officeRepo.findOne.mockResolvedValue(mockOffice as OfficeEntity);
+
+      await expect(
+        service.cancel(mockAppointment.id, doctorUser)
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should throw ForbiddenException for patient who does not own the appointment", async () => {
+      appointmentRepo.findOne.mockResolvedValue({
+        ...mockAppointment,
+        patientId: "other-patient",
+      });
+      patientRepo.findOne.mockResolvedValue(mockPatient as PatientEntity);
+
+      await expect(
+        service.cancel(mockAppointment.id, clientUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw NotFoundException when appointment not found", async () => {
+      appointmentRepo.findOne.mockResolvedValue(null);
+
+      await expect(
+        service.cancel("non-existent-id", doctorUser)
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
