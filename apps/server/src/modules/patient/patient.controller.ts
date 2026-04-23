@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -119,5 +122,14 @@ export class PatientController {
   ) {
     const entity = await this.patientService.update(id, dto, currentUser);
     return PatientMapper.toDto(entity);
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @CurrentUser() user: AuthUser,
+    @Param("id") id: string
+  ): Promise<void> {
+    await this.patientService.delete(id, user);
   }
 }

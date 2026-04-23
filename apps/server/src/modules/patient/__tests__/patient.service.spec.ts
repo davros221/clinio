@@ -67,6 +67,7 @@ describe("PatientService", () => {
           useValue: {
             findOne: jest.fn(),
             save: jest.fn(),
+            remove: jest.fn(),
             createQueryBuilder: jest.fn(),
           },
         },
@@ -222,6 +223,43 @@ describe("PatientService", () => {
     it("should throw an error if updating a non-existent patient", async () => {
       repository.findOne.mockResolvedValue(null);
       await expect(service.update("none", {}, doctorUser)).rejects.toThrow();
+    });
+  });
+
+  describe("delete", () => {
+    it("should remove the patient if authorized", async () => {
+      // Mock findOne to return the patient (simulating findById success)
+      repository.findOne.mockResolvedValue(mockPatient);
+      repository.remove.mockResolvedValue(mockPatient);
+
+      await service.delete(mockPatient.id, doctorUser);
+
+      expect(repository.remove).toHaveBeenCalledWith(mockPatient);
+    });
+
+    it("should allow client to delete own patient record", async () => {
+      repository.findOne.mockResolvedValue(mockPatient);
+      repository.remove.mockResolvedValue(mockPatient);
+
+      await service.delete(mockPatient.id, clientUser);
+
+      expect(repository.remove).toHaveBeenCalledWith(mockPatient);
+    });
+
+    it("should forbid client from deleting another patient record", async () => {
+      repository.findOne.mockResolvedValue(mockPatient);
+
+      await expect(
+        service.delete(mockPatient.id, otherClientUser)
+      ).rejects.toThrow(ForbiddenException);
+      expect(repository.remove).not.toHaveBeenCalled();
+    });
+
+    it("should throw an error if deleting a non-existent patient", async () => {
+      repository.findOne.mockResolvedValue(null);
+
+      await expect(service.delete("none", doctorUser)).rejects.toThrow();
+      expect(repository.remove).not.toHaveBeenCalled();
     });
   });
 });

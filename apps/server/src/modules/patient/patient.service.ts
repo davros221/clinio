@@ -83,6 +83,11 @@ export class PatientService {
     return this.patientRepository.save(patient);
   }
 
+  async delete(id: string, user: AuthUser): Promise<void> {
+    const patient = await this.findById(id, user);
+    await this.repository.remove(patient);
+  }
+
   private assertAccess(patient: PatientEntity, currentUser: AuthUser): void {
     const { isStaff } = AuthHelper.getRoles(currentUser);
     if (isStaff) return;
