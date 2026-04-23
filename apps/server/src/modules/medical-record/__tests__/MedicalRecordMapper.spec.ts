@@ -1,6 +1,7 @@
 import { UserRole } from "@clinio/shared";
 import { MedicalRecordMapper } from "../mapper/MedicalRecordMapper";
 import { MedicalRecordEntity } from "../medical-record.entity";
+import { OfficeEntity } from "../../office/office.entity";
 import { PatientEntity } from "../../patient/patient.entity";
 import { UserEntity } from "../../user/user.entity";
 
@@ -31,10 +32,21 @@ const mockCreator: UserEntity = {
   role: UserRole.DOCTOR,
 };
 
+const mockOffice: OfficeEntity = {
+  id: "office-uuid-0001",
+  name: "Ordinace 1",
+  address: "Prague",
+  specialization: "GP",
+  officeHoursTemplate: null,
+  staff: [],
+};
+
 const mockEntity: MedicalRecordEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   patientId: mockPatient.id,
   patient: mockPatient,
+  officeId: null,
+  office: null,
   createdBy: mockCreator.id,
   creator: mockCreator,
   createdAt: new Date("2026-04-01T10:00:00Z"),
@@ -55,10 +67,27 @@ describe("MedicalRecordMapper", () => {
           firstName: mockCreator.firstName,
           lastName: mockCreator.lastName,
         },
+        office: null,
         createdAt: mockEntity.createdAt,
         examinationSummary: mockEntity.examinationSummary,
         diagnosis: mockEntity.diagnosis,
       });
+    });
+
+    it("should map office to id + name when present", () => {
+      const entity: MedicalRecordEntity = {
+        ...mockEntity,
+        officeId: mockOffice.id,
+        office: mockOffice,
+      };
+
+      const dto = MedicalRecordMapper.toDto(entity);
+
+      expect(dto.office).toEqual({ id: mockOffice.id, name: mockOffice.name });
+    });
+
+    it("should return null office when entity has no office", () => {
+      expect(MedicalRecordMapper.toDto(mockEntity).office).toBeNull();
     });
 
     it("should expose only id, firstName, lastName from creator (no email/phone/role)", () => {

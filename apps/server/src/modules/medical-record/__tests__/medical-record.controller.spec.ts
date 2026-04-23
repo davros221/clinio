@@ -59,6 +59,8 @@ const mockRecord: MedicalRecordEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   patientId: mockPatient.id,
   patient: mockPatient,
+  officeId: null,
+  office: null,
   createdBy: doctorUser.id,
   creator: mockCreator,
   createdAt: new Date("2026-04-01T10:00:00Z"),
