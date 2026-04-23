@@ -1,6 +1,6 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
 import { useCallback } from "react";
-import { MapPreview } from "../MapPreview";
+import { MapPreview } from "../common/MapPreview.tsx";
 import { useDeleteOfficeMutation, useGetOfficeListQuery } from "@api";
 import {
   Alert,

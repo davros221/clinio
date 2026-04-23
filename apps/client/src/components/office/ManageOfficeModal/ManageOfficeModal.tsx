@@ -14,7 +14,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { DAYS, UserRole } from "@clinio/shared";
 import { CAP_WORK_DAYS, CAP_DAYS } from "../../utils/types.ts";
-import { MapPreview } from "../../MapPreview";
+import { MapPreview } from "../../common/MapPreview.tsx";
 import {
   useCreateOfficeMutation,
   useUpdateOfficeMutation,

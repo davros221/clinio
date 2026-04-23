@@ -7,7 +7,7 @@ interface SideMenuProps {
 }
 
 export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
-  const { navItems, initials, user } = useSideMenu(showUserInfo);
+  const { navItems, bottomItems, initials, user } = useSideMenu(showUserInfo);
 
   return (
     <Stack gap="xs" h="100%">
@@ -36,6 +36,12 @@ export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
         {navItems.map((item, i) => (
           <SideMenuItem key={i} {...item} />
         ))}
+
+        <Stack gap="xxs" mt="auto">
+          {bottomItems.map((item, i) => (
+            <SideMenuItem key={i} {...item} />
+          ))}
+        </Stack>
       </Stack>
     </Stack>
   );

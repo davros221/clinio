@@ -11,4 +11,5 @@ export const ROUTER_PATHS = {
   SETTINGS: "/settings",
   OFFICES: "/offices",
   APPOINTMENTS: "/appointments",
+  GOOGLE_AUTH_CALLBACK: "/auth/google/callback",
 } as const;

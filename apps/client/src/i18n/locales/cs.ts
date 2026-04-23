@@ -88,6 +88,7 @@ const cs: TranslationKeys = {
       datePast: "datum nemůže být v minulosti",
       dateFuture: "datum nemůže být v budoucnosti",
       birthNumberLength: "Rodné číslo musí mít přesně 10 číslic",
+      invalidBirthNumber: "Neplatné rodné číslo",
     },
   },
   component: {
@@ -157,6 +158,8 @@ const cs: TranslationKeys = {
     submitButton: "Přihlásit se",
     forgotPassword: "Zapomenuté heslo",
     signUp: "Registrace",
+    orDivider: "nebo",
+    googleButton: "Pokračovat přes Google",
   },
   office: {
     createOfficeModal: {
@@ -257,6 +260,11 @@ const cs: TranslationKeys = {
       createSuccessTitle: "Hotovo!",
       createSuccessMessage: "Uživatel byl úspěšně vytvořen.",
     },
+  },
+  settings: {
+    onboardingWarningTitle: "Dokončete svůj profil",
+    onboardingWarningMessage:
+      "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
   },
   calendar: {
     today: "Dnes",
