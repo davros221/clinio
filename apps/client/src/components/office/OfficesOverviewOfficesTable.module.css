@@ -14,11 +14,6 @@
   transform: scale(0.99);
 }
 
-.cardContent {
-  flex: 1;
-  min-width: 0;
-}
-
 .body {
   flex: 1;
 }
