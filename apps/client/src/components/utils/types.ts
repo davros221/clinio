@@ -2,6 +2,7 @@ import { DAYS } from "@clinio/shared";
 
 export type CalendarSlot = {
   id: string;
+  patientId: string | null;
   patientName: string;
   room: string;
   start: string;

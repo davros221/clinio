@@ -2,6 +2,7 @@ import {
   Button,
   Group,
   Modal,
+  Select,
   Stack,
   Textarea,
   TextInput,
@@ -14,7 +15,10 @@ import {
 } from "@clinio/shared";
 import { useT } from "@hooks";
 import { useUser } from "../../hooks/useUser";
-import { useCreatePatientMedicalRecordMutation } from "@api";
+import {
+  useCreatePatientMedicalRecordMutation,
+  useGetOfficeListQuery,
+} from "@api";
 
 type Props = {
   patientId: string;
@@ -31,13 +35,19 @@ export function CreateMedicalRecordModal({
   const { user } = useUser();
   const { mutate: createRecord, isPending } =
     useCreatePatientMedicalRecordMutation(patientId);
+  const { data: offices = [] } = useGetOfficeListQuery();
 
   const now = new Date().toLocaleString();
   const createdByName = user ? `${user.firstName} ${user.lastName}` : "";
 
+  const userOffices = offices
+    .filter((o) => user && o.staffIds.includes(user.id))
+    .map((o) => ({ value: o.id, label: o.name }));
+
   const form = useForm<CreateMedicalRecord>({
     mode: "uncontrolled",
     initialValues: {
+      officeId: userOffices.length === 1 ? userOffices[0].value : "",
       examinationSummary: "",
       diagnosis: "",
     },
@@ -47,6 +57,7 @@ export function CreateMedicalRecordModal({
   const handleSubmit = (values: CreateMedicalRecord) => {
     createRecord(
       {
+        officeId: values.officeId || undefined,
         examinationSummary: values.examinationSummary || undefined,
         diagnosis: values.diagnosis || undefined,
       },
@@ -84,6 +95,16 @@ export function CreateMedicalRecordModal({
             label={t("medicalRecord.createModal.fields.createdBy")}
             value={createdByName}
             readOnly
+          />
+
+          <Select
+            key={form.key("officeId")}
+            label={t("medicalRecord.createModal.fields.office")}
+            placeholder={t(
+              "medicalRecord.createModal.fields.officePlaceholder"
+            )}
+            data={userOffices}
+            {...form.getInputProps("officeId")}
           />
 
           <Textarea

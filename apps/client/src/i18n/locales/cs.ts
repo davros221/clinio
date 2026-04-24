@@ -62,6 +62,7 @@ const cs: TranslationKeys = {
         [ErrorCode.PATIENT_PROFILE_INCOMPLETE]: "Profil pacienta není úplný",
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Zdravotní záznam nebyl nalezen",
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]: "Rezervace je již dokončena",
+        [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Rezervaci nelze upravit",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -282,6 +283,8 @@ const cs: TranslationKeys = {
       fields: {
         createdAt: "Datum",
         createdBy: "Vytvořil",
+        office: "Ordinace",
+        officePlaceholder: "Vyberte ordinaci",
         examinationSummary: "Stručný popis",
         examinationSummaryPlaceholder:
           "Stručný popis průběhu vyšetření pacienta",
@@ -299,6 +302,7 @@ const cs: TranslationKeys = {
       table: {
         date: "Datum",
         createdBy: "Vytvořil",
+        office: "Ordinace",
         examinationSummary: "Stručný popis",
         diagnosis: "Diagnóza",
       },
@@ -311,6 +315,7 @@ const cs: TranslationKeys = {
   patient: {
     overview: {
       title: "Pacienti",
+      detail: "Detail pacienta",
     },
     form: {
       title: "Nový pacient",

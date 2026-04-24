@@ -241,6 +241,7 @@ export const Calendar = ({
                     .map((slot) => {
                       const appt: CalendarSlot = {
                         id: slot.appointment!.id,
+                        patientId: slot.appointment!.patient?.id ?? null,
                         patientName: slot.appointment!.patient
                           ? `${slot.appointment!.patient.firstName} ${
                               slot.appointment!.patient.lastName

@@ -62,6 +62,7 @@ const en = {
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Medical record not found",
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
           "Appointment is already completed",
+        [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Appointment cannot be edited",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -283,6 +284,8 @@ const en = {
       fields: {
         createdAt: "Date",
         createdBy: "Created by",
+        office: "Office",
+        officePlaceholder: "Select office",
         examinationSummary: "Examination Summary",
         examinationSummaryPlaceholder: "Brief description of the examination",
         diagnosis: "Diagnosis",
@@ -299,6 +302,7 @@ const en = {
       table: {
         date: "Date",
         createdBy: "Created by",
+        office: "Office",
         examinationSummary: "Examination Summary",
         diagnosis: "Diagnosis",
       },
@@ -311,6 +315,7 @@ const en = {
   patient: {
     overview: {
       title: "Patients",
+      detail: "Patient Detail",
     },
     form: {
       title: "New Patient",
