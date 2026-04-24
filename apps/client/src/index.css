@@ -1,8 +1,73 @@
 :root {
-  /* color variables */
-  --color-gradient-primary: linear-gradient(
-    160deg,
-    var(--mantine-primary-color-9) 0%,
-    var(--mantine-primary-color-2) 100%
+  /*
+   * App background: two soft primary-tinted "blobs" floating over a tinted
+   * neutral base. Designed to sit behind frosted-glass surfaces (.x-glass).
+   */
+  --color-gradient-primary: radial-gradient(
+      60rem 40rem at 8% -10%,
+      color-mix(in oklab, var(--mantine-primary-color-5) 65%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      50rem 35rem at 105% 110%,
+      color-mix(in oklab, var(--mantine-primary-color-3) 70%, transparent) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      160deg,
+      var(--mantine-primary-color-1) 0%,
+      var(--mantine-primary-color-2) 100%
+    );
+}
+
+[data-mantine-color-scheme="dark"] {
+  --color-gradient-primary: radial-gradient(
+      60rem 40rem at 8% -10%,
+      color-mix(in oklab, var(--mantine-primary-color-8) 45%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      50rem 35rem at 105% 110%,
+      color-mix(in oklab, var(--mantine-primary-color-9) 55%, transparent) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      160deg,
+      var(--mantine-color-dark-7) 0%,
+      var(--mantine-color-dark-8) 100%
+    );
+}
+
+/*
+ * Fills its parent's height and distributes children with space-between.
+ * Intended for the inner Stack/Group of a Card sitting in a grid of
+ * equal-height siblings.
+ */
+.x-flex-card {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  justify-content: space-between;
+}
+
+/*
+ * Frosted-glass surface. Pair with a Paper/Card sitting on top of the
+ * app background. Falls back to a solid translucent tint when the browser
+ * doesn't support backdrop-filter.
+ */
+.x-glass {
+  background: color-mix(in oklab, var(--mantine-color-body) 65%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid
+    color-mix(in oklab, var(--mantine-color-default-border) 55%, transparent);
+}
+
+[data-mantine-color-scheme="dark"] .x-glass {
+  background: color-mix(in oklab, var(--mantine-color-dark-6) 60%, transparent);
+  border-color: color-mix(
+    in oklab,
+    var(--mantine-color-dark-4) 55%,
+    transparent
   );
 }
