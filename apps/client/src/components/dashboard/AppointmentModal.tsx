@@ -1,4 +1,5 @@
 import { Modal, Stack, Badge, Group, Text, Button } from "@mantine/core";
+import { useNavigate } from "react-router";
 import { CalendarSlot, CAP_WORK_DAYS } from "../utils/types";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
@@ -15,6 +16,7 @@ type Props = {
 
 export const AppointmentModal = ({ appt, onClose }: Props) => {
   const { isStaff } = useUserRole();
+  const navigate = useNavigate();
   const { mutate: deleteAppointment } = useDeleteAppointmentMutation();
 
   const handleDelete = () => {
@@ -63,8 +65,21 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
             </Group>
           )}
 
+          {isStaff && appt.patientId && (
+            <Button
+              variant="light"
+              mt="xs"
+              onClick={() => {
+                onClose();
+                navigate(`/patients/${appt.patientId}`);
+              }}
+            >
+              {t("patient.overview.detail")}
+            </Button>
+          )}
+
           {isStaff && (
-            <Button color="red" variant="light" mt="xs" onClick={handleDelete}>
+            <Button color="red" variant="light" onClick={handleDelete}>
               {t("common.action.delete")}
             </Button>
           )}
