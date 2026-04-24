@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
+import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeletePatientMedicalRecordData, DeletePatientMedicalRecordErrors, DeletePatientMedicalRecordResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RescheduleAppointmentData, RescheduleAppointmentErrors, RescheduleAppointmentResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -184,6 +184,38 @@ export class AppointmentService {
             ...options
         });
     }
+    
+    public static updateAppointment<ThrowOnError extends boolean = false>(options: Options<UpdateAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<UpdateAppointmentResponses, UpdateAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static rescheduleAppointment<ThrowOnError extends boolean = false>(options: Options<RescheduleAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<RescheduleAppointmentResponses, RescheduleAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}/reschedule',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static cancelAppointment<ThrowOnError extends boolean = false>(options: Options<CancelAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<CancelAppointmentResponses, CancelAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}/cancel',
+            ...options
+        });
+    }
 }
 
 export class OfficeService {
@@ -273,6 +305,10 @@ export class MedicalRecordService {
                 ...options.headers
             }
         });
+    }
+    
+    public static deletePatientMedicalRecord<ThrowOnError extends boolean = false>(options: Options<DeletePatientMedicalRecordData, ThrowOnError>) {
+        return (options.client ?? client).delete<DeletePatientMedicalRecordResponses, DeletePatientMedicalRecordErrors, ThrowOnError>({ url: '/api/patients/{patientId}/medical-records/{id}', ...options });
     }
     
     public static getPatientMedicalRecordById<ThrowOnError extends boolean = false>(options: Options<GetPatientMedicalRecordByIdData, ThrowOnError>) {

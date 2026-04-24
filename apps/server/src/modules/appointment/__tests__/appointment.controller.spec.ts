@@ -4,6 +4,8 @@ import { AppointmentService } from "../appointment.service";
 import { AppointmentEntity } from "../appointment.entity";
 import { AppointmentMapper } from "../mapper/AppointmentMapper";
 import { CreateAppointmentDto } from "../dto/create-appointment.dto";
+import { UpdateAppointmentDto } from "../dto/update-appointment.dto";
+import { RescheduleAppointmentDto } from "../dto/reschedule-appointment.dto";
 import {
   AppointmentStatus,
   AppointmentSortField,
@@ -45,13 +47,25 @@ const mockAppointmentService = () => ({
   findAll: jest.fn(),
   findById: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
+  reschedule: jest.fn(),
+  cancel: jest.fn(),
   remove: jest.fn(),
 });
 
 describe("AppointmentController", () => {
   let controller: AppointmentController;
   let service: jest.Mocked<
-    Pick<AppointmentService, "findAll" | "findById" | "create" | "remove">
+    Pick<
+      AppointmentService,
+      | "findAll"
+      | "findById"
+      | "create"
+      | "update"
+      | "reschedule"
+      | "cancel"
+      | "remove"
+    >
   >;
 
   beforeEach(async () => {
@@ -229,6 +243,92 @@ describe("AppointmentController", () => {
 
       expect(result).toEqual(mockAppointmentDto);
       expect(service.create).toHaveBeenCalledWith(createDto, doctorUser);
+    });
+  });
+
+  describe("update", () => {
+    const updateDto: UpdateAppointmentDto = { note: "Updated" };
+
+    it("should delegate to service and return mapped DTO", async () => {
+      service.update.mockResolvedValue(mockAppointment);
+
+      const result = await controller.update(
+        mockAppointment.id,
+        updateDto,
+        doctorUser
+      );
+
+      expect(result).toEqual(mockAppointmentDto);
+      expect(service.update).toHaveBeenCalledWith(
+        mockAppointment.id,
+        updateDto,
+        doctorUser
+      );
+    });
+
+    it("should propagate NotFoundException from service", async () => {
+      service.update.mockRejectedValue(appointmentNotFound());
+
+      await expect(
+        controller.update("non-existent-id", updateDto, doctorUser)
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("reschedule", () => {
+    const rescheduleDto: RescheduleAppointmentDto = {
+      date: "2026-04-02",
+      hour: 14,
+    };
+
+    it("should delegate to service and return mapped DTO", async () => {
+      service.reschedule.mockResolvedValue(mockAppointment);
+
+      const result = await controller.reschedule(
+        mockAppointment.id,
+        rescheduleDto,
+        doctorUser
+      );
+
+      expect(result).toEqual(mockAppointmentDto);
+      expect(service.reschedule).toHaveBeenCalledWith(
+        mockAppointment.id,
+        rescheduleDto,
+        doctorUser
+      );
+    });
+
+    it("should propagate ForbiddenException from service", async () => {
+      service.reschedule.mockRejectedValue(new ForbiddenException());
+
+      await expect(
+        controller.reschedule(mockAppointment.id, rescheduleDto, doctorUser)
+      ).rejects.toThrow(ForbiddenException);
+    });
+  });
+
+  describe("cancel", () => {
+    it("should delegate to service and return mapped DTO", async () => {
+      service.cancel.mockResolvedValue({
+        ...mockAppointment,
+        status: AppointmentStatus.CANCELLED,
+      });
+
+      const result = await controller.cancel(mockAppointment.id, doctorUser);
+
+      expect(result.status).toBe(AppointmentStatus.CANCELLED);
+      expect(service.cancel).toHaveBeenCalledWith(
+        mockAppointment.id,
+        doctorUser
+      );
+    });
+
+    it("should propagate NotFoundException from service", async () => {
+      service.cancel.mockRejectedValue(appointmentNotFound());
+
+      await expect(
+        controller.cancel("non-existent-id", doctorUser)
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
