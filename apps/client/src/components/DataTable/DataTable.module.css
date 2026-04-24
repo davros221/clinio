@@ -17,11 +17,11 @@
 }
 
 .thead {
-  background: var(--mantine-color-blue-2);
-}
-
-[data-mantine-color-scheme="dark"] .thead {
-  background: var(--mantine-color-dark-6);
+  background: linear-gradient(
+      color-mix(in oklab, var(--mantine-color-body) 30%, transparent),
+      color-mix(in oklab, var(--mantine-color-body) 30%, transparent)
+    ),
+    var(--color-gradient-primary);
 }
 
 .th {
