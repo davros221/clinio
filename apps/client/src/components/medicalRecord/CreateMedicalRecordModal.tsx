@@ -40,14 +40,12 @@ export function CreateMedicalRecordModal({
   const now = new Date().toLocaleString();
   const createdByName = user ? `${user.firstName} ${user.lastName}` : "";
 
-  const userOffices = offices
-    .filter((o) => user && o.staffIds.includes(user.id))
-    .map((o) => ({ value: o.id, label: o.name }));
+  const userOffices = offices.map((o) => ({ value: o.id, label: o.name }));
 
   const form = useForm<CreateMedicalRecord>({
     mode: "uncontrolled",
     initialValues: {
-      officeId: userOffices.length === 1 ? userOffices[0].value : "",
+      officeId: undefined,
       examinationSummary: "",
       diagnosis: "",
     },
@@ -57,7 +55,7 @@ export function CreateMedicalRecordModal({
   const handleSubmit = (values: CreateMedicalRecord) => {
     createRecord(
       {
-        officeId: values.officeId || undefined,
+        officeId: values.officeId,
         examinationSummary: values.examinationSummary || undefined,
         diagnosis: values.diagnosis || undefined,
       },

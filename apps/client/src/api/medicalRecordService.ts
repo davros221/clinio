@@ -47,7 +47,7 @@ export const useCreatePatientMedicalRecordMutation = (patientId: string) => {
   });
 };
 
-export const useDeletePatientMedicalRecordMutation = (patientId: string) => {
+export const useDeletePatientMedicalRecordMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, Pick<DeletePatientMedicalRecordData, "path">>(
@@ -58,9 +58,9 @@ export const useDeletePatientMedicalRecordMutation = (patientId: string) => {
           throwOnError: true,
         });
       },
-      onSuccess: () => {
+      onSuccess: (_, { path }) => {
         queryClient.invalidateQueries({
-          queryKey: medicalRecordKeys.list({ patientId }),
+          queryKey: medicalRecordKeys.list({ patientId: path.patientId }),
         });
         notifySuccess(t("medicalRecord.notification.deleteSuccess"), "");
       },

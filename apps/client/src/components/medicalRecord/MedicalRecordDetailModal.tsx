@@ -20,7 +20,7 @@ type Props = {
 export function MedicalRecordDetailModal({ record, opened, onClose }: Props) {
   const t = useT();
   const { mutate: deleteRecord, isPending } =
-    useDeletePatientMedicalRecordMutation(record?.patientId ?? "");
+    useDeletePatientMedicalRecordMutation();
 
   if (!record) return null;
 
