@@ -62,7 +62,7 @@ export function OfficeDetailHeader({
         ) : (
           <Group wrap="wrap">
             <BackButton to={backTo} />
-            <Title order={2}>{office?.name}</Title>
+            <Title order={1}>{office?.name}</Title>
             <Badge variant="light" color="blue" size="lg">
               {office?.specialization}
             </Badge>

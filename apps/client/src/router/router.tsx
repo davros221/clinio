@@ -55,6 +55,7 @@ export const routes: RouteObject[] = [
           },
         ],
       },
+      // TODO: route needs to be refactored, the children should be nested in their parents not next to them
       {
         element: <RequireAuth />,
         children: [

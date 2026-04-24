@@ -10,7 +10,7 @@ export function OverviewHeader({ title, action }: Props) {
   return (
     <Paper p="lg" radius="md" shadow="sm" withBorder>
       <Group justify="space-between" wrap="wrap">
-        <Title order={2}>{title}</Title>
+        <Title order={1}>{title}</Title>
         {action}
       </Group>
     </Paper>

@@ -1,7 +1,7 @@
 :root {
   /*
    * App background: two soft primary-tinted "blobs" floating over a tinted
-   * neutral base. Designed to sit behind frosted-glass surfaces (.x-glass).
+   * neutral base.
    */
   --color-gradient-primary: radial-gradient(
       60rem 40rem at 8% -10%,
@@ -48,26 +48,4 @@
   min-width: 0;
   height: 100%;
   justify-content: space-between;
-}
-
-/*
- * Frosted-glass surface. Pair with a Paper/Card sitting on top of the
- * app background. Falls back to a solid translucent tint when the browser
- * doesn't support backdrop-filter.
- */
-.x-glass {
-  background: color-mix(in oklab, var(--mantine-color-body) 65%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid
-    color-mix(in oklab, var(--mantine-color-default-border) 55%, transparent);
-}
-
-[data-mantine-color-scheme="dark"] .x-glass {
-  background: color-mix(in oklab, var(--mantine-color-dark-6) 60%, transparent);
-  border-color: color-mix(
-    in oklab,
-    var(--mantine-color-dark-4) 55%,
-    transparent
-  );
 }
