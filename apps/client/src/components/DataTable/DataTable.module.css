@@ -1,12 +1,13 @@
+.paper {
+  overflow: hidden;
+}
+
 .scrollContainer {
   overflow: auto;
   position: relative;
 }
 
 .wrapper {
-  border-radius: var(--mantine-radius-md);
-  overflow: hidden;
-  border: 1px solid var(--mantine-color-default-border);
   min-width: max-content;
 }
 
