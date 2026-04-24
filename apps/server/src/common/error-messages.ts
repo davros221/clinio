@@ -126,3 +126,10 @@ export function appointmentAlreadyCompleted(): BadRequestException {
     message: "Completed appointment cannot be deleted",
   });
 }
+
+export function appointmentNotEditable(): BadRequestException {
+  return new BadRequestException({
+    errorCode: ErrorCode.APPOINTMENT_NOT_EDITABLE,
+    message: "Only planned appointments can be modified",
+  });
+}

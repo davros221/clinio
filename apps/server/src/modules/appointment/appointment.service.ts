@@ -7,8 +7,11 @@ import { AppointmentEntity } from "./appointment.entity";
 import { PatientEntity } from "../patient/patient.entity";
 import { OfficeEntity } from "../office/office.entity";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
+import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
+import { RescheduleAppointmentDto } from "./dto/reschedule-appointment.dto";
 import {
   appointmentAlreadyCompleted,
+  appointmentNotEditable,
   appointmentNotFound,
   appointmentOutsideHours,
   appointmentSlotTaken,
@@ -148,6 +151,79 @@ export class AppointmentService {
     return this.appointmentRepository.save(entity);
   }
 
+  async update(
+    id: string,
+    dto: UpdateAppointmentDto,
+    currentUser: AuthUser
+  ): Promise<AppointmentEntity> {
+    const appointment = await this.findByIdOrThrow(id);
+
+    const { isStaff } = AuthHelper.getRoles(currentUser);
+    if (!isStaff) {
+      throw forbidden();
+    }
+
+    await AuthHelper.assertStaffBelongsToOffice(
+      this.officeRepository,
+      currentUser.id,
+      appointment.officeId
+    );
+
+    if (
+      dto.status !== undefined &&
+      appointment.status !== AppointmentStatus.PLANNED
+    ) {
+      throw appointmentNotEditable();
+    }
+
+    Object.assign(appointment, dto);
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async reschedule(
+    id: string,
+    dto: RescheduleAppointmentDto,
+    currentUser: AuthUser
+  ): Promise<AppointmentEntity> {
+    const appointment = await this.findByIdOrThrow(id);
+    await this.assertAccess(appointment, currentUser);
+
+    if (appointment.status !== AppointmentStatus.PLANNED) {
+      throw appointmentNotEditable();
+    }
+
+    const office = await this.officeRepository.findOne({
+      where: { id: appointment.officeId },
+    });
+    if (!office) {
+      throw notFound("Office");
+    }
+
+    this.assertWithinOfficeHours(office, dto.date, dto.hour);
+    await this.assertSlotAvailable(
+      appointment.officeId,
+      dto.date,
+      dto.hour,
+      id
+    );
+
+    appointment.date = dto.date;
+    appointment.hour = dto.hour;
+    return this.appointmentRepository.save(appointment);
+  }
+
+  async cancel(id: string, currentUser: AuthUser): Promise<AppointmentEntity> {
+    const appointment = await this.findByIdOrThrow(id);
+    await this.assertAccess(appointment, currentUser);
+
+    if (appointment.status !== AppointmentStatus.PLANNED) {
+      throw appointmentNotEditable();
+    }
+
+    appointment.status = AppointmentStatus.CANCELLED;
+    return this.appointmentRepository.save(appointment);
+  }
+
   async remove(id: string, currentUser: AuthUser): Promise<void> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
@@ -273,14 +349,27 @@ export class AppointmentService {
   private async assertSlotAvailable(
     officeId: string,
     date: string,
-    hour: number
+    hour: number,
+    excludeId?: string
   ): Promise<void> {
     const existing = await this.appointmentRepository.findOne({
       where: { officeId, date, hour, status: Not(AppointmentStatus.CANCELLED) },
     });
 
-    if (existing) {
+    if (existing && existing.id !== excludeId) {
       throw appointmentSlotTaken();
     }
+  }
+
+  private async findByIdOrThrow(id: string): Promise<AppointmentEntity> {
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+    });
+
+    if (!appointment) {
+      throw appointmentNotFound();
+    }
+
+    return appointment;
   }
 }
