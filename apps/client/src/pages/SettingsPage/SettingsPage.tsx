@@ -1,7 +1,7 @@
-import { Stack, Title, Alert, TextInput, Button } from "@mantine/core";
+import { Stack, Alert, TextInput, Button } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { useSettingsPage } from "./useSettingsPage.ts";
-import { PhoneInputField } from "@components";
+import { OverviewHeader, PhoneInputField } from "@components";
 
 export const SettingsPage = () => {
   const t = useT();
@@ -9,11 +9,11 @@ export const SettingsPage = () => {
   const { form, handleSubmit, isPending } = useSettingsPage();
 
   return (
-    <Stack maw={450}>
-      <Title order={2}>{t("nav.settings")}</Title>
+    <Stack gap="md">
+      <OverviewHeader title={t("nav.settings")} />
 
       {(isClient || isOnboardingClient) && (
-        <>
+        <Stack maw={450}>
           {isOnboardingClient && (
             <Alert color="yellow" title={t("settings.onboardingWarningTitle")}>
               {t("settings.onboardingWarningMessage")}
@@ -43,7 +43,7 @@ export const SettingsPage = () => {
               </Button>
             </Stack>
           </form>
-        </>
+        </Stack>
       )}
     </Stack>
   );

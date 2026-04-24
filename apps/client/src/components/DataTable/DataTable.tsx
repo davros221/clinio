@@ -5,6 +5,7 @@ import {
   LoadingOverlay,
   Pagination,
   Center,
+  Paper,
 } from "@mantine/core";
 import { useT } from "@hooks";
 import classes from "./DataTable.module.css";
@@ -78,7 +79,7 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
   const hasActions = !!actions?.length;
 
   return (
-    <>
+    <Paper radius="md" shadow="sm" withBorder className={classes.paper}>
       <Box className={classes.scrollContainer}>
         <Box className={classes.wrapper}>
           <Table
@@ -118,7 +119,7 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
         <LoadingOverlay visible={isFetching} />
       </Box>
       {pagination && pagination.total > 1 && (
-        <Center mt={16}>
+        <Center py="md">
           <Pagination
             total={pagination.total}
             value={pagination.current}
@@ -127,6 +128,6 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
           />
         </Center>
       )}
-    </>
+    </Paper>
   );
 };
