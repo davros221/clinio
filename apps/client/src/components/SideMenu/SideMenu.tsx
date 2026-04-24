@@ -1,4 +1,4 @@
-import { Stack, Avatar, Text, Group, Divider } from "@mantine/core";
+import { Stack, Avatar, Text, Group, Divider, Badge } from "@mantine/core";
 import { SideMenuItem } from "./SideMenuItem.tsx";
 import { useSideMenu } from "./useSideMenu.ts";
 
@@ -14,7 +14,7 @@ export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
       {showUserInfo && (
         <>
           <Group gap="xxs">
-            <Avatar radius="xl" size="lg" color="white">
+            <Avatar radius="xl" size="lg" color="initials" name={initials}>
               {initials}
             </Avatar>
 
@@ -22,9 +22,9 @@ export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
               <Text size="sm" c="white" fw={600} lineClamp={1}>
                 {user?.firstName} {user?.lastName}
               </Text>
-              <Text size="xs" c="white">
+              <Badge variant="light" color="blue">
                 {user?.role}
-              </Text>
+              </Badge>
             </div>
           </Group>
 
