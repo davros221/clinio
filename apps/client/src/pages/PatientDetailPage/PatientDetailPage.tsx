@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import styles from "./patientDetailpage.module.css";
 import { PatientDetailInfoRow } from "./components/PatientDetailInfoRow.tsx";
 import { usePatientDetailPage } from "./usePatientDetailPage.ts";
@@ -19,6 +19,8 @@ import { MedicalRecordDetailModal } from "../../components/medicalRecord/Medical
 import { useGetPatientMedicalRecordsQuery } from "@api";
 import { useT } from "@hooks";
 import { MedicalRecord } from "@clinio/api";
+import { openConfirmModal } from "../../utils/confirmModal.tsx";
+import { useDeletePatientMutation } from "../../api/patientService.ts";
 
 function formatDate(raw: string): string {
   return new Date(raw).toLocaleDateString();
@@ -31,7 +33,9 @@ function formatText(value: string | null | undefined): string {
 export const PatientDetailPage = () => {
   const { info, isFetching } = usePatientDetailPage();
   const { id: patientId } = useParams();
+  const navigate = useNavigate();
   const t = useT();
+  const { mutate: deletePatient } = useDeletePatientMutation();
 
   const [createOpened, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -119,9 +123,31 @@ export const PatientDetailPage = () => {
       <Stack mt="xl" gap="md">
         <Group justify="space-between">
           <Title order={4}>{t("medicalRecord.overview.title")}</Title>
-          <Button onClick={openCreate}>
-            {t("medicalRecord.overview.createButton")}
-          </Button>
+          <Group>
+            <Button
+              color="red"
+              onClick={() =>
+                openConfirmModal({
+                  title: t("patient.delete.title"),
+                  message: t("patient.delete.message"),
+                  confirmLabel: t("patient.delete.confirm"),
+                  cancelLabel: t("patient.delete.cancel"),
+                  onConfirm: () => {
+                    if (patientId) {
+                      deletePatient(patientId, {
+                        onSuccess: () => navigate(-1),
+                      });
+                    }
+                  },
+                })
+              }
+            >
+              {t("patient.delete.button")}
+            </Button>
+            <Button onClick={openCreate}>
+              {t("medicalRecord.overview.createButton")}
+            </Button>
+          </Group>
         </Group>
 
         <DataTable

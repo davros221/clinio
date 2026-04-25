@@ -334,6 +334,13 @@ const cs: TranslationKeys = {
       createSuccessTitle: "Hotovo!",
       createSuccessMessage: "Pacient byl úspěšně vytvořen.",
     },
+    delete: {
+      button: "Smazat pacienta",
+      title: "Smazat pacienta",
+      message: "Opravdu chcete smazat tohoto pacienta? Tato akce je nevratná.",
+      confirm: "Smazat",
+      cancel: "Zrušit",
+    },
   },
 } as const;
 

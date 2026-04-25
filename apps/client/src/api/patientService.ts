@@ -76,3 +76,22 @@ export const useUpdatePatientMutation = () => {
     },
   });
 };
+
+export const useDeletePatientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await PatientService.deletePatient({
+        path: { id },
+        throwOnError: true,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: patientKeys.all });
+    },
+    onError: (e) => {
+      handleError(e);
+    },
+  });
+};

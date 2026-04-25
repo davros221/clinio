@@ -334,6 +334,14 @@ const en = {
       createSuccessTitle: "Done!",
       createSuccessMessage: "Patient was successfully created.",
     },
+    delete: {
+      button: "Delete Patient",
+      title: "Delete Patient",
+      message:
+        "Are you sure you want to delete this patient? This action cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
+    },
   },
 } as const;
 
