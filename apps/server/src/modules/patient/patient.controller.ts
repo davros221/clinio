@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
   Patch,
@@ -119,5 +122,18 @@ export class PatientController {
   ) {
     const entity = await this.patientService.update(id, dto, currentUser);
     return PatientMapper.toDto(entity);
+  }
+
+  @Delete(":id")
+  @Roles(UserRole.DOCTOR, UserRole.NURSE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ operationId: "deletePatient" })
+  @ApiNotFoundResponse({ description: "Patient not found" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  async delete(
+    @CurrentUser() user: AuthUser,
+    @Param("id", ParseUUIDPipe) id: string
+  ): Promise<void> {
+    await this.patientService.delete(id, user);
   }
 }
