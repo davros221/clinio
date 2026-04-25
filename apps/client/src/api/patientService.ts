@@ -76,3 +76,25 @@ export const useUpdatePatientMutation = () => {
     },
   });
 };
+
+export const useDeletePatientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // TODO: Replace with real API call when BE is ready
+      // const res = await PatientService.deletePatient({
+      //   path: { id },
+      //   throwOnError: true,
+      // });
+      // return res.data;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return id;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: patientKeys.all });
+    },
+    onError: (e) => {
+      handleError(e);
+    },
+  });
+};

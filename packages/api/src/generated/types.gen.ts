@@ -296,10 +296,16 @@ export type MedicalRecordCreator = {
     lastName: string;
 };
 
+export type MedicalRecordOffice = {
+    id: string;
+    name: string;
+};
+
 export type MedicalRecord = {
     id: string;
     patientId: string;
     creator: MedicalRecordCreator;
+    office: MedicalRecordOffice | null;
     createdAt: string;
     examinationSummary: string | null;
     diagnosis: string | null;
@@ -314,6 +320,7 @@ export type PaginatedMedicalRecordResponse = {
 };
 
 export type CreateMedicalRecordDto = {
+    officeId?: string;
     examinationSummary?: string;
     diagnosis?: string;
 };
@@ -1094,6 +1101,36 @@ export type CreatePatientMedicalRecordResponses = {
 };
 
 export type CreatePatientMedicalRecordResponse = CreatePatientMedicalRecordResponses[keyof CreatePatientMedicalRecordResponses];
+
+export type DeletePatientMedicalRecordData = {
+    body?: never;
+    path: {
+        patientId: string;
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records/{id}';
+};
+
+export type DeletePatientMedicalRecordErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Medical record not found
+     */
+    404: unknown;
+};
+
+export type DeletePatientMedicalRecordResponses = {
+    /**
+     * Medical record deleted
+     */
+    204: void;
+};
+
+export type DeletePatientMedicalRecordResponse = DeletePatientMedicalRecordResponses[keyof DeletePatientMedicalRecordResponses];
 
 export type GetPatientMedicalRecordByIdData = {
     body?: never;
