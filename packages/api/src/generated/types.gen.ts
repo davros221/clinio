@@ -161,6 +161,16 @@ export type CreateAppointmentDto = {
     note: string;
 };
 
+export type UpdateAppointmentDto = {
+    status?: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
+    note?: string;
+};
+
+export type RescheduleAppointmentDto = {
+    date: string;
+    hour: number;
+};
+
 export type OfficeHoursInterval = {
     from: number;
     to: number;
@@ -608,6 +618,26 @@ export type GetPatientsResponses = {
 
 export type GetPatientsResponse = GetPatientsResponses[keyof GetPatientsResponses];
 
+export type DeletePatientData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{id}';
+};
+
+export type DeletePatientErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
 export type GetPatientByIdData = {
     body?: never;
     path: {
@@ -836,6 +866,100 @@ export type GetAppointmentByIdResponses = {
 };
 
 export type GetAppointmentByIdResponse = GetAppointmentByIdResponses[keyof GetAppointmentByIdResponses];
+
+export type UpdateAppointmentData = {
+    body: UpdateAppointmentDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/appointments/{id}';
+};
+
+export type UpdateAppointmentErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Appointment not found
+     */
+    404: unknown;
+};
+
+export type UpdateAppointmentResponses = {
+    200: Appointment;
+};
+
+export type UpdateAppointmentResponse = UpdateAppointmentResponses[keyof UpdateAppointmentResponses];
+
+export type RescheduleAppointmentData = {
+    body: RescheduleAppointmentDto;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/appointments/{id}/reschedule';
+};
+
+export type RescheduleAppointmentErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Appointment not found
+     */
+    404: unknown;
+    /**
+     * Appointment slot already taken
+     */
+    409: unknown;
+};
+
+export type RescheduleAppointmentResponses = {
+    200: Appointment;
+};
+
+export type RescheduleAppointmentResponse = RescheduleAppointmentResponses[keyof RescheduleAppointmentResponses];
+
+export type CancelAppointmentData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/appointments/{id}/cancel';
+};
+
+export type CancelAppointmentErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Appointment not found
+     */
+    404: unknown;
+};
+
+export type CancelAppointmentResponses = {
+    200: Appointment;
+};
+
+export type CancelAppointmentResponse = CancelAppointmentResponses[keyof CancelAppointmentResponses];
 
 export type GetOfficesData = {
     body?: never;

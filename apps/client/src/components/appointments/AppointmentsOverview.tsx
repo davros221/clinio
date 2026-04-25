@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Box, Button, Group, Select, Stack, Title } from "@mantine/core";
+import { Box, Button, Select, Stack } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { Calendar } from "../dashboard/Calendar";
 import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
 import { useT, useUserRole } from "@hooks";
+import { OverviewHeader } from "../common/OverviewHeader.tsx";
 
 export function AppointmentsOverview() {
   const t = useT();
@@ -26,12 +27,14 @@ export function AppointmentsOverview() {
   return (
     <Box>
       <Stack gap="md">
-        <Group justify="space-between">
-          <Title order={1}>{t("appointment.overview.title")}</Title>
-          <Button size="xs" onClick={() => setModalOpened(true)}>
-            {t("appointment.createModal.title")}
-          </Button>
-        </Group>
+        <OverviewHeader
+          title={t("appointment.overview.title")}
+          action={
+            <Button onClick={() => setModalOpened(true)}>
+              {t("appointment.createModal.title")}
+            </Button>
+          }
+        />
 
         {isStaff ? (
           <Stack gap="md">

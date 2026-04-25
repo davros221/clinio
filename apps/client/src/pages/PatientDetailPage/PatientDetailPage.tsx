@@ -73,6 +73,15 @@ export const PatientDetailPage = () => {
       ),
     },
     {
+      key: "office",
+      header: t("medicalRecord.overview.table.office"),
+      render: (row: MedicalRecord) => (
+        <Text truncate="end" maw={160}>
+          {row.office?.name ?? "—"}
+        </Text>
+      ),
+    },
+    {
       key: "examinationSummary",
       header: t("medicalRecord.overview.table.examinationSummary"),
       render: (row: MedicalRecord) => (

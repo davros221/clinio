@@ -20,7 +20,6 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
   queryOptions({
     queryFn: async ({ signal }) => {
       const res = await PatientService.getPatients({
-        // ToDo: Add search params when refactoring the table
         query: {
           limit: params?.limit,
           page: params?.page,
@@ -81,14 +80,11 @@ export const useDeletePatientMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      // TODO: Replace with real API call when BE is ready
-      // const res = await PatientService.deletePatient({
-      //   path: { id },
-      //   throwOnError: true,
-      // });
-      // return res.data;
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return id;
+      const res = await PatientService.deletePatient({
+        path: { id },
+        throwOnError: true,
+      });
+      return res.data;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: patientKeys.all });

@@ -2,6 +2,8 @@ export * from "./createUserSchema.js";
 export * from "./loginSchema.js";
 export * from "./createOfficeSchema.js";
 export * from "./createAppointmentSchema.js";
+export * from "./updateAppointmentSchema.js";
+export * from "./rescheduleAppointmentSchema.js";
 export * from "./createPatientSchema.js";
 export * from "./createMedicalRecordSchema.js";
 export * from "./getCalendarQuerySchema.js";

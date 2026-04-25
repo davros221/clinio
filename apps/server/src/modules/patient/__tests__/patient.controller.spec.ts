@@ -52,6 +52,7 @@ describe("PatientController", () => {
             findAll: jest.fn(),
             findById: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -89,6 +90,25 @@ describe("PatientController", () => {
         updateDto,
         clientUser
       );
+    });
+  });
+
+  describe("delete", () => {
+    it("should call service delete method and return void", async () => {
+      service.delete.mockResolvedValue(undefined);
+
+      const result = await controller.delete(doctorUser, mockPatient.id);
+
+      expect(result).toBeUndefined();
+      expect(service.delete).toHaveBeenCalledWith(mockPatient.id, doctorUser);
+    });
+
+    it("should pass doctorUser to service delete method", async () => {
+      service.delete.mockResolvedValue(undefined);
+
+      await controller.delete(doctorUser, mockPatient.id);
+
+      expect(service.delete).toHaveBeenCalledWith(mockPatient.id, doctorUser);
     });
   });
 });

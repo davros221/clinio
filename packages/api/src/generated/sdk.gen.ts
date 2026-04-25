@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeletePatientMedicalRecordData, DeletePatientMedicalRecordErrors, DeletePatientMedicalRecordResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
+import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeletePatientData, DeletePatientErrors, DeletePatientMedicalRecordData, DeletePatientMedicalRecordErrors, DeletePatientMedicalRecordResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, RescheduleAppointmentData, RescheduleAppointmentErrors, RescheduleAppointmentResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -121,6 +121,10 @@ export class PatientService {
         });
     }
     
+    public static deletePatient<ThrowOnError extends boolean = false>(options: Options<DeletePatientData, ThrowOnError>) {
+        return (options.client ?? client).delete<unknown, DeletePatientErrors, ThrowOnError>({ url: '/api/patients/{id}', ...options });
+    }
+    
     public static getPatientById<ThrowOnError extends boolean = false>(options: Options<GetPatientByIdData, ThrowOnError>) {
         return (options.client ?? client).get<GetPatientByIdResponses, GetPatientByIdErrors, ThrowOnError>({
             responseType: 'json',
@@ -181,6 +185,38 @@ export class AppointmentService {
         return (options.client ?? client).get<GetAppointmentByIdResponses, GetAppointmentByIdErrors, ThrowOnError>({
             responseType: 'json',
             url: '/api/appointments/{id}',
+            ...options
+        });
+    }
+    
+    public static updateAppointment<ThrowOnError extends boolean = false>(options: Options<UpdateAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<UpdateAppointmentResponses, UpdateAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static rescheduleAppointment<ThrowOnError extends boolean = false>(options: Options<RescheduleAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<RescheduleAppointmentResponses, RescheduleAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}/reschedule',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    public static cancelAppointment<ThrowOnError extends boolean = false>(options: Options<CancelAppointmentData, ThrowOnError>) {
+        return (options.client ?? client).patch<CancelAppointmentResponses, CancelAppointmentErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/appointments/{id}/cancel',
             ...options
         });
     }

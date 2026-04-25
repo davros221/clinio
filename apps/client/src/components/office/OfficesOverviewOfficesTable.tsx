@@ -61,7 +61,7 @@ function OfficeCard({ office }: { office: Office }) {
       withBorder
       className={classes.card}
     >
-      <Stack justify="space-between" h="100%" className={classes.cardContent}>
+      <Stack className="x-flex-card">
         <Group>
           <Title size="lg">{office.name}</Title>
           <Badge variant="light" color="blue">

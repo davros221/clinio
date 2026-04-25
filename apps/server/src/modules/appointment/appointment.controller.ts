@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -27,6 +28,8 @@ import { ZodValidationPipe } from "nestjs-zod";
 import {
   createAppointmentSchema,
   appointmentListSchema,
+  rescheduleAppointmentSchema,
+  updateAppointmentSchema,
   UserRole,
   AppointmentStatus,
   AppointmentSortField,
@@ -38,6 +41,8 @@ import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AppointmentService } from "./appointment.service";
 import { CreateAppointmentDto } from "./dto/create-appointment.dto";
+import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
+import { RescheduleAppointmentDto } from "./dto/reschedule-appointment.dto";
 import { Appointment } from "./dto/appointment.dto";
 import { AppointmentMapper } from "./mapper/AppointmentMapper";
 import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
@@ -152,6 +157,58 @@ export class AppointmentController {
     @CurrentUser() currentUser: AuthUser
   ) {
     const entity = await this.appointmentService.create(dto, currentUser);
+    return AppointmentMapper.toDto(entity);
+  }
+
+  @Patch(":id")
+  @Roles(UserRole.DOCTOR, UserRole.NURSE)
+  @ApiOperation({ operationId: "updateAppointment" })
+  @ApiOkResponse({ type: Appointment })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Appointment not found" })
+  async update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(updateAppointmentSchema))
+    dto: UpdateAppointmentDto,
+    @CurrentUser() currentUser: AuthUser
+  ) {
+    const entity = await this.appointmentService.update(id, dto, currentUser);
+    return AppointmentMapper.toDto(entity);
+  }
+
+  @Patch(":id/reschedule")
+  @ApiOperation({ operationId: "rescheduleAppointment" })
+  @ApiOkResponse({ type: Appointment })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Appointment not found" })
+  @ApiConflictResponse({ description: "Appointment slot already taken" })
+  async reschedule(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(rescheduleAppointmentSchema))
+    dto: RescheduleAppointmentDto,
+    @CurrentUser() currentUser: AuthUser
+  ) {
+    const entity = await this.appointmentService.reschedule(
+      id,
+      dto,
+      currentUser
+    );
+    return AppointmentMapper.toDto(entity);
+  }
+
+  @Patch(":id/cancel")
+  @ApiOperation({ operationId: "cancelAppointment" })
+  @ApiOkResponse({ type: Appointment })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Appointment not found" })
+  async cancel(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: AuthUser
+  ) {
+    const entity = await this.appointmentService.cancel(id, currentUser);
     return AppointmentMapper.toDto(entity);
   }
 

@@ -1,7 +1,8 @@
 import { memo } from "react";
 import { useNavigate } from "react-router";
-import { Box, Button, Group, Stack, Title } from "@mantine/core";
+import { Box, Button, Stack } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
+import { OverviewHeader } from "../common/OverviewHeader.tsx";
 import { OfficesOverviewOfficesTable } from "./OfficesOverviewOfficesTable.tsx";
 import { ROUTER_PATHS } from "@router";
 
@@ -13,15 +14,16 @@ function OfficesOverviewComponent() {
   return (
     <Box>
       <Stack gap="md">
-        <Group justify="space-between">
-          <Title order={1}>{t("office.overview.title")}</Title>
-
-          {isAdmin && (
-            <Button onClick={() => navigate(ROUTER_PATHS.OFFICE_NEW)}>
-              {t("office.form.title.create")}
-            </Button>
-          )}
-        </Group>
+        <OverviewHeader
+          title={t("office.overview.title")}
+          action={
+            isAdmin && (
+              <Button onClick={() => navigate(ROUTER_PATHS.OFFICE_NEW)}>
+                {t("office.form.title.create")}
+              </Button>
+            )
+          }
+        />
 
         <OfficesOverviewOfficesTable />
       </Stack>
