@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import styles from "./patientDetailpage.module.css";
 import { PatientDetailInfoRow } from "./components/PatientDetailInfoRow.tsx";
 import { usePatientDetailPage } from "./usePatientDetailPage.ts";
@@ -34,7 +34,24 @@ export const PatientDetailPage = () => {
   const { info, isFetching } = usePatientDetailPage();
   const { id: patientId } = useParams();
   const t = useT();
+  const navigate = useNavigate();
   const { mutate: deletePatient } = useDeletePatientMutation();
+
+  const handleDelete = () => {
+    openConfirmModal({
+      title: t("patient.delete.title"),
+      message: t("patient.delete.message"),
+      confirmLabel: t("patient.delete.confirm"),
+      cancelLabel: t("patient.delete.cancel"),
+      onConfirm: () => {
+        if (patientId) {
+          deletePatient(patientId, {
+            onSuccess: () => navigate(-1),
+          });
+        }
+      },
+    });
+  };
 
   const [createOpened, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -123,18 +140,7 @@ export const PatientDetailPage = () => {
         <Group justify="space-between">
           <Title order={4}>{t("medicalRecord.overview.title")}</Title>
           <Group>
-            <Button
-              color="red"
-              onClick={() =>
-                openConfirmModal({
-                  title: t("patient.delete.title"),
-                  message: t("patient.delete.message"),
-                  confirmLabel: t("patient.delete.confirm"),
-                  cancelLabel: t("patient.delete.cancel"),
-                  onConfirm: () => deletePatient(patientId!),
-                })
-              }
-            >
+            <Button color="red" onClick={handleDelete}>
               {t("patient.delete.button")}
             </Button>
             <Button onClick={openCreate}>
