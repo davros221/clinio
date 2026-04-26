@@ -618,6 +618,26 @@ export type GetPatientsResponses = {
 
 export type GetPatientsResponse = GetPatientsResponses[keyof GetPatientsResponses];
 
+export type DeletePatientData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{id}';
+};
+
+export type DeletePatientErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
 export type GetPatientByIdData = {
     body?: never;
     path: {
