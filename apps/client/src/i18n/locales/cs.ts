@@ -223,6 +223,10 @@ const cs: TranslationKeys = {
     detail: {
       viewAppointments: "Zobrazit rezervace",
       backToDetail: "Zpět na ordinaci",
+      breadcrumb: {
+        new: "Nová ordinace",
+        appointments: "Rezervace",
+      },
     },
   },
   signUp: {

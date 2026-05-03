@@ -224,6 +224,10 @@ const en = {
     detail: {
       viewAppointments: "View appointments",
       backToDetail: "Back to office",
+      breadcrumb: {
+        new: "New office",
+        appointments: "Appointments",
+      },
     },
   },
   signUp: {
