@@ -1,6 +1,7 @@
 export * from "./layers/RequireAuth.tsx";
 export * from "./layers/DashboardSwitch.tsx";
 export * from "./common/BackButton.tsx";
+export * from "./common/Breadcrumbs.tsx";
 export * from "./common/OverviewHeader.tsx";
 export * from "./office";
 export * from "./patients";
