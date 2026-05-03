@@ -5,9 +5,10 @@ import { useT } from "@hooks";
 
 type Props = {
   to?: To;
+  label?: string;
 };
 
-export function BackButton({ to }: Props) {
+export function BackButton({ to, label }: Props) {
   const navigate = useNavigate();
   const t = useT();
 
@@ -17,7 +18,7 @@ export function BackButton({ to }: Props) {
       onClick={() => (to ? navigate(to) : navigate(-1))}
       leftSection={<MdChevronLeft />}
     >
-      {t("common.action.back")}
+      {label ?? t("common.action.back")}
     </Button>
   );
 }

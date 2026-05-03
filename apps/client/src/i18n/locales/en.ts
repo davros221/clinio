@@ -221,6 +221,10 @@ const en = {
       },
       title: "Offices Overview",
     },
+    detail: {
+      viewAppointments: "View appointments",
+      backToDetail: "Back to office",
+    },
   },
   signUp: {
     title: "CREATE ACCOUNT",

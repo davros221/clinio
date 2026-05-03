@@ -12,7 +12,11 @@ const STATUS_COLOR: Record<AppointmentStatus, string> = {
   [AppointmentStatus.CANCELLED]: "red",
 };
 
-export function AppointmentsOverviewTable() {
+type Props = {
+  officeId?: string;
+};
+
+export function AppointmentsOverviewTable({ officeId }: Props = {}) {
   const t = useT();
   const {
     data: appointments = [],
@@ -21,6 +25,10 @@ export function AppointmentsOverviewTable() {
     error,
   } = useGetAppointmentListQuery();
   const { data: offices = [] } = useGetOfficeListQuery();
+
+  const visibleAppointments = officeId
+    ? appointments.filter((a) => a.officeId === officeId)
+    : appointments;
 
   const officeMap = Object.fromEntries(offices.map((o) => [o.id, o.name]));
 
@@ -65,7 +73,7 @@ export function AppointmentsOverviewTable() {
 
   return (
     <DataTable<Appointment>
-      data={appointments}
+      data={visibleAppointments}
       keyExtractor={(row) => row.id}
       isLoading={isLoading}
       isError={isError}

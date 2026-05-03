@@ -220,6 +220,10 @@ const cs: TranslationKeys = {
       },
       title: "Přehled ordinací",
     },
+    detail: {
+      viewAppointments: "Zobrazit rezervace",
+      backToDetail: "Zpět na ordinaci",
+    },
   },
   signUp: {
     title: "VYTVOŘIT ÚČET",

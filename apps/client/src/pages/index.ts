@@ -8,4 +8,5 @@ export * from "./LoginPage/GoogleAuthCallback.tsx";
 export * from "./SettingsPage/SettingsPage.tsx";
 export * from "./OfficeDetailPage/OfficeDetailLayout.tsx";
 export * from "./OfficeDetailPage/OfficeDetailContent.tsx";
+export * from "./OfficeDetailPage/OfficeAppointmentsContent.tsx";
 export * from "./dashboards";
