@@ -63,7 +63,6 @@ export const useUpdatePatientMutation = () => {
       const res = await PatientService.updatePatient({
         path: { id: data.id },
         body: data.body,
-        throwOnError: true,
       });
       return res.data;
     },

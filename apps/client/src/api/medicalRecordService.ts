@@ -31,7 +31,6 @@ export const useCreatePatientMedicalRecordMutation = (patientId: string) => {
       const { data } = await MedicalRecordService.createPatientMedicalRecord({
         path: { patientId },
         body,
-        throwOnError: true,
       });
       if (!data) throw new Error(t("common.error.noData"));
       return data;
@@ -55,7 +54,6 @@ export const useDeletePatientMedicalRecordMutation = () => {
       mutationFn: async ({ path }) => {
         await MedicalRecordService.deletePatientMedicalRecord({
           path,
-          throwOnError: true,
         });
       },
       onSuccess: (_, { path }) => {

@@ -8,7 +8,6 @@ export const useAddressSuggestQuery = (query: string) => {
     queryFn: async () => {
       const { data } = await AddressService.suggestAddress({
         query: { query },
-        throwOnError: true,
       });
       return data?.items ?? [];
     },

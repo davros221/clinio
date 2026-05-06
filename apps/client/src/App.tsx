@@ -5,10 +5,9 @@ import "./App.css";
 import { router } from "@router";
 import { theme } from "./theme";
 import { Notifications } from "@mantine/notifications";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const queryClient = new QueryClient();
+import { queryClient } from "@api";
 
 export default function App() {
   return (

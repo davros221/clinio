@@ -11,7 +11,7 @@ import { t } from "../i18n";
 import { notifySuccess, handleError } from "@utils";
 
 const createUserFn = async (data: CreateUserDto) => {
-  const res = await UserService.create({ body: data, throwOnError: true });
+  const res = await UserService.create({ body: data });
   return res.data;
 };
 
@@ -40,7 +40,6 @@ export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
     queryFn: async () => {
       const { data } = await UserService.get({
         query: { role: roles },
-        throwOnError: true,
       });
       return data?.items ?? [];
     },
