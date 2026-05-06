@@ -16,9 +16,7 @@ export const useGetOfficeListQuery = () => {
   return useQuery<Office[]>({
     queryKey: officeKeys.list(),
     queryFn: async () => {
-      const { data } = await OfficeService.getOffices({
-        throwOnError: true,
-      });
+      const { data } = await OfficeService.getOffices();
       return data?.items ?? [];
     },
   });
@@ -30,7 +28,6 @@ export const useGetOfficeDetailQuery = (id: string, enabled: boolean) => {
     queryFn: async () => {
       const { data } = await OfficeService.getOfficeById({
         path: { id },
-        throwOnError: true,
       });
       return data ?? null;
     },
@@ -45,7 +42,6 @@ export const useCreateOfficeMutation = () => {
     mutationFn: async (body) => {
       const { data } = await OfficeService.createOffice({
         body,
-        throwOnError: true,
       });
       if (!data) throw new Error(t("common.error.noData"));
       return data;
@@ -67,7 +63,6 @@ export const useUpdateOfficeMutation = () => {
     mutationFn: async (data) => {
       const { data: office } = await OfficeService.updateOffice({
         ...data,
-        throwOnError: true,
       });
 
       if (!office) throw new Error(t("common.error.noData"));
@@ -93,7 +88,6 @@ export const useDeleteOfficeMutation = () => {
     mutationFn: async ({ path }) => {
       await OfficeService.deleteOffice({
         path,
-        throwOnError: true,
       });
     },
 

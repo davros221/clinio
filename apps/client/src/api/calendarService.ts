@@ -12,7 +12,6 @@ export const useGetCalendarQuery = (
     queryFn: async () => {
       const { data } = await CalendarService.getCalendar({
         query: { officeId, timestamp },
-        throwOnError: true,
       });
       return data ?? [];
     },

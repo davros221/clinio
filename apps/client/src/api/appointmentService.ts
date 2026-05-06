@@ -35,7 +35,6 @@ export const useGetAppointmentListQuery = (
           sortBy: filters?.sortBy,
           sortOrder: filters?.sortOrder,
         },
-        throwOnError: true,
       });
       return data?.items ?? [];
     },
@@ -49,7 +48,6 @@ export const useCreateAppointmentMutation = () => {
     mutationFn: async (body) => {
       const { data } = await AppointmentService.createAppointment({
         body,
-        throwOnError: true,
       });
       if (!data) throw new Error(t("common.error.noData"));
       return data;
@@ -73,7 +71,6 @@ export const useDeleteAppointmentMutation = () => {
     mutationFn: async (id) => {
       await AppointmentService.deleteAppointment({
         path: { id },
-        throwOnError: true,
       });
     },
 

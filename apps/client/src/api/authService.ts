@@ -23,7 +23,7 @@ export const useGetMeQuery = (enabled = true) => {
 };
 
 const loginFn = async (data: LoginDto) => {
-  const res = await AuthService.login({ body: data, throwOnError: true });
+  const res = await AuthService.login({ body: data });
   return res.data;
 };
 
@@ -49,7 +49,6 @@ export const useLoginMutation = () => {
 const requestPassResetFn = async (email: string) => {
   const res = await AuthService.requestPasswordReset({
     body: { email },
-    throwOnError: true,
   });
   return res;
 };
@@ -73,7 +72,6 @@ export const useRequestPassReset = () => {
 const resetPasswordFn = async (data: ResetPasswordDto) => {
   const res = await AuthService.resetPassword({
     body: data,
-    throwOnError: true,
   });
   return res.data;
 };
