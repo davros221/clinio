@@ -1,4 +1,5 @@
 export * from "./LoginPage/LoginPage.tsx";
+export * from "./ErrorPages";
 export * from "./SignUpPage/SignUpPage.tsx";
 export * from "./PatientDetailPage/PatientDetailPage.tsx";
 export * from "./ActivateAccountPage/ActivateAccountPage.tsx";

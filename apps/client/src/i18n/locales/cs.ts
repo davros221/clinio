@@ -71,6 +71,15 @@ const cs: TranslationKeys = {
       confirm: "Smazat",
       cancel: "Zrušit",
     },
+    errorPage: {
+      title: "Něco se pokazilo",
+      retry: "Zkusit znovu",
+      backToDashboard: "Zpět na nástěnku",
+    },
+    notFoundPage: {
+      title: "Stránka nenalezena",
+      backHome: "Zpět domů",
+    },
     forbidden: "Zakázáno",
     forbiddenMessage: "Nemáte oprávnění přistoupit na tuto stránku.",
     returnHome: "Zpět na domovskou stránku",
