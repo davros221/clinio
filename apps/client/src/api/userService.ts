@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { User, UserService, CreateUserDto } from "@clinio/api";
+import { UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
@@ -33,18 +33,34 @@ export const useCreateUserMutation = () => {
   });
 };
 
-// TODO: API returns paginated response — expose pagination metadata when needed.
-export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
-  return useQuery<User[]>({
-    queryKey: userKeys.list({ roles }),
-    queryFn: async () => {
-      const { data } = await UserService.get({
-        query: { role: roles },
+type GetUsersParams = {
+  roles: Array<UserRole>;
+  limit?: number;
+  page?: number;
+  search?: string;
+};
+
+const getUsersListOptions = (params: GetUsersParams, enabled = true) =>
+  queryOptions({
+    queryFn: async ({ signal }) => {
+      const res = await UserService.get({
+        query: {
+          role: params.roles,
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+        },
+        signal,
+        throwOnError: true,
       });
-      return data?.items ?? [];
+      return res.data;
     },
+    queryKey: userKeys.list(params),
     enabled,
   });
+
+export const useGetUsersQuery = (params: GetUsersParams, enabled = true) => {
+  return useQuery(getUsersListOptions(params, enabled));
 };
 
 /*

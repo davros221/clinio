@@ -10,14 +10,21 @@ import { t } from "../i18n";
 import { notifyError } from "../utils/notification";
 import { officeKeys } from "./queryKeys";
 
-// TODO: API returns PaginatedOfficeResponse — expose pagination metadata when
-// the offices table needs server-side paging (total, page, limit, totalPages).
-export const useGetOfficeListQuery = () => {
-  return useQuery<Office[]>({
-    queryKey: officeKeys.list(),
-    queryFn: async () => {
-      const { data } = await OfficeService.getOffices();
-      return data?.items ?? [];
+type GetOfficeListParams = {
+  page?: number;
+  limit?: number;
+};
+
+export const useGetOfficeListQuery = (params?: GetOfficeListParams) => {
+  return useQuery({
+    queryKey: officeKeys.list(params),
+    queryFn: async ({ signal }) => {
+      const { data } = await OfficeService.getOffices({
+        query: { page: params?.page, limit: params?.limit },
+        signal,
+        throwOnError: true,
+      });
+      return data;
     },
   });
 };

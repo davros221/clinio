@@ -41,10 +41,11 @@ export function useOfficeDetailForm(
   const { mutate: createOffice, isPending: isCreating } =
     useCreateOfficeMutation();
 
-  const { data: users = [] } = useGetUsersQuery([
-    UserRole.NURSE,
-    UserRole.DOCTOR,
-  ]);
+  const { data: usersData } = useGetUsersQuery({
+    roles: [UserRole.NURSE, UserRole.DOCTOR],
+    limit: 100,
+  });
+  const users = useMemo(() => usersData?.items ?? [], [usersData]);
 
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);

@@ -3,8 +3,9 @@ import { Appointment } from "@clinio/api";
 import { DataTable } from "../DataTable/DataTable";
 import { useGetOfficeListQuery, useGetAppointmentListQuery } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
-import { useT } from "@hooks";
+import { usePagination, useT } from "@hooks";
 import { DateUtils } from "@utils";
+import { useMemo } from "react";
 
 const STATUS_COLOR: Record<AppointmentStatus, string> = {
   [AppointmentStatus.PLANNED]: "blue",
@@ -18,19 +19,22 @@ type Props = {
 
 export function AppointmentsOverviewTable({ officeId }: Props = {}) {
   const t = useT();
-  const {
-    data: appointments = [],
-    isLoading,
-    isError,
-    error,
-  } = useGetAppointmentListQuery();
-  const { data: offices = [] } = useGetOfficeListQuery();
+  const { page, pageSize, setPage } = usePagination();
+  const { data, isLoading, isFetching, isError, error } =
+    useGetAppointmentListQuery({
+      page,
+      limit: pageSize,
+      officeId,
+    });
+  const { data: officesData } = useGetOfficeListQuery();
+  const offices = officesData?.items ?? [];
 
-  const visibleAppointments = officeId
-    ? appointments.filter((a) => a.officeId === officeId)
-    : appointments;
+  const appointments = data?.items ?? [];
 
-  const officeMap = Object.fromEntries(offices.map((o) => [o.id, o.name]));
+  const officeMap = useMemo(
+    () => Object.fromEntries(offices.map((o) => [o.id, o.name])),
+    [offices]
+  );
 
   const columns = [
     {
@@ -73,13 +77,19 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
 
   return (
     <DataTable<Appointment>
-      data={visibleAppointments}
+      data={appointments}
       keyExtractor={(row) => row.id}
       isLoading={isLoading}
+      isFetching={isFetching}
       isError={isError}
       error={error}
       columns={columns}
       highlightOnHover={false}
+      pagination={{
+        current: page,
+        total: data?.totalPages ?? 0,
+        onChange: setPage,
+      }}
     />
   );
 }

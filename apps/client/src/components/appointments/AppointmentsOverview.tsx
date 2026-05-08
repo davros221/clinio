@@ -14,7 +14,8 @@ export function AppointmentsOverview() {
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
   const [time, setTime] = useState(() => Date.now());
 
-  const { data: offices = [] } = useGetOfficeListQuery();
+  const { data: officesData } = useGetOfficeListQuery();
+  const offices = officesData?.items ?? [];
 
   const { data: calendarDays = [] } = useGetCalendarQuery(
     selectedOfficeId!,
