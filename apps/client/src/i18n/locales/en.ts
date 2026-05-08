@@ -71,6 +71,15 @@ const en = {
       confirm: "Delete",
       cancel: "Cancel",
     },
+    errorPage: {
+      title: "Something went wrong",
+      retry: "Retry",
+      backToDashboard: "Back to Dashboard",
+    },
+    notFoundPage: {
+      title: "Page not found",
+      backHome: "Back home",
+    },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
     returnHome: "Go Back Home",

@@ -16,6 +16,8 @@ import { Outlet, useLocation } from "react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./authLayout.module.css";
+import { ErrorBoundary } from "react-error-boundary";
+import { CommonErrorPage } from "@pages";
 
 export const AuthenticatedLayout = () => {
   const [opened, { toggle, close }] = useDisclosure();
@@ -80,9 +82,11 @@ export const AuthenticatedLayout = () => {
         </AppShell.Navbar>
 
         <AppShell.Main>
-          <Box m="sm">
-            <Outlet />
-          </Box>
+          <ErrorBoundary fallback={<CommonErrorPage />} key={location.pathname}>
+            <Box m="sm">
+              <Outlet />
+            </Box>
+          </ErrorBoundary>
         </AppShell.Main>
       </AppShell>
 

@@ -18,6 +18,8 @@ import {
   OfficeDetailLayout,
   OfficeDetailContent,
   OfficeAppointmentsContent,
+  CommonErrorPage,
+  NotFoundErrorPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -26,10 +28,15 @@ import { UserRole } from "@clinio/shared";
 export const routes: RouteObject[] = [
   {
     element: <AppLayout />,
+    errorElement: <CommonErrorPage />,
     children: [
       {
         path: ROUTER_PATHS.FORBIDDEN,
         element: <ForbiddenPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundErrorPage />,
       },
       {
         path: ROUTER_PATHS.GOOGLE_AUTH_CALLBACK,
@@ -59,9 +66,11 @@ export const routes: RouteObject[] = [
       // TODO: route needs to be refactored, the children should be nested in their parents not next to them
       {
         element: <RequireAuth />,
+        errorElement: <CommonErrorPage />,
         children: [
           {
             element: <AuthenticatedLayout />,
+            errorElement: <CommonErrorPage />,
             children: [
               {
                 path: ROUTER_PATHS.HOME,
@@ -73,6 +82,7 @@ export const routes: RouteObject[] = [
               },
               {
                 element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                errorElement: <CommonErrorPage />,
                 children: [
                   {
                     path: ROUTER_PATHS.OFFICE_NEW,
