@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   AuthService,
   LoginDto,
@@ -9,17 +14,16 @@ import { authKeys } from "./queryKeys.ts";
 import { AuthToken, handleError, notifySuccess } from "@utils";
 import { useT } from "@hooks";
 
-const meFn = async () => {
-  const res = await AuthService.me();
-  return res.data;
-};
+export const getMeQueryOptions = queryOptions({
+  queryKey: [authKeys.me],
+  queryFn: async () => {
+    const res = await AuthService.me();
+    return res.data;
+  },
+});
 
 export const useGetMeQuery = (enabled = true) => {
-  return useQuery({
-    queryFn: meFn,
-    queryKey: [authKeys.me],
-    enabled,
-  });
+  return useQuery({ ...getMeQueryOptions, enabled });
 };
 
 const loginFn = async (data: LoginDto) => {
