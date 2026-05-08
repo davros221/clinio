@@ -126,11 +126,7 @@ export const routes: RouteObject[] = [
               {
                 element: (
                   <RequireAuth
-                    allowedRoles={[
-                      UserRole.NURSE,
-                      UserRole.DOCTOR,
-                      UserRole.CLIENT,
-                    ]}
+                    allowedRoles={[UserRole.NURSE, UserRole.DOCTOR]}
                   />
                 ),
                 errorElement: <CommonErrorPage />,
