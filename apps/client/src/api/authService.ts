@@ -22,6 +22,19 @@ export const useGetMeQuery = (enabled = true) => {
   });
 };
 
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+
+  return () => {
+    AuthToken.clear();
+    queryClient.setQueryData<MeResponse>([authKeys.me], {
+      auth: false,
+      authData: null,
+    });
+    queryClient.clear();
+  };
+};
+
 const loginFn = async (data: LoginDto) => {
   const res = await AuthService.login({ body: data });
   return res.data;
