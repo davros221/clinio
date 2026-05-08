@@ -26,9 +26,3 @@ export const APPOINTMENT_STATUS_STYLE: Record<
     border: "var(--mantine-color-gray-4)",
   },
 };
-
-/** @deprecated use APPOINTMENT_STATUS_STYLE */
-export const APPOINTMENT_STATUS_BG: Record<AppointmentStatus, string> =
-  Object.fromEntries(
-    Object.entries(APPOINTMENT_STATUS_STYLE).map(([k, v]) => [k, v.bg])
-  ) as Record<AppointmentStatus, string>;

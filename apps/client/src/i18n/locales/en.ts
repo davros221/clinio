@@ -114,6 +114,7 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     offices: "Offices",
+    calendar: "Calendar",
     appointments: "Appointments",
     patients: "Patients",
     staff: "Staff",
@@ -123,6 +124,7 @@ const en = {
     closeMenu: "Close navigation menu",
   },
   appointment: {
+    durationLabel: "duration",
     createModal: {
       title: "New Appointment",
       fields: {
@@ -161,6 +163,7 @@ const en = {
       deleteSuccess: "Appointment deleted",
       updateSuccess: "Appointment updated",
       rescheduleSuccess: "Appointment rescheduled",
+      cancelSuccess: "Appointment cancelled",
     },
   },
   login: {

@@ -2,15 +2,13 @@ import { useState } from "react";
 import { Stack, Button, Group } from "@mantine/core";
 import { useParams } from "react-router";
 import { useGetCalendarQuery } from "@api";
-import { useUserRole, useAppointmentMove, useT } from "@hooks";
+import { useAppointmentMove, useT } from "@hooks";
 import { Calendar } from "../../components/dashboard/Calendar";
-import { AppointmentsOverviewTable } from "../../components/appointments/AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "../../components/appointments/CreateAppointmentModal";
 import { useOfficeDetailContext } from "./useOfficeDetailContext.ts";
 
 export function OfficeAppointmentsContent() {
   const { id } = useParams<{ id: string }>();
-  const { isStaff } = useUserRole();
   const { office } = useOfficeDetailContext();
   const [time, setTime] = useState(() => Date.now());
   const [modalOpened, setModalOpened] = useState(false);
@@ -19,33 +17,25 @@ export function OfficeAppointmentsContent() {
 
   const { data: calendarDays = [] } = useGetCalendarQuery(id ?? "", time, !!id);
 
-  if (isStaff) {
-    return (
-      <Stack gap="md">
-        <Group justify="flex-end">
-          <Button onClick={() => setModalOpened(true)}>
-            {t("appointment.createModal.title")}
-          </Button>
-        </Group>
-        <Calendar
-          calendarDays={calendarDays}
-          officeName={office?.name ?? ""}
-          weekTimestamp={time}
-          onWeekTimestampChange={setTime}
-          onAppointmentMove={handleAppointmentMove}
-        />
-        <CreateAppointmentModal
-          opened={modalOpened}
-          onClose={() => setModalOpened(false)}
-          preselectedOfficeId={id}
-        />
-      </Stack>
-    );
-  }
-
   return (
     <Stack gap="md">
-      <AppointmentsOverviewTable officeId={id} />
+      <Group justify="flex-end">
+        <Button onClick={() => setModalOpened(true)}>
+          {t("appointment.createModal.title")}
+        </Button>
+      </Group>
+      <Calendar
+        calendarDays={calendarDays}
+        officeName={office?.name ?? ""}
+        weekTimestamp={time}
+        onWeekTimestampChange={setTime}
+        onAppointmentMove={handleAppointmentMove}
+      />
+      <CreateAppointmentModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        preselectedOfficeId={id}
+      />
     </Stack>
   );
 }

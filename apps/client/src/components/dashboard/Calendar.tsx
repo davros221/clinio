@@ -216,22 +216,28 @@ export const Calendar = ({
               return (
                 <div key={dayIdx} className="week-table__day-col">
                   {/* Droppable slots */}
-                  {day?.hours.map((slot) => (
-                    <div key={slot.hour} className="week-table__hour-row">
-                      <DroppableSlot
-                        dayIdx={dayIdx}
-                        hour={slot.hour}
-                        minute={0}
-                        closed={slot.state === "CLOSED"}
-                      />
-                      <DroppableSlot
-                        dayIdx={dayIdx}
-                        hour={slot.hour}
-                        minute={30}
-                        closed={slot.state === "CLOSED"}
-                      />
-                    </div>
-                  ))}
+                  {day?.hours.map((slot) => {
+                    const isForeignBooked =
+                      slot.state === "BOOKED" && !slot.appointment;
+                    return (
+                      <div key={slot.hour} className="week-table__hour-row">
+                        <DroppableSlot
+                          dayIdx={dayIdx}
+                          hour={slot.hour}
+                          minute={0}
+                          closed={slot.state === "CLOSED"}
+                          booked={isForeignBooked}
+                        />
+                        <DroppableSlot
+                          dayIdx={dayIdx}
+                          hour={slot.hour}
+                          minute={30}
+                          closed={slot.state === "CLOSED"}
+                          booked={isForeignBooked}
+                        />
+                      </div>
+                    );
+                  })}
 
                   {/* Appointment cards */}
                   {day?.hours

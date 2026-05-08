@@ -18,6 +18,7 @@ import { GoNote } from "react-icons/go";
 import {
   useDeleteAppointmentMutation,
   useUpdateAppointmentMutation,
+  useCancelAppointmentMutation,
 } from "../../api";
 import { t } from "../../i18n";
 import { useUserRole } from "../../hooks/useUserRole";
@@ -36,6 +37,8 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
   const { mutate: deleteAppointment } = useDeleteAppointmentMutation();
   const { mutate: updateAppointment, isPending } =
     useUpdateAppointmentMutation();
+  const { mutate: cancelAppointment, isPending: isCancelling } =
+    useCancelAppointmentMutation();
 
   const [newStatus, setNewStatus] = useState<AppointmentStatus | null>(null);
   const [note, setNote] = useState("");
@@ -120,7 +123,8 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
           <Group gap="xs">
             <IoMdTime />
             <Text size="sm">
-              {appt.start} — délka: {appt.duration} min
+              {appt.start} — {t("appointment.durationLabel")}: {appt.duration}{" "}
+              min
             </Text>
           </Group>
 
@@ -186,6 +190,19 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
               }}
             >
               {t("patient.overview.detail")}
+            </Button>
+          )}
+
+          {!isStaff && isPlanned && (
+            <Button
+              color="red"
+              variant="light"
+              loading={isCancelling}
+              onClick={() =>
+                appt && cancelAppointment(appt.id, { onSuccess: onClose })
+              }
+            >
+              {t("common.action.cancel")}
             </Button>
           )}
 

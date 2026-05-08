@@ -28,7 +28,7 @@ export const useGetAppointmentListQuery = (
     queryKey: appointmentKeys.list(filters),
     enabled,
     queryFn: async () => {
-      const { data } = await AppointmentService.getAppointments({
+      const { data, error } = await AppointmentService.getAppointments({
         query: {
           status: filters?.status,
           page: filters?.page,
@@ -38,7 +38,8 @@ export const useGetAppointmentListQuery = (
           sortOrder: filters?.sortOrder,
         },
       });
-      return data?.items ?? [];
+      if (error) throw error;
+      return data!.items;
     },
   });
 };
@@ -127,6 +128,26 @@ export const useRescheduleAppointmentMutation = () => {
       void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.rescheduleSuccess"), "");
+    },
+    onError: handleError,
+  });
+};
+
+export const useCancelAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Appointment, unknown, string>({
+    mutationFn: async (id) => {
+      const { data, error } = await AppointmentService.cancelAppointment({
+        path: { id },
+      });
+      if (error) throw error;
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.cancelSuccess"), "");
     },
     onError: handleError,
   });

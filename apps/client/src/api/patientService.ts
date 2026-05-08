@@ -35,8 +35,11 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
     placeholderData: keepPreviousData,
   });
 
-export const useGetPatientList = (params?: GetPatientListParams) => {
-  return useQuery(getPatientListOptions(params));
+export const useGetPatientList = (
+  params?: GetPatientListParams,
+  enabled = true
+) => {
+  return useQuery({ ...getPatientListOptions(params), enabled });
 };
 
 const getPatientDetailOptions = (id: string) =>

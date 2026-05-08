@@ -124,6 +124,17 @@
   cursor: not-allowed;
 }
 
+.week-table__half-slot--booked {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--mantine-color-gray-1),
+    var(--mantine-color-gray-1) 4px,
+    var(--mantine-color-gray-2) 4px,
+    var(--mantine-color-gray-2) 8px
+  );
+  cursor: not-allowed;
+}
+
 /* Appointments ─────────────────────────────────────────────────────────────────*/
 
 .week-table__appt {

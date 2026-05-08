@@ -75,7 +75,7 @@ export function CreateAppointmentModal({
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
   const { data: offices = [] } = useGetOfficeListQuery();
-  const { data: patientData } = useGetPatientList();
+  const { data: patientData } = useGetPatientList(undefined, isStaff);
   const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
