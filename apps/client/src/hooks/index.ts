@@ -4,3 +4,4 @@ export * from "./useLogin";
 export * from "./useUser";
 export * from "./useUserRole";
 export * from "./useMobileView";
+export * from "./useAppointmentMove";

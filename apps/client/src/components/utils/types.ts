@@ -8,6 +8,7 @@ export type CalendarSlot = {
   start: string;
   duration: number;
   day: number;
+  status: "PLANNED" | "COMPLETED" | "CANCELLED";
   note?: string;
 };
 

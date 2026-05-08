@@ -3,10 +3,12 @@ import {
   Appointment,
   AppointmentService,
   CreateAppointmentDto,
+  UpdateAppointmentDto,
+  RescheduleAppointmentDto,
 } from "@clinio/api";
 import { AppointmentStatus } from "@clinio/shared";
 import { t } from "../i18n";
-import { notifyError, notifySuccess } from "../utils/notification";
+import { handleError, notifySuccess } from "../utils/notification";
 import { appointmentKeys, calendarKeys } from "./queryKeys";
 
 export type AppointmentListFilters = {
@@ -44,43 +46,88 @@ export const useGetAppointmentListQuery = (
 export const useCreateAppointmentMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Appointment, Error, CreateAppointmentDto>({
+  return useMutation<Appointment, unknown, CreateAppointmentDto>({
     mutationFn: async (body) => {
-      const { data } = await AppointmentService.createAppointment({
+      const { data, error } = await AppointmentService.createAppointment({
         body,
       });
-      if (!data) throw new Error(t("common.error.noData"));
-      return data;
+      if (error) throw error;
+      return data!;
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.createSuccess"), "");
     },
-
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
+    onError: handleError,
   });
 };
 
 export const useDeleteAppointmentMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
-      await AppointmentService.deleteAppointment({
+      const { error } = await AppointmentService.deleteAppointment({
         path: { id },
       });
+      if (error) throw error;
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.deleteSuccess"), "");
     },
+    onError: handleError,
+  });
+};
 
-    onError: (error) =>
-      notifyError(t("common.error.deleteFailed"), error.message),
+export const useUpdateAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Appointment,
+    unknown,
+    { id: string; dto: UpdateAppointmentDto }
+  >({
+    mutationFn: async ({ id, dto }) => {
+      const { data, error } = await AppointmentService.updateAppointment({
+        path: { id },
+        body: dto,
+      });
+      if (error) throw error;
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.updateSuccess"), "");
+    },
+    onError: handleError,
+  });
+};
+
+export const useRescheduleAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Appointment,
+    unknown,
+    { id: string; dto: RescheduleAppointmentDto }
+  >({
+    mutationFn: async ({ id, dto }) => {
+      const { data, error } = await AppointmentService.rescheduleAppointment({
+        path: { id },
+        body: dto,
+      });
+      if (error) throw error;
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.rescheduleSuccess"), "");
+    },
+    onError: handleError,
   });
 };

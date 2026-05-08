@@ -4,7 +4,7 @@ import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { Calendar } from "../dashboard/Calendar";
 import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
-import { useT, useUserRole } from "@hooks";
+import { useT, useUserRole, useAppointmentMove } from "@hooks";
 import { OverviewHeader } from "../common/OverviewHeader.tsx";
 
 export function AppointmentsOverview() {
@@ -15,6 +15,7 @@ export function AppointmentsOverview() {
   const [time, setTime] = useState(() => Date.now());
 
   const { data: offices = [] } = useGetOfficeListQuery();
+  const handleAppointmentMove = useAppointmentMove(time);
 
   const { data: calendarDays = [] } = useGetCalendarQuery(
     selectedOfficeId!,
@@ -53,6 +54,7 @@ export function AppointmentsOverview() {
               officeName={officeName}
               weekTimestamp={time}
               onWeekTimestampChange={setTime}
+              onAppointmentMove={handleAppointmentMove}
             />
           </Stack>
         ) : (

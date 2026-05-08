@@ -159,6 +159,8 @@ const en = {
     notification: {
       createSuccess: "Appointment created",
       deleteSuccess: "Appointment deleted",
+      updateSuccess: "Appointment updated",
+      rescheduleSuccess: "Appointment rescheduled",
     },
   },
   login: {

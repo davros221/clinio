@@ -251,6 +251,7 @@ export const Calendar = ({
                         start: `${String(slot.hour).padStart(2, "0")}:00`,
                         duration: 60,
                         day: dayIdx + 1,
+                        status: slot.appointment!.status,
                         note: slot.appointment!.note,
                       };
                       return (

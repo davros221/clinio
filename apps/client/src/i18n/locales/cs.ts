@@ -159,6 +159,8 @@ const cs: TranslationKeys = {
     notification: {
       createSuccess: "Rezervace byla vytvořena",
       deleteSuccess: "Rezervace byla smazána",
+      updateSuccess: "Rezervace byla upravena",
+      rescheduleSuccess: "Rezervace byla přesunuta",
     },
   },
   login: {
