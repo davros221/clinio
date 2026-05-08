@@ -3,6 +3,7 @@ import {
   CreateMedicalRecordDto,
   MedicalRecord,
   MedicalRecordService,
+  UpdateMedicalRecordDto,
   type DeletePatientMedicalRecordData,
 } from "@clinio/api";
 import { t } from "../i18n";
@@ -43,6 +44,34 @@ export const useCreatePatientMedicalRecordMutation = (patientId: string) => {
     },
     onError: (error) =>
       notifyError(t("common.error.createFailed"), error.message),
+  });
+};
+
+type UpdateMutationVars = {
+  path: { patientId: string; id: string };
+  body: UpdateMedicalRecordDto;
+};
+
+export const useUpdatePatientMedicalRecordMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<MedicalRecord, Error, UpdateMutationVars>({
+    mutationFn: async ({ path, body }) => {
+      const { data } = await MedicalRecordService.updatePatientMedicalRecord({
+        path,
+        body,
+      });
+      if (!data) throw new Error(t("common.error.noData"));
+      return data;
+    },
+    onSuccess: (_, { path }) => {
+      queryClient.invalidateQueries({
+        queryKey: medicalRecordKeys.list({ patientId: path.patientId }),
+      });
+      notifySuccess(t("medicalRecord.notification.updateSuccess"), "");
+    },
+    onError: (error) =>
+      notifyError(t("common.error.updateFailed"), error.message),
   });
 };
 

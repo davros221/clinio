@@ -324,8 +324,16 @@ const en = {
         diagnosis: "Diagnosis",
       },
     },
+    editModal: {
+      title: "Edit Medical Record",
+      buttons: {
+        cancel: "Cancel",
+        submit: "Save",
+      },
+    },
     notification: {
       createSuccess: "Medical record created",
+      updateSuccess: "Medical record updated",
       deleteSuccess: "Medical record deleted",
     },
   },
