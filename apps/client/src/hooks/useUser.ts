@@ -10,7 +10,7 @@ export const useUser = () => {
 
   const logout = () => {
     AuthToken.clear();
-    void queryClient.resetQueries();
+    queryClient.clear();
   };
 
   return {
