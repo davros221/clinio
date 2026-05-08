@@ -123,8 +123,9 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
           <Group gap="xs">
             <IoMdTime />
             <Text size="sm">
-              {appt.start} — {t("appointment.durationLabel")}: {appt.duration}{" "}
-              min
+              {`${appt.start} — ${t("appointment.durationLabel")}: ${
+                appt.duration
+              } min`}
             </Text>
           </Group>
 

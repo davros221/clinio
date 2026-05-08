@@ -10,10 +10,9 @@ export const useGetCalendarQuery = (
   return useQuery<CalendarDay[]>({
     queryKey: calendarKeys.list({ officeId, timestamp }),
     queryFn: async () => {
-      const { data, error } = await CalendarService.getCalendar({
+      const { data } = await CalendarService.getCalendar({
         query: { officeId, timestamp },
       });
-      if (error) throw error;
       return data!;
     },
     enabled,

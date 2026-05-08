@@ -8,7 +8,7 @@ import {
 } from "@clinio/api";
 import { AppointmentStatus } from "@clinio/shared";
 import { t } from "../i18n";
-import { handleError, notifySuccess } from "../utils/notification";
+import { notifySuccess } from "../utils/notification";
 import { appointmentKeys, calendarKeys } from "./queryKeys";
 
 export type AppointmentListFilters = {
@@ -28,7 +28,7 @@ export const useGetAppointmentListQuery = (
     queryKey: appointmentKeys.list(filters),
     enabled,
     queryFn: async () => {
-      const { data, error } = await AppointmentService.getAppointments({
+      const { data } = await AppointmentService.getAppointments({
         query: {
           status: filters?.status,
           page: filters?.page,
@@ -38,7 +38,6 @@ export const useGetAppointmentListQuery = (
           sortOrder: filters?.sortOrder,
         },
       });
-      if (error) throw error;
       return data!.items;
     },
   });
@@ -49,10 +48,7 @@ export const useCreateAppointmentMutation = () => {
 
   return useMutation<Appointment, unknown, CreateAppointmentDto>({
     mutationFn: async (body) => {
-      const { data, error } = await AppointmentService.createAppointment({
-        body,
-      });
-      if (error) throw error;
+      const { data } = await AppointmentService.createAppointment({ body });
       return data!;
     },
     onSuccess: () => {
@@ -60,7 +56,6 @@ export const useCreateAppointmentMutation = () => {
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.createSuccess"), "");
     },
-    onError: handleError,
   });
 };
 
@@ -69,17 +64,13 @@ export const useDeleteAppointmentMutation = () => {
 
   return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
-      const { error } = await AppointmentService.deleteAppointment({
-        path: { id },
-      });
-      if (error) throw error;
+      await AppointmentService.deleteAppointment({ path: { id } });
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.deleteSuccess"), "");
     },
-    onError: handleError,
   });
 };
 
@@ -92,11 +83,10 @@ export const useUpdateAppointmentMutation = () => {
     { id: string; dto: UpdateAppointmentDto }
   >({
     mutationFn: async ({ id, dto }) => {
-      const { data, error } = await AppointmentService.updateAppointment({
+      const { data } = await AppointmentService.updateAppointment({
         path: { id },
         body: dto,
       });
-      if (error) throw error;
       return data!;
     },
     onSuccess: () => {
@@ -104,7 +94,6 @@ export const useUpdateAppointmentMutation = () => {
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.updateSuccess"), "");
     },
-    onError: handleError,
   });
 };
 
@@ -117,11 +106,10 @@ export const useRescheduleAppointmentMutation = () => {
     { id: string; dto: RescheduleAppointmentDto }
   >({
     mutationFn: async ({ id, dto }) => {
-      const { data, error } = await AppointmentService.rescheduleAppointment({
+      const { data } = await AppointmentService.rescheduleAppointment({
         path: { id },
         body: dto,
       });
-      if (error) throw error;
       return data!;
     },
     onSuccess: () => {
@@ -129,7 +117,6 @@ export const useRescheduleAppointmentMutation = () => {
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.rescheduleSuccess"), "");
     },
-    onError: handleError,
   });
 };
 
@@ -138,10 +125,9 @@ export const useCancelAppointmentMutation = () => {
 
   return useMutation<Appointment, unknown, string>({
     mutationFn: async (id) => {
-      const { data, error } = await AppointmentService.cancelAppointment({
+      const { data } = await AppointmentService.cancelAppointment({
         path: { id },
       });
-      if (error) throw error;
       return data!;
     },
     onSuccess: () => {
@@ -149,6 +135,5 @@ export const useCancelAppointmentMutation = () => {
       void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.cancelSuccess"), "");
     },
-    onError: handleError,
   });
 };
