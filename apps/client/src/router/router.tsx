@@ -17,6 +17,7 @@ import {
   SettingsPage,
   OfficeDetailLayout,
   OfficeDetailContent,
+  OfficeAppointmentsContent,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
@@ -86,6 +87,26 @@ export const routes: RouteObject[] = [
                 path: ROUTER_PATHS.OFFICE_DETAIL,
                 element: <OfficeDetailLayout />,
                 children: [{ index: true, element: <OfficeDetailContent /> }],
+              },
+              {
+                element: (
+                  <RequireAuth
+                    allowedRoles={[
+                      UserRole.NURSE,
+                      UserRole.DOCTOR,
+                      UserRole.CLIENT,
+                    ]}
+                  />
+                ),
+                children: [
+                  {
+                    path: ROUTER_PATHS.OFFICE_APPOINTMENTS,
+                    element: <OfficeDetailLayout />,
+                    children: [
+                      { index: true, element: <OfficeAppointmentsContent /> },
+                    ],
+                  },
+                ],
               },
               {
                 path: ROUTER_PATHS.APPOINTMENTS,

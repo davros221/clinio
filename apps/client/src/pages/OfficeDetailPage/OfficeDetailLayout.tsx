@@ -82,7 +82,6 @@ export function OfficeDetailLayout() {
             editing={editing}
             isNew={isNew}
             isPending={isPending}
-            backTo={ROUTER_PATHS.OFFICES}
             onEdit={startEdit}
             onSave={handleSave}
             onCancel={handleCancel}
