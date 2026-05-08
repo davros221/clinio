@@ -8,7 +8,7 @@ import { User, UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
-import { notifySuccess, handleError } from "@utils";
+import { notifySuccess } from "@utils";
 
 const createUserFn = async (data: CreateUserDto) => {
   const res = await UserService.create({ body: data });
@@ -26,9 +26,6 @@ export const useCreateUserMutation = () => {
         t("patient.notification.createSuccessTitle"),
         t("patient.notification.createSuccessMessage")
       );
-    },
-    onError: (e) => {
-      handleError(e);
     },
   });
 };

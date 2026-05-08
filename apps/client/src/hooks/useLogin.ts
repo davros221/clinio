@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { AuthService, LoginDto } from "@clinio/api";
-import { handleError } from "@utils";
 import { router, ROUTER_PATHS } from "@router";
 import { useAuthStore } from "../stores/authStore.ts";
 
@@ -18,8 +17,7 @@ export const useLogin = () => {
       }
     },
 
-    onError: (error: unknown) => {
-      handleError(error);
+    onError: () => {
       logout();
     },
   });

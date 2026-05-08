@@ -6,8 +6,6 @@ import {
   type UpdateOfficeData,
   type DeleteOfficeData,
 } from "@clinio/api";
-import { t } from "../i18n";
-import { notifyError } from "../utils/notification";
 import { officeKeys } from "./queryKeys";
 
 // TODO: API returns PaginatedOfficeResponse — expose pagination metadata when
@@ -17,7 +15,7 @@ export const useGetOfficeListQuery = () => {
     queryKey: officeKeys.list(),
     queryFn: async () => {
       const { data } = await OfficeService.getOffices();
-      return data?.items ?? [];
+      return data!.items;
     },
   });
 };
@@ -26,9 +24,7 @@ export const useGetOfficeDetailQuery = (id: string, enabled: boolean) => {
   return useQuery<Office | null>({
     queryKey: officeKeys.detail(id),
     queryFn: async () => {
-      const { data } = await OfficeService.getOfficeById({
-        path: { id },
-      });
+      const { data } = await OfficeService.getOfficeById({ path: { id } });
       return data ?? null;
     },
     enabled,
@@ -38,64 +34,44 @@ export const useGetOfficeDetailQuery = (id: string, enabled: boolean) => {
 export const useCreateOfficeMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Office, Error, CreateOfficeDto>({
+  return useMutation<Office, unknown, CreateOfficeDto>({
     mutationFn: async (body) => {
-      const { data } = await OfficeService.createOffice({
-        body,
-      });
-      if (!data) throw new Error(t("common.error.noData"));
-      return data;
+      const { data } = await OfficeService.createOffice({ body });
+      return data!;
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
     },
-
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
   });
 };
 
 export const useUpdateOfficeMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Office, Error, Omit<UpdateOfficeData, "url">>({
-    mutationFn: async (data) => {
-      const { data: office } = await OfficeService.updateOffice({
-        ...data,
-      });
-
-      if (!office) throw new Error(t("common.error.noData"));
-      return office;
+  return useMutation<Office, unknown, Omit<UpdateOfficeData, "url">>({
+    mutationFn: async (opts) => {
+      const { data } = await OfficeService.updateOffice({ ...opts });
+      return data!;
     },
-
     onSuccess: (updatedOffice) => {
-      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
       queryClient.setQueryData(
         officeKeys.detail(updatedOffice.id),
         updatedOffice
       );
     },
-    onError: (error) =>
-      notifyError(t("common.error.updateFailed"), error.message),
   });
 };
 
 export const useDeleteOfficeMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, Pick<DeleteOfficeData, "path">>({
+  return useMutation<void, unknown, Pick<DeleteOfficeData, "path">>({
     mutationFn: async ({ path }) => {
-      await OfficeService.deleteOffice({
-        path,
-      });
+      await OfficeService.deleteOffice({ path });
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: officeKeys.lists() });
     },
-
-    onError: (error) =>
-      notifyError(t("common.error.deleteFailed"), error.message),
   });
 };
