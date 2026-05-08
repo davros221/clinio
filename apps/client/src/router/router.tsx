@@ -124,8 +124,22 @@ export const routes: RouteObject[] = [
                 element: <AppointmentsOverview />,
               },
               {
-                path: ROUTER_PATHS.PATIENTS,
-                element: <PatientsOverview />,
+                element: (
+                  <RequireAuth
+                    allowedRoles={[
+                      UserRole.NURSE,
+                      UserRole.DOCTOR,
+                      UserRole.CLIENT,
+                    ]}
+                  />
+                ),
+                errorElement: <CommonErrorPage />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.PATIENTS,
+                    element: <PatientsOverview />,
+                  },
+                ],
               },
               {
                 element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
