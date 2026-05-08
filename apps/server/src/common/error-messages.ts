@@ -133,3 +133,10 @@ export function appointmentNotEditable(): BadRequestException {
     message: "Only planned appointments can be modified",
   });
 }
+
+export function appNotInitialized(): ForbiddenException {
+  return new ForbiddenException({
+    errorCode: ErrorCode.APP_NOT_INITIALIZED,
+    message: "Application is not initialized",
+  });
+}
