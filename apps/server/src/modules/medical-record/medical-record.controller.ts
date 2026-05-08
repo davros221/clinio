@@ -7,8 +7,8 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
-  Put,
   Query,
 } from "@nestjs/common";
 import {
@@ -139,7 +139,7 @@ export class MedicalRecordController {
     return MedicalRecordMapper.toDto(entity);
   }
 
-  @Put(":id")
+  @Patch(":id")
   @Roles(UserRole.DOCTOR, UserRole.NURSE)
   @ApiOperation({ operationId: "updatePatientMedicalRecord" })
   @ApiOkResponse({ type: MedicalRecord })
