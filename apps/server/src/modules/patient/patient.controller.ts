@@ -9,7 +9,6 @@ import {
   ParseUUIDPipe,
   Patch,
   Query,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
@@ -32,7 +31,10 @@ import { PatientListQueryDto } from "./dto/patient-list-query.dto";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { Patient } from "./dto/patient.dto";
 import { PatientMapper } from "./mapper/PatientMapper";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
@@ -79,20 +81,15 @@ export class PatientController {
   })
   @ApiOkResponse({ type: PaginatedPatientResponse })
   @ApiForbiddenResponse({ description: "Forbidden" })
-  @UsePipes(new ZodValidationPipe(patientListSchema))
-  async getAll(@Query() query: PatientListQueryDto) {
+  async getAll(
+    @Query(new ZodValidationPipe(patientListSchema)) query: PatientListQueryDto
+  ) {
     const { search, ...listQuery } = query;
     const { items, total } = await this.patientService.findAll(
       listQuery,
       search
     );
-    return {
-      items: PatientMapper.toDtoList(items),
-      total,
-      page: listQuery.page,
-      limit: listQuery.limit,
-      totalPages: Math.ceil(total / listQuery.limit),
-    };
+    return paginatedResponse(PatientMapper.toDtoList(items), total, listQuery);
   }
 
   @Get(":id")

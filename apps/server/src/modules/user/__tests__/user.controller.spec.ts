@@ -1,4 +1,3 @@
-import { BadRequestException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { UserController } from "../user.controller";
 import { UserService } from "../user.service";
@@ -108,19 +107,6 @@ describe("UserController", () => {
       );
     });
 
-    it("should normalize single role to array", async () => {
-      service.findAll.mockResolvedValue({ items: [], total: 0 });
-
-      await controller.getAll(mockAdmin, UserRole.NURSE);
-
-      expect(service.findAll).toHaveBeenCalledWith(
-        mockAdmin,
-        [UserRole.NURSE],
-        defaultQuery,
-        undefined
-      );
-    });
-
     it("should pass search param to service", async () => {
       service.findAll.mockResolvedValue({ items: [mockUser], total: 1 });
 
@@ -172,18 +158,6 @@ describe("UserController", () => {
       );
 
       expect(result.totalPages).toBe(3);
-    });
-
-    it("should throw BadRequestException when role param is missing", async () => {
-      await expect(controller.getAll(mockAdmin, undefined)).rejects.toThrow(
-        BadRequestException
-      );
-    });
-
-    it("should throw BadRequestException for invalid role value", async () => {
-      await expect(
-        controller.getAll(mockAdmin, "INVALID" as UserRole)
-      ).rejects.toThrow(BadRequestException);
     });
   });
 

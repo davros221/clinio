@@ -1,9 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import { OfficeService } from "../office.service";
 import { OfficeEntity } from "../office.entity";
@@ -277,22 +274,6 @@ describe("OfficeService", () => {
         expect(error).toBeInstanceOf(NotFoundException);
         expect((error as NotFoundException).getResponse()).toMatchObject({
           errorCode: ErrorCode.OFFICE_NOT_FOUND,
-        });
-      }
-    });
-
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      officeRepository.findOne.mockRejectedValue(new Error("DB error"));
-
-      try {
-        await service.findById(mockOffice.id);
-        fail("should have thrown");
-      } catch (error) {
-        expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(
-          (error as InternalServerErrorException).getResponse()
-        ).toMatchObject({
-          errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
         });
       }
     });

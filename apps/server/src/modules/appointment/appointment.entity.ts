@@ -43,6 +43,6 @@ export class AppointmentEntity {
   @Column({ type: "enum", enum: Object.values(AppointmentStatus) })
   status!: AppointmentStatus;
 
-  @Column()
+  @Column({ nullable: true })
   note!: string;
 }

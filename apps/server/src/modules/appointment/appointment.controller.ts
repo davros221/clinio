@@ -45,7 +45,10 @@ import { UpdateAppointmentDto } from "./dto/update-appointment.dto";
 import { RescheduleAppointmentDto } from "./dto/reschedule-appointment.dto";
 import { Appointment } from "./dto/appointment.dto";
 import { AppointmentMapper } from "./mapper/AppointmentMapper";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 
 const PaginatedAppointmentResponse = PaginatedResponseDto(Appointment);
 
@@ -99,7 +102,8 @@ export class AppointmentController {
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
     @CurrentUser() currentUser: AuthUser,
-    @Query("status") status?: AppointmentStatus | AppointmentStatus[],
+    @Query("status", new ParseEnumArrayPipe(AppointmentStatus, true))
+    statuses?: AppointmentStatus[],
     @Query("officeId", new ParseUUIDPipe({ optional: true }))
     officeId?: string,
     @Query("page") page?: string,
@@ -107,9 +111,6 @@ export class AppointmentController {
     @Query("sortBy") sortBy?: string,
     @Query("sortOrder") sortOrder?: string
   ) {
-    const statuses = status
-      ? new ParseEnumArrayPipe(AppointmentStatus).transform(status)
-      : undefined;
     const query = appointmentListSchema.parse({
       page,
       limit,
@@ -122,13 +123,7 @@ export class AppointmentController {
       statuses,
       officeId
     );
-    return {
-      items: AppointmentMapper.toDtoList(items),
-      total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+    return paginatedResponse(AppointmentMapper.toDtoList(items), total, query);
   }
 
   @Get(":id")

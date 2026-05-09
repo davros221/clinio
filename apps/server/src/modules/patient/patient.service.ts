@@ -8,11 +8,7 @@ import {
 } from "@clinio/shared";
 import { PatientEntity } from "./patient.entity";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
-import {
-  forbidden,
-  internalError,
-  notFound,
-} from "../../common/error-messages";
+import { forbidden, notFound } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
 
@@ -55,12 +51,7 @@ export class PatientService {
   }
 
   async findById(id: string, currentUser?: AuthUser): Promise<PatientEntity> {
-    let patient: PatientEntity | null;
-    try {
-      patient = await this.patientRepository.findOne({ where: { id } });
-    } catch {
-      throw internalError();
-    }
+    const patient = await this.patientRepository.findOne({ where: { id } });
 
     if (!patient) {
       throw notFound("Patient", ErrorCode.PATIENT_NOT_FOUND);

@@ -6,13 +6,10 @@ import {
   Req,
   Res,
   UseGuards,
-  UsePipes,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import {
-  GoogleAuthGuard,
-  validateAllowedClientUrl,
-} from "./guards/google-auth.guard";
+import { GoogleAuthGuard } from "./guards/google-auth.guard";
+import { validateAllowedClientUrl } from "./utils/validate-client-url";
 import {
   ApiOkResponse,
   ApiOperation,
@@ -57,8 +54,9 @@ export class AuthController {
   @ApiOkResponse({ type: AuthResponse })
   @ApiBadRequestResponse({ description: "Bad Request" })
   @ApiUnauthorizedResponse({ description: "Invalid email or password" })
-  @UsePipes(new ZodValidationPipe(loginSchema))
-  login(@Body() dto: LoginDto): Promise<AuthResponse> {
+  login(
+    @Body(new ZodValidationPipe(loginSchema)) dto: LoginDto
+  ): Promise<AuthResponse> {
     return this.authService.login(dto);
   }
 
@@ -69,9 +67,9 @@ export class AuthController {
   @ApiOperation({ operationId: "requestPasswordReset" })
   @ApiOkResponse({ description: "Password reset email sent" })
   @ApiNotFoundResponse({ description: "User not found" })
-  @UsePipes(new ZodValidationPipe(requestPasswordResetSchema))
   async requestPasswordReset(
-    @Body() dto: RequestPasswordResetDto
+    @Body(new ZodValidationPipe(requestPasswordResetSchema))
+    dto: RequestPasswordResetDto
   ): Promise<{ success: boolean }> {
     await this.authService.requestPasswordReset(dto.email);
     return { success: true };
@@ -84,9 +82,8 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: "Invalid or expired reset token",
   })
-  @UsePipes(new ZodValidationPipe(resetPasswordSchema))
   async resetPassword(
-    @Body() dto: ResetPasswordDto
+    @Body(new ZodValidationPipe(resetPasswordSchema)) dto: ResetPasswordDto
   ): Promise<ResetPasswordResponse> {
     return this.authService.resetPassword(dto.token, dto.password);
   }

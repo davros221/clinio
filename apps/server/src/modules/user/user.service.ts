@@ -17,7 +17,6 @@ import {
   badRequest,
   emailAlreadyExists,
   forbidden,
-  internalError,
   notFound,
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
@@ -48,7 +47,7 @@ export class UserService {
     return this.adminExists;
   }
 
-  clearInitializedCache(): void {
+  private clearInitializedCache(): void {
     this.adminExists = null;
   }
 
@@ -99,13 +98,7 @@ export class UserService {
   }
 
   async findById(id: string, currentUser?: AuthUser): Promise<UserEntity> {
-    let user: UserEntity | null;
-
-    try {
-      user = await this.userRepository.findOneBy({ id });
-    } catch {
-      throw internalError();
-    }
+    const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
       throw notFound("User", ErrorCode.USER_NOT_FOUND);

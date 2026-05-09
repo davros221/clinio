@@ -9,7 +9,6 @@ import {
   Post,
   Put,
   Query,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiOkResponse,
@@ -38,7 +37,10 @@ import { CreateOfficeDto } from "./dto/create-office.dto";
 import { UpdateOfficeDto } from "./dto/update-office.dto";
 import { Office } from "./dto/office.dto";
 import { OfficeMapper } from "./mapper/OfficeMapper";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 
 const PaginatedOfficeResponse = PaginatedResponseDto(Office);
 
@@ -95,13 +97,7 @@ export class OfficeController {
       user,
       search
     );
-    return {
-      items: OfficeMapper.toDtoList(items),
-      total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+    return paginatedResponse(OfficeMapper.toDtoList(items), total, query);
   }
 
   @Get(":id")
@@ -119,8 +115,9 @@ export class OfficeController {
   @ApiOperation({ operationId: "createOffice" })
   @ApiCreatedResponse({ type: Office })
   @ApiBadRequestResponse({ description: "Bad Request" })
-  @UsePipes(new ZodValidationPipe(createOfficeSchema))
-  async create(@Body() dto: CreateOfficeDto) {
+  async create(
+    @Body(new ZodValidationPipe(createOfficeSchema)) dto: CreateOfficeDto
+  ) {
     const entity = await this.officeService.create(dto);
     return OfficeMapper.toDto(entity);
   }

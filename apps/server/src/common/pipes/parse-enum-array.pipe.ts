@@ -3,16 +3,18 @@ import { badRequest } from "../error-messages";
 
 @Injectable()
 export class ParseEnumArrayPipe<T extends Record<string, string>>
-  implements PipeTransform<string | string[], T[keyof T][]>
+  implements
+    PipeTransform<string | string[] | undefined, T[keyof T][] | undefined>
 {
   private readonly validValues: string[];
 
-  constructor(enumType: T) {
+  constructor(enumType: T, private readonly optional = false) {
     this.validValues = Object.values(enumType);
   }
 
-  transform(value: string | string[] | undefined): T[keyof T][] {
+  transform(value: string | string[] | undefined): T[keyof T][] | undefined {
     if (value === undefined || value === "") {
+      if (this.optional) return undefined;
       throw badRequest(
         `Expected one or more values from: ${this.validValues.join(", ")}`
       );
