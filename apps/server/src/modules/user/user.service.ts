@@ -332,4 +332,18 @@ export class UserService {
   public async update(user: UserEntity): Promise<UserEntity> {
     return await this.userRepository.save(user);
   }
+
+
+  async findUsersWithLoggingEnabled(userIds: string[]): Promise<UserEntity[]> {
+    if (userIds.length === 0) return [];
+
+    return this.userRepository.find({
+      where: {
+        id: In(userIds),
+        isDetailedLoggingEnabled: true,
+      },
+      // We only need a few fields for this check, keep it lightweight
+      select: ["id", "email", "logGenerationInterval", "logLevel"],
+    });
+  }
 }
