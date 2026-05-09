@@ -151,6 +151,12 @@ const cs: TranslationKeys = {
         status: "Stav",
         office: "Ordinace",
         note: "Poznámka",
+        cancel: "Zrušit",
+      },
+      cancelConfirm: {
+        title: "Zrušit rezervaci?",
+        message: "Opravdu chcete zrušit tuto rezervaci?",
+        confirm: "Zrušit rezervaci",
       },
     },
     status: {

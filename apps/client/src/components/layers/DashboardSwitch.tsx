@@ -2,7 +2,7 @@ import { USER_ROLES } from "../../types/user.ts";
 import { useUser } from "../../hooks/useUser.ts";
 import { Navigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
-import { ClientDashboard, DoctorDashboard, NurseDashboard } from "@pages";
+import { DoctorDashboard, NurseDashboard } from "@pages";
 
 export const DashboardSwitch = () => {
   const { user } = useUser();
@@ -14,7 +14,8 @@ export const DashboardSwitch = () => {
 
   if (role === USER_ROLES.DOCTOR) return <DoctorDashboard />;
   if (role === USER_ROLES.NURSE) return <NurseDashboard />;
-  if (role === USER_ROLES.CLIENT) return <ClientDashboard />;
+  if (role === USER_ROLES.CLIENT)
+    return <Navigate to={ROUTER_PATHS.APPOINTMENTS} replace />;
 
   if (role) return <Navigate to={ROUTER_PATHS.FORBIDDEN} replace />;
 

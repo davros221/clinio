@@ -200,10 +200,17 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
               variant="light"
               loading={isCancelling}
               onClick={() =>
-                appt && cancelAppointment(appt.id, { onSuccess: onClose })
+                appt &&
+                openConfirmModal({
+                  title: t("appointment.overview.cancelConfirm.title"),
+                  message: t("appointment.overview.cancelConfirm.message"),
+                  confirmLabel: t("appointment.overview.cancelConfirm.confirm"),
+                  onConfirm: () =>
+                    cancelAppointment(appt.id, { onSuccess: onClose }),
+                })
               }
             >
-              {t("common.action.cancel")}
+              {t("appointment.overview.table.cancel")}
             </Button>
           )}
 
