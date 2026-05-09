@@ -37,7 +37,10 @@ import { UpdateMedicalRecordDto } from "./dto/update-medical-record.dto";
 import { MedicalRecordListQueryDto } from "./dto/medical-record-list-query.dto";
 import { MedicalRecord } from "./dto/medical-record.dto";
 import { MedicalRecordMapper } from "./mapper/MedicalRecordMapper";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
@@ -90,13 +93,11 @@ export class MedicalRecordController {
       query,
       currentUser
     );
-    return {
-      items: MedicalRecordMapper.toDtoList(items),
+    return paginatedResponse(
+      MedicalRecordMapper.toDtoList(items),
       total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+      query
+    );
   }
 
   @Get(":id")

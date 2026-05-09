@@ -4,7 +4,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
@@ -281,14 +280,6 @@ describe("UserService", () => {
           errorCode: ErrorCode.USER_NOT_FOUND,
         });
       }
-    });
-
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      repository.findOneBy.mockRejectedValue(new Error("DB error"));
-
-      await expect(service.findById(mockUser.id)).rejects.toThrow(
-        InternalServerErrorException
-      );
     });
 
     it("should allow CLIENT to read own record", async () => {

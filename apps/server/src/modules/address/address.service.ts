@@ -37,10 +37,11 @@ export class AddressService {
         })
       );
       return response.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const e = error as { response?: { status?: number; data?: unknown } };
       this.logger.error(
-        `Mapy.cz suggest failed: ${error?.response?.status} ${JSON.stringify(
-          error?.response?.data
+        `Mapy.cz suggest failed: ${e?.response?.status} ${JSON.stringify(
+          e?.response?.data
         )}`
       );
       throw internalError();

@@ -9,7 +9,6 @@ import { CreateMedicalRecordDto } from "./dto/create-medical-record.dto";
 import { UpdateMedicalRecordDto } from "./dto/update-medical-record.dto";
 import {
   forbidden,
-  internalError,
   medicalRecordNotFound,
   notFound,
 } from "../../common/error-messages";
@@ -52,15 +51,10 @@ export class MedicalRecordService {
   ): Promise<MedicalRecordEntity> {
     await this.assertPatientAccess(patientId, currentUser);
 
-    let record: MedicalRecordEntity | null;
-    try {
-      record = await this.medicalRecordRepository.findOne({
-        where: { id, patientId },
-        relations: ["patient", "patient.user", "creator", "office"],
-      });
-    } catch {
-      throw internalError();
-    }
+    const record = await this.medicalRecordRepository.findOne({
+      where: { id, patientId },
+      relations: ["patient", "patient.user", "creator", "office"],
+    });
 
     if (!record) {
       throw medicalRecordNotFound();
@@ -93,16 +87,10 @@ export class MedicalRecordService {
 
     const saved = await this.medicalRecordRepository.save(entity);
 
-    const withRelations = await this.medicalRecordRepository.findOne({
+    return (await this.medicalRecordRepository.findOne({
       where: { id: saved.id },
       relations: ["creator", "office"],
-    });
-
-    if (!withRelations) {
-      throw internalError();
-    }
-
-    return withRelations;
+    }))!;
   }
 
   async update(
@@ -143,16 +131,10 @@ export class MedicalRecordService {
     Object.assign(record, dto);
     await this.medicalRecordRepository.save(record);
 
-    const updated = await this.medicalRecordRepository.findOne({
+    return (await this.medicalRecordRepository.findOne({
       where: { id },
       relations: ["patient", "patient.user", "creator", "office"],
-    });
-
-    if (!updated) {
-      throw internalError();
-    }
-
-    return updated;
+    }))!;
   }
 
   async remove(

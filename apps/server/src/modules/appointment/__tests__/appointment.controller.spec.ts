@@ -150,7 +150,7 @@ describe("AppointmentController", () => {
     it("should filter by status when provided", async () => {
       service.findAll.mockResolvedValue({ items: [mockAppointment], total: 1 });
 
-      await controller.getAll(adminUser, AppointmentStatus.PLANNED);
+      await controller.getAll(adminUser, [AppointmentStatus.PLANNED]);
 
       expect(service.findAll).toHaveBeenCalledWith(
         defaultQuery,
