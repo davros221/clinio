@@ -13,8 +13,7 @@ export const useSideMenu = (showUserInfo = true) => {
   const initials = showUserInfo
     ? StringUtils.getInitials(user?.firstName, user?.lastName)
     : "";
-  const userListTitle =
-    user?.role === UserRole.ADMIN ? t("nav.staff") : t("nav.patients");
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const navItems = useMemo(() => {
     if (isOnboardingClient) return [];
@@ -23,14 +22,15 @@ export const useSideMenu = (showUserInfo = true) => {
       {
         to: ROUTER_PATHS.HOME,
         label: t("nav.dashboard"),
+        allowed: [UserRole.NURSE, UserRole.DOCTOR, UserRole.CLIENT],
       },
       {
         to: ROUTER_PATHS.OFFICES,
         label: t("nav.offices"),
       },
       {
-        to: ROUTER_PATHS.PATIENTS,
-        label: userListTitle,
+        to: isAdmin ? ROUTER_PATHS.STAFF : ROUTER_PATHS.PATIENTS,
+        label: isAdmin ? t("nav.staff") : t("nav.patients"),
         allowed: [UserRole.ADMIN, UserRole.NURSE, UserRole.DOCTOR],
       },
       {
@@ -49,7 +49,7 @@ export const useSideMenu = (showUserInfo = true) => {
         allowed: [UserRole.NURSE, UserRole.DOCTOR],
       },
     ] as SideMenuItemProps[];
-  }, [t, userListTitle, isOnboardingClient]);
+  }, [t, isAdmin, isOnboardingClient]);
 
   const bottomItems = useMemo<SideMenuItemProps[]>(
     () => [

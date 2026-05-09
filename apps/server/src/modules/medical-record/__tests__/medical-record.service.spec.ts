@@ -1,10 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  ForbiddenException,
-  InternalServerErrorException,
-  NotFoundException,
-} from "@nestjs/common";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { Repository } from "typeorm";
 import {
   ErrorCode,
@@ -282,15 +278,6 @@ describe("MedicalRecordService", () => {
         });
       }
     });
-
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      patientRepo.findOne.mockResolvedValue(mockPatient);
-      recordRepo.findOne.mockRejectedValue(new Error("DB error"));
-
-      await expect(
-        service.findById(mockPatient.id, mockRecord.id, doctorUser)
-      ).rejects.toThrow(InternalServerErrorException);
-    });
   });
 
   describe("create", () => {
@@ -322,17 +309,6 @@ describe("MedicalRecordService", () => {
         where: { id: mockRecord.id },
         relations: ["creator", "office"],
       });
-    });
-
-    it("should throw InternalServerErrorException when re-fetch after save fails", async () => {
-      patientRepo.findOne.mockResolvedValue(mockPatient);
-      recordRepo.create.mockReturnValue(mockRecord);
-      recordRepo.save.mockResolvedValue(mockRecord);
-      recordRepo.findOne.mockResolvedValue(null);
-
-      await expect(
-        service.create(mockPatient.id, createDto, doctorUser)
-      ).rejects.toThrow(InternalServerErrorException);
     });
 
     it("should throw NotFoundException when patient does not exist", async () => {

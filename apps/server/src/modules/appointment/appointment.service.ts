@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Between, In, Not, Repository, type FindOptionsWhere } from "typeorm";
 import { type AppointmentListQuery, AppointmentStatus } from "@clinio/shared";
+import { addDays } from "date-fns";
 
 import { AppointmentEntity } from "./appointment.entity";
 import { PatientEntity } from "../patient/patient.entity";
@@ -17,7 +18,6 @@ import {
   appointmentSlotTaken,
   badRequest,
   forbidden,
-  internalError,
   notFound,
   patientProfileIncomplete,
 } from "../../common/error-messages";
@@ -69,9 +69,7 @@ export class AppointmentService {
     weekStart: Date
   ): Promise<AppointmentEntity[]> {
     const startDate = weekStart.toISOString().slice(0, 10);
-    const endDate = new Date(weekStart.getTime() + 6 * 86400000)
-      .toISOString()
-      .slice(0, 10);
+    const endDate = addDays(weekStart, 6).toISOString().slice(0, 10);
 
     return this.appointmentRepository.find({
       where: {
@@ -86,16 +84,10 @@ export class AppointmentService {
     id: string,
     currentUser: AuthUser
   ): Promise<AppointmentEntity> {
-    let appointment: AppointmentEntity | null;
-
-    try {
-      appointment = await this.appointmentRepository.findOne({
-        where: { id },
-        relations: ["office", "patient", "patient.user"],
-      });
-    } catch {
-      throw internalError();
-    }
+    const appointment = await this.appointmentRepository.findOne({
+      where: { id },
+      relations: ["office", "patient", "patient.user"],
+    });
 
     if (!appointment) {
       throw appointmentNotFound();
@@ -144,7 +136,11 @@ export class AppointmentService {
         throw patientProfileIncomplete();
       }
 
-      dto.patientId = patient.id;
+      const entity = this.appointmentRepository.create({
+        ...dto,
+        patientId: patient.id,
+      });
+      return this.appointmentRepository.save(entity);
     }
 
     const entity = this.appointmentRepository.create(dto);
@@ -156,7 +152,7 @@ export class AppointmentService {
     dto: UpdateAppointmentDto,
     currentUser: AuthUser
   ): Promise<AppointmentEntity> {
-    const appointment = await this.findByIdOrThrow(id);
+    const appointment = await this.findEntityById(id);
 
     const { isStaff } = AuthHelper.getRoles(currentUser);
     if (!isStaff) {
@@ -185,7 +181,7 @@ export class AppointmentService {
     dto: RescheduleAppointmentDto,
     currentUser: AuthUser
   ): Promise<AppointmentEntity> {
-    const appointment = await this.findByIdOrThrow(id);
+    const appointment = await this.findEntityById(id);
     await this.assertAccess(appointment, currentUser);
 
     if (appointment.status !== AppointmentStatus.PLANNED) {
@@ -213,7 +209,7 @@ export class AppointmentService {
   }
 
   async cancel(id: string, currentUser: AuthUser): Promise<AppointmentEntity> {
-    const appointment = await this.findByIdOrThrow(id);
+    const appointment = await this.findEntityById(id);
     await this.assertAccess(appointment, currentUser);
 
     if (appointment.status !== AppointmentStatus.PLANNED) {
@@ -361,7 +357,7 @@ export class AppointmentService {
     }
   }
 
-  private async findByIdOrThrow(id: string): Promise<AppointmentEntity> {
+  private async findEntityById(id: string): Promise<AppointmentEntity> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
     });

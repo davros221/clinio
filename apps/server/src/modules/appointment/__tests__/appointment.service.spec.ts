@@ -4,7 +4,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { Repository } from "typeorm";
@@ -318,22 +317,6 @@ describe("AppointmentService", () => {
         expect(error).toBeInstanceOf(NotFoundException);
         expect((error as NotFoundException).getResponse()).toMatchObject({
           errorCode: ErrorCode.APPOINTMENT_NOT_FOUND,
-        });
-      }
-    });
-
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      appointmentRepo.findOne.mockRejectedValue(new Error("DB error"));
-
-      try {
-        await service.findById(mockAppointment.id, adminUser);
-        fail("should have thrown");
-      } catch (error) {
-        expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(
-          (error as InternalServerErrorException).getResponse()
-        ).toMatchObject({
-          errorCode: ErrorCode.INTERNAL_SERVER_ERROR,
         });
       }
     });

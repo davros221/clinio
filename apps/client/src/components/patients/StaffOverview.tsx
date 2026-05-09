@@ -4,31 +4,31 @@ import { useT } from "@hooks";
 import { OverviewHeader } from "../common/OverviewHeader.tsx";
 import { CreateUserModal } from "../user/CreateUserModal/CreateUserModal.tsx";
 import { DataTable } from "../DataTable";
-import { usePatientOverview } from "./usePatientOverview.ts";
+import { useStaffOverview } from "./useStaffOverview.ts";
 
-export function PatientsOverview() {
+export function StaffOverview() {
   const t = useT();
   const [modalOpened, setModalOpened] = useState(false);
-  const { patientOverviewTableOptions } = usePatientOverview();
+  const { staffOverviewTableOptions } = useStaffOverview();
 
   return (
     <Box>
       <Stack gap="md">
         <OverviewHeader
-          title={t("patient.overview.title")}
+          title={t("nav.staff")}
           action={
             <Button onClick={() => setModalOpened(true)}>
-              {t("patient.form.title")}
+              {t("user.form.title")}
             </Button>
           }
         />
-        <DataTable {...patientOverviewTableOptions} />
+        <DataTable {...staffOverviewTableOptions} />
       </Stack>
 
       <CreateUserModal
         opened={modalOpened}
         onClose={() => setModalOpened(false)}
-        mode="patient"
+        mode="staff"
       />
     </Box>
   );

@@ -329,8 +329,16 @@ const cs: TranslationKeys = {
         diagnosis: "Diagnóza",
       },
     },
+    editModal: {
+      title: "Upravit zdravotní záznam",
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Uložit",
+      },
+    },
     notification: {
       createSuccess: "Zdravotní záznam byl vytvořen",
+      updateSuccess: "Zdravotní záznam byl upraven",
       deleteSuccess: "Zdravotní záznam byl smazán",
     },
   },

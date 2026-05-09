@@ -64,7 +64,7 @@ export class AuthService {
     };
   }
 
-  async requestPasswordReset(email: string): Promise<boolean> {
+  async requestPasswordReset(email: string): Promise<void> {
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
@@ -92,8 +92,6 @@ export class AuthService {
         expiresAt: format(expiresAt, "d. M. yyyy HH:mm"),
       },
     });
-
-    return true;
   }
 
   async resetPassword(

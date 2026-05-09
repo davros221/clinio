@@ -17,5 +17,6 @@ export const ROUTER_PATHS = {
   OFFICE_APPOINTMENTS_ID: (id: string) => `/offices/${id}/appointments`,
   APPOINTMENTS: "/appointments",
   APPOINTMENTS_CALENDAR: "/appointments/calendar",
+  STAFF: "/staff",
   GOOGLE_AUTH_CALLBACK: "/auth/google/callback",
 } as const;

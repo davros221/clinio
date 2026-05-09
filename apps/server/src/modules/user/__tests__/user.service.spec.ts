@@ -4,7 +4,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
@@ -32,6 +31,7 @@ const mockRepository = () => ({
   create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
+  exists: jest.fn(),
 });
 
 const mockTransactionManager = {
@@ -51,7 +51,13 @@ describe("UserService", () => {
   let repository: jest.Mocked<
     Pick<
       Repository<UserEntity>,
-      "find" | "findAndCount" | "findOneBy" | "create" | "save" | "delete"
+      | "find"
+      | "findAndCount"
+      | "findOneBy"
+      | "create"
+      | "save"
+      | "delete"
+      | "exists"
     >
   >;
   beforeEach(async () => {
@@ -78,6 +84,8 @@ describe("UserService", () => {
 
     service = module.get<UserService>(UserService);
     repository = module.get(getRepositoryToken(UserEntity));
+    repository.exists.mockResolvedValue(true);
+    service.clearInitializedCache();
   });
 
   describe("findAll", () => {
@@ -272,14 +280,6 @@ describe("UserService", () => {
           errorCode: ErrorCode.USER_NOT_FOUND,
         });
       }
-    });
-
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      repository.findOneBy.mockRejectedValue(new Error("DB error"));
-
-      await expect(service.findById(mockUser.id)).rejects.toThrow(
-        InternalServerErrorException
-      );
     });
 
     it("should allow CLIENT to read own record", async () => {
@@ -718,6 +718,82 @@ describe("UserService", () => {
 
       await expect(service.create(clientDto)).rejects.toThrow(
         ConflictException
+      );
+    });
+
+    // --- Initialization tests ---
+
+    it("should allow public admin creation when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      mockTransactionManager.create.mockReturnValue({
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      mockTransactionManager.save.mockResolvedValue({
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(adminDto)).resolves.toBeDefined();
+    });
+
+    it("should forbid non-ADMIN role creation when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+
+      await expect(service.create(clientDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid authenticated requests when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+
+      await expect(service.create(doctorDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should require password for admin creation during init", async () => {
+      repository.exists.mockResolvedValue(false);
+      const adminNoPassword: CreateUserDto = {
+        email: "admin@example.com",
+        firstName: "Admin",
+        lastName: "User",
+        role: UserRole.ADMIN,
+      } as CreateUserDto;
+
+      await expect(service.create(adminNoPassword)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it("should clear initialized cache after admin creation", async () => {
+      repository.exists.mockResolvedValue(false);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      const savedAdmin = {
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity;
+      mockTransactionManager.create.mockReturnValue(savedAdmin);
+      mockTransactionManager.save.mockResolvedValue(savedAdmin);
+
+      await service.create(adminDto);
+
+      repository.exists.mockResolvedValue(true);
+      expect(await service.isInitialized()).toBe(true);
+    });
+
+    it("should forbid creating ADMIN when app is initialized", async () => {
+      await expect(service.create(adminDto)).rejects.toThrow(
+        ForbiddenException
       );
     });
   });

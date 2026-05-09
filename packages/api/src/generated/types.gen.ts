@@ -336,6 +336,12 @@ export type CreateMedicalRecordDto = {
     diagnosis?: string;
 };
 
+export type UpdateMedicalRecordDto = {
+    officeId?: string | null;
+    examinationSummary?: string | null;
+    diagnosis?: string | null;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
@@ -1263,3 +1269,34 @@ export type GetPatientMedicalRecordByIdResponses = {
 };
 
 export type GetPatientMedicalRecordByIdResponse = GetPatientMedicalRecordByIdResponses[keyof GetPatientMedicalRecordByIdResponses];
+
+export type UpdatePatientMedicalRecordData = {
+    body: UpdateMedicalRecordDto;
+    path: {
+        patientId: string;
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{patientId}/medical-records/{id}';
+};
+
+export type UpdatePatientMedicalRecordErrors = {
+    /**
+     * Bad Request
+     */
+    400: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Medical record not found
+     */
+    404: unknown;
+};
+
+export type UpdatePatientMedicalRecordResponses = {
+    200: MedicalRecord;
+};
+
+export type UpdatePatientMedicalRecordResponse = UpdatePatientMedicalRecordResponses[keyof UpdatePatientMedicalRecordResponses];

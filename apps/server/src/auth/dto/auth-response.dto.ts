@@ -11,7 +11,7 @@ export class AuthPatient {
   @ApiProperty({ required: false, nullable: true, type: Date })
   birthdate?: Date | null;
 
-  @ApiProperty({ required: false, nullable: true, type: Date })
+  @ApiProperty({ required: false, nullable: true, type: String })
   phone?: string | null;
 }
 
