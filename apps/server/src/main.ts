@@ -5,10 +5,15 @@ import { AppModule } from "./app/app.module";
 import { SwaggerModule } from "@nestjs/swagger";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { openApiConfig } from "./openapi/openApi.config";
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 async function bootstrap() {
   // Create the NestJS application
   const app = await NestFactory.create(AppModule);
+
+  // Replace Nest's default logger with our Winston setup
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+
   // Get the ConfigService to access configuration values
   const configService = app.get(ConfigService);
 

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2021",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@clinio/shared": ["../../packages/shared/src/index.ts"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "experimentalResolver": true,
+    "moduleTypes": {
+      "../../packages/shared/**/*.ts": "cjs"
+    }
+  }
+}
