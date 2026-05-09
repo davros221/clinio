@@ -23,7 +23,7 @@ export const SideMenuItem = (props: SideMenuItemProps) => {
 
   if (isLink(props)) {
     return (
-      <Button {...shared} component={NavLink} to={props.to}>
+      <Button {...shared} component={NavLink} to={props.to} end>
         {label}
       </Button>
     );

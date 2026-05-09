@@ -118,6 +118,7 @@ export type CalendarAppointmentPatient = {
 
 export type CalendarAppointment = {
     id: string;
+    status: 'PLANNED' | 'COMPLETED' | 'CANCELLED';
     note?: string;
     patient?: CalendarAppointmentPatient;
 };

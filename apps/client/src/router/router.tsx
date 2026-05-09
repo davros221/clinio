@@ -1,6 +1,7 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import {
   AppointmentsOverview,
+  CalendarOverview,
   DashboardSwitch,
   OfficesOverview,
   PatientsOverview,
@@ -122,6 +123,10 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.APPOINTMENTS,
                 element: <AppointmentsOverview />,
+              },
+              {
+                path: ROUTER_PATHS.APPOINTMENTS_CALENDAR,
+                element: <CalendarOverview />,
               },
               {
                 element: (

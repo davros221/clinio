@@ -4,13 +4,7 @@ import { DataTable } from "../DataTable/DataTable";
 import { useGetOfficeListQuery, useGetAppointmentListQuery } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
 import { useT } from "@hooks";
-import { DateUtils } from "@utils";
-
-const STATUS_COLOR: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.PLANNED]: "blue",
-  [AppointmentStatus.COMPLETED]: "green",
-  [AppointmentStatus.CANCELLED]: "red",
-};
+import { DateUtils, APPOINTMENT_STATUS_COLOR } from "@utils";
 
 type Props = {
   officeId?: string;
@@ -47,7 +41,10 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
       key: "status",
       header: t("appointment.overview.table.status"),
       render: (row: Appointment) => (
-        <Badge color={STATUS_COLOR[row.status] ?? "gray"} variant="light">
+        <Badge
+          color={APPOINTMENT_STATUS_COLOR[row.status] ?? "gray"}
+          variant="light"
+        >
           {t(
             `appointment.status.${
               row.status.toLowerCase() as Lowercase<AppointmentStatus>

@@ -2,6 +2,7 @@ import { Tooltip } from "@mantine/core";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { CalendarSlot } from "../utils/types";
+import { APPOINTMENT_STATUS_STYLE } from "@utils";
 
 type Props = {
   appt: CalendarSlot;
@@ -16,6 +17,8 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
       id: appt.id,
       data: { appt },
     });
+
+  const { bg, color, border } = APPOINTMENT_STATUS_STYLE[appt.status];
 
   return (
     <Tooltip
@@ -35,8 +38,9 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
           {
             "--appt-top": `${top}px`,
             "--appt-height": `${height - 2}px`,
-            "--appt-bg": "var(--mantine-color-blue-6)",
-            "--appt-color": "var(--mantine-color-white)",
+            "--appt-bg": bg,
+            "--appt-color": color,
+            "--appt-border": border,
             transform: CSS.Translate.toString(transform),
           } as React.CSSProperties
         }

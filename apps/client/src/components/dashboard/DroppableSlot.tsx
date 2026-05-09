@@ -5,6 +5,7 @@ type Props = {
   hour: number;
   minute: 0 | 30;
   closed?: boolean;
+  booked?: boolean;
 };
 
 export const DroppableSlot = ({
@@ -12,11 +13,20 @@ export const DroppableSlot = ({
   hour,
   minute,
   closed = false,
+  booked = false,
 }: Props) => {
   const { setNodeRef, isOver } = useDroppable({
     id: `${dayIdx}-${hour}-${minute}`,
-    disabled: closed,
+    disabled: closed || booked,
   });
+
+  const stateClass = closed
+    ? "week-table__half-slot--closed"
+    : booked
+    ? "week-table__half-slot--booked"
+    : isOver
+    ? "week-table__half-slot--over"
+    : "";
 
   return (
     <div
@@ -24,11 +34,7 @@ export const DroppableSlot = ({
       className={[
         "week-table__half-slot",
         minute === 30 ? "week-table__half-slot--bottom" : "",
-        closed
-          ? "week-table__half-slot--closed"
-          : isOver
-          ? "week-table__half-slot--over"
-          : "",
+        stateClass,
       ].join(" ")}
     />
   );

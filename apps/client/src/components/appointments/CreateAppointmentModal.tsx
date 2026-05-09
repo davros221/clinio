@@ -57,24 +57,31 @@ type FormValues = Omit<z.infer<typeof formSchema>, "hour"> & {
 type Props = {
   opened: boolean;
   onClose: () => void;
+  preselectedOfficeId?: string;
 };
 
-export function CreateAppointmentModal({ opened, onClose }: Props) {
+export function CreateAppointmentModal({
+  opened,
+  onClose,
+  preselectedOfficeId,
+}: Props) {
   const t = useT();
   const { isStaff } = useUserRole();
-  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
+  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(
+    preselectedOfficeId ?? null
+  );
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
   const { data: offices = [] } = useGetOfficeListQuery();
-  const { data: patientData } = useGetPatientList();
+  const { data: patientData } = useGetPatientList(undefined, isStaff);
   const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
     mode: "uncontrolled",
     initialValues: {
-      officeId: null,
+      officeId: preselectedOfficeId ?? null,
       patientId: null,
       date: "",
       hour: null,

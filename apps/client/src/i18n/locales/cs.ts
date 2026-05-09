@@ -114,6 +114,7 @@ const cs: TranslationKeys = {
   nav: {
     dashboard: "Přehled",
     offices: "Ordinace",
+    calendar: "Kalendář",
     appointments: "Rezervace",
     patients: "Pacienti",
     staff: "Personál",
@@ -123,6 +124,7 @@ const cs: TranslationKeys = {
     closeMenu: "Zavřít navigační menu",
   },
   appointment: {
+    durationLabel: "délka",
     createModal: {
       title: "Nová rezervace",
       fields: {
@@ -159,6 +161,9 @@ const cs: TranslationKeys = {
     notification: {
       createSuccess: "Rezervace byla vytvořena",
       deleteSuccess: "Rezervace byla smazána",
+      updateSuccess: "Rezervace byla upravena",
+      rescheduleSuccess: "Rezervace byla přesunuta",
+      cancelSuccess: "Rezervace byla zrušena",
     },
   },
   login: {
