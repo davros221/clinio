@@ -4,6 +4,7 @@ import {
   DashboardSwitch,
   OfficesOverview,
   PatientsOverview,
+  StaffOverview,
   RequireAuth,
 } from "@components";
 import {
@@ -123,8 +124,28 @@ export const routes: RouteObject[] = [
                 element: <AppointmentsOverview />,
               },
               {
-                path: ROUTER_PATHS.PATIENTS,
-                element: <PatientsOverview />,
+                element: (
+                  <RequireAuth
+                    allowedRoles={[UserRole.NURSE, UserRole.DOCTOR]}
+                  />
+                ),
+                errorElement: <CommonErrorPage />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.PATIENTS,
+                    element: <PatientsOverview />,
+                  },
+                ],
+              },
+              {
+                element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                errorElement: <CommonErrorPage />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.STAFF,
+                    element: <StaffOverview />,
+                  },
+                ],
               },
               {
                 path: ROUTER_PATHS.PATIENT_DETAIL,

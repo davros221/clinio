@@ -35,7 +35,10 @@ import { ZodValidationPipe } from "nestjs-zod";
 import { UserService } from "./user.service";
 import { UserMapper } from "./mapper/UserMapper";
 import { User } from "./dto/user.dto";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 
 const PaginatedUserResponse = PaginatedResponseDto(User);
@@ -89,28 +92,21 @@ export class UserController {
   @ApiInternalServerErrorResponse({ description: "Internal Server Error" })
   async getAll(
     @CurrentUser() currentUser: AuthUser,
-    @Query("role") roles: UserRole | UserRole[] | undefined,
+    @Query("role", new ParseEnumArrayPipe(UserRole)) roles: UserRole[],
     @Query("search") search?: string,
     @Query("page") page?: string,
     @Query("limit") limit?: string,
     @Query("sortBy") sortBy?: string,
     @Query("sortOrder") sortOrder?: string
   ) {
-    const parsedRoles = new ParseEnumArrayPipe(UserRole).transform(roles);
     const query = userListSchema.parse({ page, limit, sortBy, sortOrder });
     const { items, total } = await this.userService.findAll(
       currentUser,
-      parsedRoles,
+      roles,
       query,
       search
     );
-    return {
-      items: UserMapper.toDtoList(items),
-      total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+    return paginatedResponse(UserMapper.toDtoList(items), total, query);
   }
 
   @Get(":id")
