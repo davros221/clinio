@@ -11,7 +11,7 @@ import {
   ResetPasswordDto,
 } from "@clinio/api";
 import { authKeys } from "./queryKeys.ts";
-import { AuthToken, handleError, notifySuccess } from "@utils";
+import { AuthToken, notifySuccess } from "@utils";
 import { useT } from "@hooks";
 
 export const getMeQueryOptions = queryOptions({
@@ -57,9 +57,6 @@ export const useLoginMutation = () => {
         authData: res.authData,
       }));
     },
-    onError: (e) => {
-      handleError(e);
-    },
   });
 };
 
@@ -80,9 +77,6 @@ export const useRequestPassReset = () => {
         t("common.auth.emailSent.message")
       );
     },
-    onError: (e) => {
-      handleError(e);
-    },
   });
 };
 
@@ -102,9 +96,6 @@ export const useResetPasswordMutation = () => {
         t("common.auth.passwordReset.title"),
         t("common.auth.passwordReset.message")
       );
-    },
-    onError: (e) => {
-      handleError(e);
     },
   });
 };
