@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { ROUTER_PATHS } from "@router";
 import { UserRole } from "@clinio/shared";
 import { StringUtils } from "@utils";
+import { useGetRoomsQuery } from "@modules/chat";
 
 export const useSideMenu = (showUserInfo = true) => {
   const t = useT();
@@ -14,6 +15,8 @@ export const useSideMenu = (showUserInfo = true) => {
     ? StringUtils.getInitials(user?.firstName, user?.lastName)
     : "";
   const isAdmin = user?.role === UserRole.ADMIN;
+  const { data: rooms } = useGetRoomsQuery();
+  const totalUnread = rooms?.reduce((sum, r) => sum + r.unreadCount, 0) ?? 0;
 
   const navItems = useMemo(() => {
     if (isOnboardingClient) return [];
@@ -38,8 +41,13 @@ export const useSideMenu = (showUserInfo = true) => {
         label: t("nav.appointments"),
         allowed: [UserRole.CLIENT, UserRole.NURSE, UserRole.DOCTOR],
       },
+      {
+        to: ROUTER_PATHS.CHAT,
+        label: t("nav.messages"),
+        badge: totalUnread > 0 ? String(totalUnread) : undefined,
+      },
     ] as SideMenuItemProps[];
-  }, [t, isAdmin, isOnboardingClient]);
+  }, [t, isAdmin, isOnboardingClient, totalUnread]);
 
   const bottomItems = useMemo<SideMenuItemProps[]>(
     () => [

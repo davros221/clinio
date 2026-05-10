@@ -1,0 +1,13 @@
+.message {
+  background: var(--mantine-color-white);
+  padding: var(--mantine-spacing-md);
+  max-width: 60%;
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-sm);
+}
+
+.mine {
+  align-self: flex-end;
+  background: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}

@@ -300,7 +300,25 @@ describe("UserService", () => {
       );
     });
 
-    it("should forbid CLIENT from reading another user's record", async () => {
+    it("should forbid CLIENT from reading another CLIENT's record", async () => {
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: "client@example.com",
+        role: UserRole.CLIENT,
+      };
+      const otherClient: UserEntity = {
+        ...mockUser,
+        id: "other-client-id",
+        role: UserRole.CLIENT,
+      };
+      repository.findOneBy.mockResolvedValue(otherClient);
+
+      await expect(
+        service.findById(otherClient.id, clientAuth)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should allow CLIENT to read DOCTOR record", async () => {
       const clientAuth: AuthUser = {
         id: "client-id",
         email: "client@example.com",
@@ -308,9 +326,23 @@ describe("UserService", () => {
       };
       repository.findOneBy.mockResolvedValue(mockUser);
 
-      await expect(service.findById(mockUser.id, clientAuth)).rejects.toThrow(
-        ForbiddenException
+      await expect(service.findById(mockUser.id, clientAuth)).resolves.toEqual(
+        mockUser
       );
+    });
+
+    it("should allow CLIENT to read NURSE record", async () => {
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: "client@example.com",
+        role: UserRole.CLIENT,
+      };
+      const nurseEntity: UserEntity = { ...mockUser, role: UserRole.NURSE };
+      repository.findOneBy.mockResolvedValue(nurseEntity);
+
+      await expect(
+        service.findById(nurseEntity.id, clientAuth)
+      ).resolves.toEqual(nurseEntity);
     });
 
     it("should allow DOCTOR to read any user's record", async () => {

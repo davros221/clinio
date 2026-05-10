@@ -1,11 +1,11 @@
-import { useUser } from "../../hooks/useUser.ts";
-import { Button } from "@mantine/core";
+import { useUser } from "@hooks";
+import { Badge, Button } from "@mantine/core";
 import { NavLink } from "react-router";
 import { isLink, SideMenuItemProps } from "./SideMenuItemProps.ts";
 import styles from "./SideMenu.module.css";
 
 export const SideMenuItem = (props: SideMenuItemProps) => {
-  const { label, allowed, pushToBottom = false } = props;
+  const { label, badge, allowed, pushToBottom = false } = props;
   const { user } = useUser();
 
   const canAccess = !allowed || (!!user?.role && allowed.includes(user.role));
@@ -17,8 +17,9 @@ export const SideMenuItem = (props: SideMenuItemProps) => {
   const shared = {
     mt: pushToBottom ? "auto" : "unset",
     fullWidth: true,
-    justify: "start" as const,
+    justify: "space-between" as const,
     className: styles.navLink,
+    rightSection: badge && <Badge>{badge}</Badge>,
   };
 
   if (isLink(props)) {

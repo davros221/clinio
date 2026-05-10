@@ -49,7 +49,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE)
+  @Roles(UserRole.ADMIN, UserRole.DOCTOR, UserRole.NURSE, UserRole.CLIENT)
   @ApiOperation({ operationId: "get" })
   @ApiQuery({
     name: "role",

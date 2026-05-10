@@ -1,0 +1,64 @@
+.root {
+  padding: var(--mantine-spacing-lg);
+  flex: 1;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+}
+
+.scroller {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messageList {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: nowrap;
+  padding: var(--header-height) var(--mantine-spacing-lg) 60px;
+  gap: var(--mantine-spacing-lg);
+}
+
+.messageControls {
+  background: var(--mantine-color-white);
+  box-shadow: var(--mantine-shadow-sm);
+  border-radius: var(--mantine-radius-md);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.messageButtons {
+  /* Not available variable in mantine :((( */
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.messageInput {
+  border: none;
+  padding: var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-md);
+  background: transparent;
+  font-family: inherit;
+}
+
+.bottomOverlay {
+  position: absolute;
+  width: 98%;
+  height: 90px;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--mantine-color-gray-1) 80%
+  );
+}

@@ -11,7 +11,7 @@ export const useStaffOverview = () => {
     isLoading,
     isError,
     error,
-  } = useGetUsersQuery([UserRole.DOCTOR, UserRole.NURSE]);
+  } = useGetUsersQuery({ role: [UserRole.DOCTOR, UserRole.NURSE] });
 
   const staffOverviewTableOptions = tableOptions({
     data,

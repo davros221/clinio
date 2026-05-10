@@ -23,12 +23,6 @@ import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import * as bcrypt from "bcryptjs";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
 
-const ADMIN_ONLY_ROLES: UserRole[] = [
-  UserRole.ADMIN,
-  UserRole.DOCTOR,
-  UserRole.NURSE,
-];
-
 @Injectable()
 export class UserService {
   private adminExists: boolean | null = null;
@@ -58,10 +52,9 @@ export class UserService {
     search?: string
   ): Promise<{ items: UserEntity[]; total: number }> {
     const { isAdmin, isStaff } = AuthHelper.getRoles(currentUser);
-    const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
     const requestingPatients = roles.includes(UserRole.CLIENT);
 
-    if (requestingStaff && !isAdmin) {
+    if (!requestingPatients && !isAdmin) {
       throw forbidden();
     }
 
@@ -113,7 +106,9 @@ export class UserService {
 
   private assertReadAccess(user: UserEntity, currentUser: AuthUser): void {
     const { isPatient } = AuthHelper.getRoles(currentUser);
-    if (isPatient && user.id !== currentUser.id) {
+    const isMedicalStaff =
+      user.role === UserRole.DOCTOR || user.role === UserRole.NURSE;
+    if (isPatient && !isMedicalStaff && user.id !== currentUser.id) {
       throw forbidden();
     }
   }

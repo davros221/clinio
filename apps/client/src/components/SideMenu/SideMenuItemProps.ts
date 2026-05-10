@@ -8,6 +8,10 @@ type SideMenuItemBase = {
    * When the array is not defined, all roles are allowed
    */
   allowed?: UserRole[];
+  /**
+   * Optional badge to display on the right side of the button
+   */
+  badge?: string;
 };
 
 type SideMenuLink = SideMenuItemBase & {
