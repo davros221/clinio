@@ -114,6 +114,7 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     offices: "Offices",
+    calendar: "Calendar",
     appointments: "Appointments",
     patients: "Patients",
     staff: "Staff",
@@ -124,6 +125,7 @@ const en = {
     closeMenu: "Close navigation menu",
   },
   appointment: {
+    durationLabel: "duration",
     createModal: {
       title: "New Appointment",
       fields: {
@@ -150,6 +152,12 @@ const en = {
         status: "Status",
         office: "Office",
         note: "Note",
+        cancel: "Cancel",
+      },
+      cancelConfirm: {
+        title: "Cancel appointment?",
+        message: "Are you sure you want to cancel this appointment?",
+        confirm: "Cancel appointment",
       },
     },
     status: {
@@ -160,6 +168,9 @@ const en = {
     notification: {
       createSuccess: "Appointment created",
       deleteSuccess: "Appointment deleted",
+      updateSuccess: "Appointment updated",
+      rescheduleSuccess: "Appointment rescheduled",
+      cancelSuccess: "Appointment cancelled",
     },
   },
   login: {
@@ -346,8 +357,16 @@ const en = {
         diagnosis: "Diagnosis",
       },
     },
+    editModal: {
+      title: "Edit Medical Record",
+      buttons: {
+        cancel: "Cancel",
+        submit: "Save",
+      },
+    },
     notification: {
       createSuccess: "Medical record created",
+      updateSuccess: "Medical record updated",
       deleteSuccess: "Medical record deleted",
     },
   },

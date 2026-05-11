@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { AppointmentStatus } from "@clinio/shared";
 
 export enum CalendarHourState {
   AVAILABLE = "AVAILABLE",
@@ -29,6 +30,9 @@ export class CalendarAppointmentPatient {
 export class CalendarAppointment {
   @ApiProperty()
   id!: string;
+
+  @ApiProperty({ enum: Object.values(AppointmentStatus) })
+  status!: AppointmentStatus;
 
   @ApiProperty({ required: false })
   note?: string;

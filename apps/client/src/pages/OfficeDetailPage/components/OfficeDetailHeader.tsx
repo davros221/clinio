@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useMatch, useNavigate, useParams } from "react-router";
-import { useT, useUserRole } from "@hooks";
+import { useT, useUser, useUserRole } from "@hooks";
 import { BackButton, Breadcrumbs, type BreadcrumbItem } from "@components";
 import { ROUTER_PATHS } from "@router";
 import { useManageOfficeFormContext } from "../../../components/office/ManageOfficeForm/ManageOfficeFormContext";
@@ -40,18 +40,22 @@ export function OfficeDetailHeader({
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const form = useManageOfficeFormContext();
-  const { isAdmin, isClient } = useUserRole();
+  const { isAdmin, isClient, isStaff } = useUserRole();
+  const { user } = useUser();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const isCreateRoute = !!useMatch(ROUTER_PATHS.OFFICE_NEW);
   const isAppointmentsRoute = !!useMatch(ROUTER_PATHS.OFFICE_APPOINTMENTS);
   const isOfficeDetailRoute =
     !!useMatch(ROUTER_PATHS.OFFICE_DETAIL) && !isCreateRoute;
+  const isStaffMemberOfOffice =
+    !isStaff || (office?.staffIds?.includes(user?.id ?? "") ?? false);
   // Save/Cancel show whenever the user is editing (including /new).
   // Edit/Delete + appointments shortcut only show on the existing-office detail route.
   const canShowEditingButtons = !isClient;
   const canShowViewingButtons = !isClient && isOfficeDetailRoute;
-  const canShowAppointmentsLink = !isAdmin && isOfficeDetailRoute && !!id;
+  const canShowAppointmentsLink =
+    !isAdmin && isOfficeDetailRoute && !!id && isStaffMemberOfOffice;
 
   const breadcrumbItems: BreadcrumbItem[] = [
     { label: t("office.overview.title"), to: ROUTER_PATHS.OFFICES },

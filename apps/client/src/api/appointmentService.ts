@@ -3,10 +3,12 @@ import {
   Appointment,
   AppointmentService,
   CreateAppointmentDto,
+  UpdateAppointmentDto,
+  RescheduleAppointmentDto,
 } from "@clinio/api";
 import { AppointmentStatus } from "@clinio/shared";
 import { t } from "../i18n";
-import { notifyError, notifySuccess } from "../utils/notification";
+import { notifySuccess } from "../utils/notification";
 import { appointmentKeys, calendarKeys } from "./queryKeys";
 
 export type AppointmentListFilters = {
@@ -20,11 +22,13 @@ export type AppointmentListFilters = {
 
 export const useGetAppointmentListQuery = (
   filters?: AppointmentListFilters,
-  enabled = true
+  enabled = true,
+  throwOnError = true
 ) => {
   return useQuery<Appointment[]>({
     queryKey: appointmentKeys.list(filters),
     enabled,
+    throwOnError,
     queryFn: async () => {
       const { data } = await AppointmentService.getAppointments({
         query: {
@@ -36,7 +40,7 @@ export const useGetAppointmentListQuery = (
           sortOrder: filters?.sortOrder,
         },
       });
-      return data?.items ?? [];
+      return data!.items;
     },
   });
 };
@@ -44,43 +48,94 @@ export const useGetAppointmentListQuery = (
 export const useCreateAppointmentMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<Appointment, Error, CreateAppointmentDto>({
+  return useMutation<Appointment, unknown, CreateAppointmentDto>({
     mutationFn: async (body) => {
-      const { data } = await AppointmentService.createAppointment({
-        body,
-      });
-      if (!data) throw new Error(t("common.error.noData"));
-      return data;
+      const { data } = await AppointmentService.createAppointment({ body });
+      return data!;
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.createSuccess"), "");
     },
-
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
   });
 };
 
 export const useDeleteAppointmentMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, unknown, string>({
     mutationFn: async (id) => {
-      await AppointmentService.deleteAppointment({
-        path: { id },
-      });
+      await AppointmentService.deleteAppointment({ path: { id } });
     },
-
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
       notifySuccess(t("appointment.notification.deleteSuccess"), "");
     },
+  });
+};
 
-    onError: (error) =>
-      notifyError(t("common.error.deleteFailed"), error.message),
+export const useUpdateAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Appointment,
+    unknown,
+    { id: string; dto: UpdateAppointmentDto }
+  >({
+    mutationFn: async ({ id, dto }) => {
+      const { data } = await AppointmentService.updateAppointment({
+        path: { id },
+        body: dto,
+      });
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.updateSuccess"), "");
+    },
+  });
+};
+
+export const useRescheduleAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Appointment,
+    unknown,
+    { id: string; dto: RescheduleAppointmentDto }
+  >({
+    mutationFn: async ({ id, dto }) => {
+      const { data } = await AppointmentService.rescheduleAppointment({
+        path: { id },
+        body: dto,
+      });
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.rescheduleSuccess"), "");
+    },
+  });
+};
+
+export const useCancelAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Appointment, unknown, string>({
+    mutationFn: async (id) => {
+      const { data } = await AppointmentService.cancelAppointment({
+        path: { id },
+      });
+      return data!;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: appointmentKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: calendarKeys.all });
+      notifySuccess(t("appointment.notification.cancelSuccess"), "");
+    },
   });
 };

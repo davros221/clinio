@@ -13,7 +13,7 @@ export const useGetCalendarQuery = (
       const { data } = await CalendarService.getCalendar({
         query: { officeId, timestamp },
       });
-      return data ?? [];
+      return data!;
     },
     enabled,
   });

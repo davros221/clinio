@@ -114,6 +114,7 @@ const cs: TranslationKeys = {
   nav: {
     dashboard: "Přehled",
     offices: "Ordinace",
+    calendar: "Kalendář",
     appointments: "Rezervace",
     patients: "Pacienti",
     staff: "Personál",
@@ -124,6 +125,7 @@ const cs: TranslationKeys = {
     closeMenu: "Zavřít navigační menu",
   },
   appointment: {
+    durationLabel: "délka",
     createModal: {
       title: "Nová rezervace",
       fields: {
@@ -150,6 +152,12 @@ const cs: TranslationKeys = {
         status: "Stav",
         office: "Ordinace",
         note: "Poznámka",
+        cancel: "Zrušit",
+      },
+      cancelConfirm: {
+        title: "Zrušit rezervaci?",
+        message: "Opravdu chcete zrušit tuto rezervaci?",
+        confirm: "Zrušit rezervaci",
       },
     },
     status: {
@@ -160,6 +168,9 @@ const cs: TranslationKeys = {
     notification: {
       createSuccess: "Rezervace byla vytvořena",
       deleteSuccess: "Rezervace byla smazána",
+      updateSuccess: "Rezervace byla upravena",
+      rescheduleSuccess: "Rezervace byla přesunuta",
+      cancelSuccess: "Rezervace byla zrušena",
     },
   },
   login: {
@@ -346,8 +357,16 @@ const cs: TranslationKeys = {
         diagnosis: "Diagnóza",
       },
     },
+    editModal: {
+      title: "Upravit zdravotní záznam",
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Uložit",
+      },
+    },
     notification: {
       createSuccess: "Zdravotní záznam byl vytvořen",
+      updateSuccess: "Zdravotní záznam byl upraven",
       deleteSuccess: "Zdravotní záznam byl smazán",
     },
   },
