@@ -10,3 +10,4 @@ export * from "./updateMedicalRecordSchema.js";
 export * from "./getCalendarQuerySchema.js";
 export * from "./requestPasswordResetSchema.js";
 export * from "./resetPasswordSchema.js";
+export * from "./shutdownSchema.js";
