@@ -119,6 +119,7 @@ const en = {
     patients: "Patients",
     staff: "Staff",
     settings: "Settings",
+    messages: "Messages",
     logout: "Logout",
     openMenu: "Open navigation menu",
     closeMenu: "Close navigation menu",
@@ -299,6 +300,27 @@ const en = {
     onboardingWarningTitle: "Complete your profile",
     onboardingWarningMessage:
       "Please fill in all required fields below to get full access to the application.",
+  },
+  chat: {
+    sidebar: {
+      title: "Chat",
+      newMessage: "New message",
+      noChats: {
+        title: "No chats yet",
+        message: "Start a new conversation and it will appear here.",
+      },
+    },
+    content: {
+      noMessages: "No messages yet. Say hi!",
+      messagePlaceholder: "Write a message…",
+    },
+    newChat: {
+      placeholder: "To: ",
+      noUsers: "No users found",
+    },
+    notification: {
+      newMessage: "New message",
+    },
   },
   calendar: {
     today: "Today",

@@ -119,6 +119,7 @@ const cs: TranslationKeys = {
     patients: "Pacienti",
     staff: "Personál",
     settings: "Nastavení",
+    messages: "Zprávy",
     logout: "Odhlásit se",
     openMenu: "Otevřít navigační menu",
     closeMenu: "Zavřít navigační menu",
@@ -298,6 +299,27 @@ const cs: TranslationKeys = {
     onboardingWarningTitle: "Dokončete svůj profil",
     onboardingWarningMessage:
       "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
+  },
+  chat: {
+    sidebar: {
+      title: "Chat",
+      newMessage: "Nová zpráva",
+      noChats: {
+        title: "Zatím žádné chaty",
+        message: "Zahajte nový rozhovor a zobrazí se zde.",
+      },
+    },
+    content: {
+      noMessages: "Zatím žádné zprávy. Pozdravte se!",
+      messagePlaceholder: "Napište zprávu…",
+    },
+    newChat: {
+      placeholder: "Komu: ",
+      noUsers: "Žádní uživatelé nenalezeni",
+    },
+    notification: {
+      newMessage: "Nová zpráva",
+    },
   },
   calendar: {
     today: "Dnes",

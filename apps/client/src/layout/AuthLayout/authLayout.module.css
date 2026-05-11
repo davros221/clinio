@@ -13,6 +13,12 @@
   background: var(--mantine-color-white);
 }
 
+.messageNotification {
+  box-shadow: var(--mantine-shadow-md);
+  border: 1px solid var(--mantine-color-gray-2);
+  cursor: pointer;
+}
+
 /* Contain the AppShell navbar relative to the card, not the viewport */
 .card :global(.mantine-AppShell-root) {
   height: 100%;
@@ -31,6 +37,7 @@
   }
 }
 
+/* ToDo: Do we need :global modifier? Maybe refactor */
 .card :global(.mantine-AppShell-main) {
   min-height: unset;
   height: 100%;

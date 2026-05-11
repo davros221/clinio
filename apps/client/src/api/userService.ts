@@ -30,13 +30,25 @@ export const useCreateUserMutation = () => {
   });
 };
 
+type UseGetUsersQueryOptions = {
+  role: Array<UserRole>;
+  search?: string;
+  limit?: number;
+  enabled?: boolean;
+  sortBy?: "firstName" | "lastName" | "email" | "role";
+  sortOrder?: "ASC" | "DESC";
+};
+
 // TODO: API returns paginated response — expose pagination metadata when needed.
-export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
+export const useGetUsersQuery = (opt: UseGetUsersQueryOptions) => {
+  const { enabled, ...query } = opt;
+
   return useQuery<User[]>({
-    queryKey: userKeys.list({ roles }),
-    queryFn: async () => {
+    queryKey: userKeys.list({ ...query }),
+    queryFn: async ({ signal }) => {
       const { data } = await UserService.get({
-        query: { role: roles },
+        signal,
+        query,
       });
       return data?.items ?? [];
     },
@@ -48,7 +60,7 @@ export const useGetUsersQuery = (roles: Array<UserRole>, enabled = true) => {
  * ------------------------- GET user detail
  */
 
-const getUserDetailOptions = (id: string) =>
+const getUserDetailOptions = (id: string, enabled?: boolean) =>
   queryOptions({
     queryFn: async ({ signal }) => {
       const res = await UserService.getById({
@@ -58,8 +70,9 @@ const getUserDetailOptions = (id: string) =>
       return res.data;
     },
     queryKey: userKeys.detail(id),
+    enabled,
   });
 
-export const useGetUserDetailQuery = (id: string) => {
-  return useQuery(getUserDetailOptions(id));
+export const useGetUserDetailQuery = (id: string, enabled?: boolean) => {
+  return useQuery(getUserDetailOptions(id, enabled));
 };

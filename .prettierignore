@@ -1,4 +1,8 @@
 # Add files here to ignore them from prettier formatting
+/apps/client/test-output
+/apps/server/.claude
+/.github
+/.claude
 /dist
 /coverage
 /.nx/cache

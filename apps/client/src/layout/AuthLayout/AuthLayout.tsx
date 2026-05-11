@@ -18,12 +18,15 @@ import { useTranslation } from "react-i18next";
 import styles from "./authLayout.module.css";
 import { ErrorBoundary } from "react-error-boundary";
 import { CommonErrorPage } from "@pages";
+import { useChatSocket } from "@modules/chat";
+import { ChatNotifier } from "./components/ChatNotifier.tsx";
 
 export const AuthenticatedLayout = () => {
   const [opened, { toggle, close }] = useDisclosure();
   const isMobile = useMobileView();
   const { user } = useUser();
   const { t } = useTranslation();
+  useChatSocket(user?.id);
   const initials = StringUtils.getInitials(user?.firstName, user?.lastName);
   const location = useLocation();
 
@@ -42,6 +45,7 @@ export const AuthenticatedLayout = () => {
 
   return (
     <div className={styles.card}>
+      <ChatNotifier />
       <AppShell
         navbar={{
           width: 220,
@@ -83,7 +87,7 @@ export const AuthenticatedLayout = () => {
 
         <AppShell.Main>
           <ErrorBoundary fallback={<CommonErrorPage />} key={location.pathname}>
-            <Box m="sm">
+            <Box p="sm" h={"100%"}>
               <Outlet />
             </Box>
           </ErrorBoundary>

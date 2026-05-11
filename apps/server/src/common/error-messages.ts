@@ -140,3 +140,17 @@ export function appNotInitialized(): ForbiddenException {
     message: "Application is not initialized",
   });
 }
+
+export function roomNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.ROOM_NOT_FOUND,
+    message: "Room not found",
+  });
+}
+
+export function messageNotFound(): NotFoundException {
+  return new NotFoundException({
+    errorCode: ErrorCode.MESSAGE_NOT_FOUND,
+    message: "Message not found",
+  });
+}

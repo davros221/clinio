@@ -26,6 +26,7 @@ import {
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
 import { UserRole } from "@clinio/shared";
+import { ChatPage } from "@modules/chat";
 
 export const routes: RouteObject[] = [
   {
@@ -155,6 +156,14 @@ export const routes: RouteObject[] = [
               {
                 path: ROUTER_PATHS.PATIENT_DETAIL,
                 element: <PatientDetailPage />,
+              },
+              {
+                path: ROUTER_PATHS.CHAT,
+                element: <ChatPage />,
+              },
+              {
+                path: ROUTER_PATHS.CHAT_DETAIL,
+                element: <ChatPage />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,

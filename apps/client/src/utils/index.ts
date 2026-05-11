@@ -1,4 +1,5 @@
 export * from "./AuthToken.ts";
+export * from "./composeUserName.ts";
 export * from "./confirmModal.tsx";
 export * from "./error.ts";
 export * from "./notification.ts";

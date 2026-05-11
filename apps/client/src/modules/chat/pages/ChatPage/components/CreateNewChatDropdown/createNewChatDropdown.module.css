@@ -1,0 +1,11 @@
+.root {
+  width: 100%;
+}
+.input {
+  /* even tho mantine exposes className props, it's not possible to override some properties */
+  background: transparent !important;
+
+  &::placeholder {
+    color: var(--mantine-color-text) !important;
+  }
+}
