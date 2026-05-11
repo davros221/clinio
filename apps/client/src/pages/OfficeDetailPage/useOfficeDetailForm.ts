@@ -36,16 +36,16 @@ export function useOfficeDetailForm(
 ) {
   const t = useT();
   const navigate = useNavigate();
-  const { isAdmin, isStaff } = useUserRole();
+  const { isAdmin } = useUserRole();
   const { mutate: updateOffice, isPending: isUpdating } =
     useUpdateOfficeMutation();
   const { mutate: createOffice, isPending: isCreating } =
     useCreateOfficeMutation();
 
-  const { data: users = [] } = useGetUsersQuery(
-    [UserRole.NURSE, UserRole.DOCTOR],
-    isAdmin
-  );
+  const { data: users = [] } = useGetUsersQuery({
+    role: [UserRole.NURSE, UserRole.DOCTOR],
+    enabled: isAdmin,
+  });
 
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
