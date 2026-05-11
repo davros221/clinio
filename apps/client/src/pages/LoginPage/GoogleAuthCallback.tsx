@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { UserRole } from "@clinio/shared";
 import { AuthToken } from "@utils";
 import { getMeQueryOptions } from "@api";
 import { ROUTER_PATHS } from "@router";
@@ -26,12 +25,9 @@ export const GoogleAuthCallback = () => {
 
     void queryClient
       .fetchQuery(getMeQueryOptions)
-      .then((meData) => {
+      .then(() => {
         if (!cancelled) {
-          const isAdmin = meData?.authData?.role === UserRole.ADMIN;
-          navigate(isAdmin ? ROUTER_PATHS.OFFICES : ROUTER_PATHS.HOME, {
-            replace: true,
-          });
+          navigate(ROUTER_PATHS.HOME, { replace: true });
         }
       })
       .catch(() => {
