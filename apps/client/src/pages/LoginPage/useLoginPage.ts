@@ -1,5 +1,5 @@
 import { schemaResolver, useForm } from "@mantine/form";
-import { loginSchema, UserRole } from "@clinio/shared";
+import { loginSchema } from "@clinio/shared";
 import { LoginDto } from "@clinio/api";
 import { useLocation, useNavigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
@@ -30,9 +30,8 @@ export const useLoginPage = () => {
 
   const handleSubmit = form.onSubmit((data) => {
     login(data, {
-      onSuccess: (res) => {
-        const isAdmin = res?.authData?.role === UserRole.ADMIN;
-        navigate(isAdmin ? ROUTER_PATHS.OFFICES : ROUTER_PATHS.HOME);
+      onSuccess: () => {
+        navigate(ROUTER_PATHS.HOME);
       },
     });
   });
