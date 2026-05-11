@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import {
   AppointmentStatus,
@@ -104,6 +104,20 @@ export function CreateAppointmentModal({
     ),
   });
 
+  useEffect(() => {
+    if (opened) {
+      form.setValues({
+        officeId: preselectedOfficeId ?? null,
+        patientId: null,
+        date: "",
+        hour: null,
+        note: "",
+      });
+      setSelectedOfficeId(preselectedOfficeId ?? null);
+      setSelectedDate(null);
+    }
+  }, [opened]);
+
   const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));
 
   const patientSelectData = patients.map((p) => ({
@@ -113,7 +127,8 @@ export function CreateAppointmentModal({
 
   const { data: officeAppointments = [] } = useGetAppointmentListQuery(
     selectedOfficeId ? { officeId: selectedOfficeId } : undefined,
-    !!selectedOfficeId
+    !!selectedOfficeId,
+    false
   );
 
   const availableHours = useMemo(() => {
@@ -154,7 +169,7 @@ export function CreateAppointmentModal({
       {
         onSuccess: () => {
           form.reset();
-          setSelectedOfficeId(null);
+          setSelectedOfficeId(preselectedOfficeId ?? null);
           setSelectedDate(null);
           onClose();
         },
@@ -164,7 +179,7 @@ export function CreateAppointmentModal({
 
   const handleClose = () => {
     form.reset();
-    setSelectedOfficeId(null);
+    setSelectedOfficeId(preselectedOfficeId ?? null);
     setSelectedDate(null);
     onClose();
   };

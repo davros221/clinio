@@ -151,6 +151,12 @@ const en = {
         status: "Status",
         office: "Office",
         note: "Note",
+        cancel: "Cancel",
+      },
+      cancelConfirm: {
+        title: "Cancel appointment?",
+        message: "Are you sure you want to cancel this appointment?",
+        confirm: "Cancel appointment",
       },
     },
     status: {

@@ -20,9 +20,9 @@ export const useSideMenu = (showUserInfo = true) => {
 
     return [
       {
-        to: ROUTER_PATHS.HOME,
-        label: t("nav.dashboard"),
-        allowed: [UserRole.NURSE, UserRole.DOCTOR, UserRole.CLIENT],
+        to: ROUTER_PATHS.APPOINTMENTS,
+        label: t("nav.appointments"),
+        allowed: [UserRole.CLIENT],
       },
       {
         to: ROUTER_PATHS.OFFICES,
@@ -36,11 +36,6 @@ export const useSideMenu = (showUserInfo = true) => {
       {
         to: ROUTER_PATHS.APPOINTMENTS_CALENDAR,
         label: t("nav.calendar"),
-        allowed: [UserRole.CLIENT],
-      },
-      {
-        to: ROUTER_PATHS.APPOINTMENTS,
-        label: t("nav.appointments"),
         allowed: [UserRole.CLIENT],
       },
       {

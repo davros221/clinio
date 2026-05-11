@@ -22,11 +22,13 @@ export type AppointmentListFilters = {
 
 export const useGetAppointmentListQuery = (
   filters?: AppointmentListFilters,
-  enabled = true
+  enabled = true,
+  throwOnError = true
 ) => {
   return useQuery<Appointment[]>({
     queryKey: appointmentKeys.list(filters),
     enabled,
+    throwOnError,
     queryFn: async () => {
       const { data } = await AppointmentService.getAppointments({
         query: {
