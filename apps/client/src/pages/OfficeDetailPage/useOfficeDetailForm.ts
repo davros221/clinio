@@ -35,8 +35,8 @@ export function useOfficeDetailForm(
   stopEdit: () => void
 ) {
   const t = useT();
-  const { isStaff } = useUserRole();
   const navigate = useNavigate();
+  const { isAdmin, isStaff } = useUserRole();
   const { mutate: updateOffice, isPending: isUpdating } =
     useUpdateOfficeMutation();
   const { mutate: createOffice, isPending: isCreating } =
@@ -44,7 +44,7 @@ export function useOfficeDetailForm(
 
   const { data: users = [] } = useGetUsersQuery(
     [UserRole.NURSE, UserRole.DOCTOR],
-    isStaff
+    isAdmin
   );
 
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
