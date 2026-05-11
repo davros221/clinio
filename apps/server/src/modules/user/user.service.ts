@@ -51,19 +51,23 @@ export class UserService {
     query: UserListQuery,
     search?: string
   ): Promise<{ items: UserEntity[]; total: number }> {
-    const { isAdmin, isStaff } = AuthHelper.getRoles(currentUser);
+    const { isAdmin, isStaff, isPatient } = AuthHelper.getRoles(currentUser);
     const requestingPatients = roles.includes(UserRole.CLIENT);
 
-    if (!requestingPatients && !isAdmin) {
-      throw forbidden();
-    }
-
-    if (requestingPatients && isAdmin) {
-      throw forbidden();
-    }
-
+    // Staff can list clients; admin lists medical staff; client lists medical staff (for chat)
     if (requestingPatients && !isStaff) {
       throw forbidden();
+    }
+
+    if (!requestingPatients && !isAdmin && !isPatient) {
+      throw forbidden();
+    }
+
+    if (!requestingPatients && isPatient) {
+      const onlyMedicalStaff = roles.every(
+        (r) => r === UserRole.DOCTOR || r === UserRole.NURSE
+      );
+      if (!onlyMedicalStaff) throw forbidden();
     }
 
     const baseWhere: FindOptionsWhere<UserEntity> = { role: In(roles) };
