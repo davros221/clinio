@@ -5,12 +5,15 @@ import { AppModule } from "./app/app.module";
 import { SwaggerModule } from "@nestjs/swagger";
 import { cleanupOpenApiDoc } from "nestjs-zod";
 import { openApiConfig } from "./openapi/openApi.config";
+import { IoAdapter } from "@nestjs/platform-socket.io";
 
 async function bootstrap() {
   // Create the NestJS application
   const app = await NestFactory.create(AppModule);
   // Get the ConfigService to access configuration values
   const configService = app.get(ConfigService);
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // Enable CORS for the client URL specified in the configuration
   const clientUrl = configService.get("client.url");

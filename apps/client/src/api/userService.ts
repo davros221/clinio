@@ -8,7 +8,7 @@ import { UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
-import { notifySuccess, handleError } from "@utils";
+import { notifySuccess } from "@utils";
 
 const createUserFn = async (data: CreateUserDto) => {
   const res = await UserService.create({ body: data });
@@ -27,9 +27,6 @@ export const useCreateUserMutation = () => {
         t("patient.notification.createSuccessMessage")
       );
     },
-    onError: (e) => {
-      handleError(e);
-    },
   });
 };
 
@@ -38,6 +35,8 @@ type GetUsersParams = {
   limit?: number;
   page?: number;
   search?: string;
+  sortBy?: "firstName" | "lastName" | "email" | "role";
+  sortOrder?: "ASC" | "DESC";
 };
 
 const getUsersListOptions = (params: GetUsersParams, enabled = true) =>
@@ -49,6 +48,8 @@ const getUsersListOptions = (params: GetUsersParams, enabled = true) =>
           page: params.page,
           limit: params.limit,
           search: params.search,
+          sortBy: params.sortBy,
+          sortOrder: params.sortOrder,
         },
         signal,
         throwOnError: true,
@@ -67,7 +68,7 @@ export const useGetUsersQuery = (params: GetUsersParams, enabled = true) => {
  * ------------------------- GET user detail
  */
 
-const getUserDetailOptions = (id: string) =>
+const getUserDetailOptions = (id: string, enabled?: boolean) =>
   queryOptions({
     queryFn: async ({ signal }) => {
       const res = await UserService.getById({
@@ -77,8 +78,9 @@ const getUserDetailOptions = (id: string) =>
       return res.data;
     },
     queryKey: userKeys.detail(id),
+    enabled,
   });
 
-export const useGetUserDetailQuery = (id: string) => {
-  return useQuery(getUserDetailOptions(id));
+export const useGetUserDetailQuery = (id: string, enabled?: boolean) => {
+  return useQuery(getUserDetailOptions(id, enabled));
 };

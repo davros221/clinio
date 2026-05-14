@@ -7,11 +7,8 @@ import { UserEntity } from "../user/user.entity";
 import { CreateOfficeDto } from "./dto/create-office.dto";
 import { UpdateOfficeDto } from "./dto/update-office.dto";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
-import {
-  forbidden,
-  internalError,
-  notFound,
-} from "../../common/error-messages";
+import { notFound } from "../../common/error-messages";
+import { AuthHelper } from "../../common/helpers/AuthHelper";
 
 @Injectable()
 export class OfficeService {
@@ -58,16 +55,10 @@ export class OfficeService {
   }
 
   async findById(id: string): Promise<OfficeEntity> {
-    let office: OfficeEntity | null;
-
-    try {
-      office = await this.officeRepository.findOne({
-        where: { id },
-        relations: ["staff"],
-      });
-    } catch {
-      throw internalError();
-    }
+    const office = await this.officeRepository.findOne({
+      where: { id },
+      relations: ["staff"],
+    });
 
     if (!office) {
       throw notFound("Office", ErrorCode.OFFICE_NOT_FOUND);
@@ -89,14 +80,8 @@ export class OfficeService {
   }
 
   private verifyStaffMembership(office: OfficeEntity, user: AuthUser): void {
-    if (user.role === UserRole.ADMIN) {
-      return;
-    }
-
-    const isStaff = office.staff.some((member) => member.id === user.id);
-    if (!isStaff) {
-      throw forbidden();
-    }
+    if (user.role === UserRole.ADMIN) return;
+    AuthHelper.assertStaffBelongsToOfficeEntity(office, user.id);
   }
 
   async replace(

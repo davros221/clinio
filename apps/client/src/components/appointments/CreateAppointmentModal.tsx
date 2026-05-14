@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { zod4Resolver } from "mantine-form-zod-resolver";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import {
   AppointmentStatus,
@@ -57,25 +57,32 @@ type FormValues = Omit<z.infer<typeof formSchema>, "hour"> & {
 type Props = {
   opened: boolean;
   onClose: () => void;
+  preselectedOfficeId?: string;
 };
 
-export function CreateAppointmentModal({ opened, onClose }: Props) {
+export function CreateAppointmentModal({
+  opened,
+  onClose,
+  preselectedOfficeId,
+}: Props) {
   const t = useT();
   const { isStaff } = useUserRole();
-  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
+  const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(
+    preselectedOfficeId ?? null
+  );
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
   const { data: officeData } = useGetOfficeListQuery();
   const offices = officeData?.items ?? [];
-  const { data: patientData } = useGetPatientList();
+  const { data: patientData } = useGetPatientList(undefined, isStaff);
   const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
     mode: "uncontrolled",
     initialValues: {
-      officeId: null,
+      officeId: preselectedOfficeId ?? null,
       patientId: null,
       date: "",
       hour: null,
@@ -98,6 +105,20 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
     ),
   });
 
+  useEffect(() => {
+    if (opened) {
+      form.setValues({
+        officeId: preselectedOfficeId ?? null,
+        patientId: null,
+        date: "",
+        hour: null,
+        note: "",
+      });
+      setSelectedOfficeId(preselectedOfficeId ?? null);
+      setSelectedDate(null);
+    }
+  }, [opened]);
+
   const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));
 
   const patientSelectData = patients.map((p) => ({
@@ -107,7 +128,8 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
 
   const { data: appointmentsData } = useGetAppointmentListQuery(
     selectedOfficeId ? { officeId: selectedOfficeId, limit: 100 } : undefined,
-    !!selectedOfficeId
+    !!selectedOfficeId,
+    false
   );
   const officeAppointments = appointmentsData?.items ?? [];
 
@@ -149,7 +171,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
       {
         onSuccess: () => {
           form.reset();
-          setSelectedOfficeId(null);
+          setSelectedOfficeId(preselectedOfficeId ?? null);
           setSelectedDate(null);
           onClose();
         },
@@ -159,7 +181,7 @@ export function CreateAppointmentModal({ opened, onClose }: Props) {
 
   const handleClose = () => {
     form.reset();
-    setSelectedOfficeId(null);
+    setSelectedOfficeId(preselectedOfficeId ?? null);
     setSelectedDate(null);
     onClose();
   };

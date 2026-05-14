@@ -1,17 +1,15 @@
-import { Badge } from "@mantine/core";
+import { Badge, Button } from "@mantine/core";
 import { Appointment } from "@clinio/api";
 import { DataTable } from "../DataTable/DataTable";
-import { useGetOfficeListQuery, useGetAppointmentListQuery } from "@api";
+import {
+  useGetOfficeListQuery,
+  useGetAppointmentListQuery,
+  useCancelAppointmentMutation,
+} from "@api";
 import { AppointmentStatus } from "@clinio/shared";
 import { usePagination, useT } from "@hooks";
-import { DateUtils } from "@utils";
+import { DateUtils, APPOINTMENT_STATUS_COLOR, openConfirmModal } from "@utils";
 import { useMemo } from "react";
-
-const STATUS_COLOR: Record<AppointmentStatus, string> = {
-  [AppointmentStatus.PLANNED]: "blue",
-  [AppointmentStatus.COMPLETED]: "green",
-  [AppointmentStatus.CANCELLED]: "red",
-};
 
 type Props = {
   officeId?: string;
@@ -28,6 +26,7 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
     });
   const { data: officesData } = useGetOfficeListQuery();
   const offices = officesData?.items ?? [];
+  const { mutate: cancelAppointment } = useCancelAppointmentMutation();
 
   const appointments = data?.items ?? [];
 
@@ -35,6 +34,15 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
     () => Object.fromEntries(offices.map((o) => [o.id, o.name])),
     [offices]
   );
+
+  const handleCancel = (row: Appointment) => {
+    openConfirmModal({
+      title: t("appointment.overview.cancelConfirm.title"),
+      message: t("appointment.overview.cancelConfirm.message"),
+      confirmLabel: t("appointment.overview.cancelConfirm.confirm"),
+      onConfirm: () => cancelAppointment(row.id),
+    });
+  };
 
   const columns = [
     {
@@ -51,7 +59,10 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
       key: "status",
       header: t("appointment.overview.table.status"),
       render: (row: Appointment) => (
-        <Badge color={STATUS_COLOR[row.status] ?? "gray"} variant="light">
+        <Badge
+          color={APPOINTMENT_STATUS_COLOR[row.status] ?? "gray"}
+          variant="light"
+        >
           {t(
             `appointment.status.${
               row.status.toLowerCase() as Lowercase<AppointmentStatus>
@@ -72,6 +83,21 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
       key: "note",
       header: t("appointment.overview.table.note"),
       render: (row: Appointment) => row.note || "—",
+    },
+    {
+      key: "actions",
+      header: "",
+      render: (row: Appointment) =>
+        row.status === AppointmentStatus.PLANNED ? (
+          <Button
+            color="red"
+            variant="light"
+            size="xs"
+            onClick={() => handleCancel(row)}
+          >
+            {t("appointment.overview.table.cancel")}
+          </Button>
+        ) : null,
     },
   ];
 

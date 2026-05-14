@@ -19,6 +19,7 @@
       "@clinio/shared": ["../../packages/shared/src/index.ts"],
       "@components": ["./src/components/index.ts"],
       "@form": ["./src/form/index.ts"],
+      "@modules/*": ["./src/modules/*"],
       "@hooks": ["./src/hooks/index.ts"],
       "@layout": ["./src/layout/index.ts"],
       "@pages": ["./src/pages/index.ts"],

@@ -5,6 +5,7 @@ export * from "./common/Breadcrumbs.tsx";
 export * from "./common/OverviewHeader.tsx";
 export * from "./office";
 export * from "./patients";
+export * from "./AsyncAutocomplete";
 export * from "./appointments";
 export * from "./SideMenu";
 export * from "./common/LanguageSwitcher.tsx";

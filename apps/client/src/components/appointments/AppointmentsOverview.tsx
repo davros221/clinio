@@ -1,29 +1,75 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { Box, Button, Select, Stack } from "@mantine/core";
 import { AppointmentsOverviewTable } from "./AppointmentsOverviewTable";
 import { CreateAppointmentModal } from "./CreateAppointmentModal";
 import { Calendar } from "../dashboard/Calendar";
 import { useGetCalendarQuery, useGetOfficeListQuery } from "@api";
-import { useT, useUserRole } from "@hooks";
+import { useT, useUserRole, useAppointmentMove } from "@hooks";
 import { OverviewHeader } from "../common/OverviewHeader.tsx";
+import { ROUTER_PATHS } from "@router";
 
-export function AppointmentsOverview() {
+export function CalendarOverview() {
   const t = useT();
-  const { isStaff } = useUserRole();
-  const [modalOpened, setModalOpened] = useState(false);
   const [selectedOfficeId, setSelectedOfficeId] = useState<string | null>(null);
+  const [modalOpened, setModalOpened] = useState(false);
   const [time, setTime] = useState(() => Date.now());
 
   const { data: officesData } = useGetOfficeListQuery();
   const offices = officesData?.items ?? [];
+  const handleAppointmentMove = useAppointmentMove(time);
 
   const { data: calendarDays = [] } = useGetCalendarQuery(
     selectedOfficeId!,
     time,
     !!selectedOfficeId
   );
-
   const officeName = offices.find((o) => o.id === selectedOfficeId)?.name ?? "";
+
+  return (
+    <Box>
+      <Stack gap="md">
+        <OverviewHeader
+          title={t("nav.calendar")}
+          action={
+            <Button onClick={() => setModalOpened(true)}>
+              {t("appointment.createModal.title")}
+            </Button>
+          }
+        />
+        <Select
+          label={t("appointment.createModal.fields.office")}
+          placeholder={t("appointment.createModal.fields.officePlaceholder")}
+          data={offices.map((o) => ({ value: o.id, label: o.name }))}
+          value={selectedOfficeId}
+          onChange={setSelectedOfficeId}
+          w={300}
+        />
+        <Calendar
+          calendarDays={calendarDays}
+          officeName={officeName}
+          weekTimestamp={time}
+          onWeekTimestampChange={setTime}
+          onAppointmentMove={handleAppointmentMove}
+        />
+      </Stack>
+      <CreateAppointmentModal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        preselectedOfficeId={selectedOfficeId ?? undefined}
+      />
+    </Box>
+  );
+}
+
+export function AppointmentsOverview() {
+  const t = useT();
+  const navigate = useNavigate();
+  const { isStaff } = useUserRole();
+
+  if (isStaff) {
+    return <CalendarOverview />;
+  }
 
   return (
     <Box>
@@ -31,40 +77,15 @@ export function AppointmentsOverview() {
         <OverviewHeader
           title={t("appointment.overview.title")}
           action={
-            <Button onClick={() => setModalOpened(true)}>
-              {t("appointment.createModal.title")}
+            <Button
+              onClick={() => navigate(ROUTER_PATHS.APPOINTMENTS_CALENDAR)}
+            >
+              {t("nav.calendar")}
             </Button>
           }
         />
-
-        {isStaff ? (
-          <Stack gap="md">
-            <Select
-              label={t("appointment.createModal.fields.office")}
-              placeholder={t(
-                "appointment.createModal.fields.officePlaceholder"
-              )}
-              data={offices.map((o) => ({ value: o.id, label: o.name }))}
-              value={selectedOfficeId}
-              onChange={setSelectedOfficeId}
-              w={300}
-            />
-            <Calendar
-              calendarDays={calendarDays}
-              officeName={officeName}
-              weekTimestamp={time}
-              onWeekTimestampChange={setTime}
-            />
-          </Stack>
-        ) : (
-          <AppointmentsOverviewTable />
-        )}
+        <AppointmentsOverviewTable />
       </Stack>
-
-      <CreateAppointmentModal
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
-      />
     </Box>
   );
 }

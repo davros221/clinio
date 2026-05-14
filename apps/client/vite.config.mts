@@ -20,6 +20,7 @@ export default defineConfig(() => ({
       "@components": path.resolve(__dirname, "src/components/index.ts"),
       "@form": path.resolve(__dirname, "src/form/index.ts"),
       "@hooks": path.resolve(__dirname, "src/hooks/index.ts"),
+      "@modules": path.resolve(__dirname, "src/modules"),
       "@layout": path.resolve(__dirname, "src/layout/index.ts"),
       "@pages": path.resolve(__dirname, "src/pages/index.ts"),
       "@router": path.resolve(__dirname, "src/router/index.ts"),

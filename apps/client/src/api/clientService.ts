@@ -3,6 +3,7 @@ import { AuthToken } from "@utils";
 
 client.setConfig({
   baseURL: import.meta.env.VITE_API_URL,
+  throwOnError: true,
 });
 
 // Authentication Interceptors

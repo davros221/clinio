@@ -1,0 +1,16 @@
+.root {
+  padding: 0.5rem;
+  border-radius: var(--mantine-radius-md);
+  background-color: transparent;
+  transition: background-color 0.2s ease-out;
+  &:hover {
+    background-color: var(--mantine-color-gray-1);
+  }
+}
+
+.selected {
+  background-color: var(--mantine-primary-color-0);
+  &:hover {
+    background-color: var(--mantine-primary-color-1);
+  }
+}

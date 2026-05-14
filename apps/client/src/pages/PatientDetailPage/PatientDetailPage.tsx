@@ -54,6 +54,11 @@ export const PatientDetailPage = () => {
     openDetail();
   };
 
+  const handleDetailClose = () => {
+    closeDetail();
+    setSelectedRecord(null);
+  };
+
   const columns = [
     {
       key: "createdAt",
@@ -144,11 +149,14 @@ export const PatientDetailPage = () => {
         />
       )}
 
-      <MedicalRecordDetailModal
-        record={selectedRecord}
-        opened={detailOpened}
-        onClose={closeDetail}
-      />
+      {selectedRecord && (
+        <MedicalRecordDetailModal
+          key={selectedRecord.id}
+          record={selectedRecord}
+          opened={detailOpened}
+          onClose={handleDetailClose}
+        />
+      )}
     </div>
   );
 };

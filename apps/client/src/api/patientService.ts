@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { PatientService, UpdatePatientDto } from "@clinio/api";
 import { authKeys, patientKeys } from "./queryKeys.ts";
-import { handleError } from "@utils";
 
 // ToDO: Gen from swagger def
 type GetPatientListParams = {
@@ -34,8 +33,11 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
     queryKey: patientKeys.list(params),
   });
 
-export const useGetPatientList = (params?: GetPatientListParams) => {
-  return useQuery(getPatientListOptions(params));
+export const useGetPatientList = (
+  params?: GetPatientListParams,
+  enabled = true
+) => {
+  return useQuery({ ...getPatientListOptions(params), enabled });
 };
 
 const getPatientDetailOptions = (id: string) =>
@@ -68,9 +70,6 @@ export const useUpdatePatientMutation = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [authKeys.me] });
       void queryClient.invalidateQueries({ queryKey: patientKeys.all });
-    },
-    onError: (e) => {
-      handleError(e);
     },
   });
 };

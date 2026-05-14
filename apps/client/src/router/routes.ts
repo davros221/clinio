@@ -8,6 +8,9 @@ export const ROUTER_PATHS = {
   PATIENT_DETAIL: "/patients/:id",
   PATIENT_DETAIL_ID: (id: string) => `/patients/${id}`,
   FORBIDDEN: "/forbidden",
+  CHAT: "/chat",
+  CHAT_DETAIL: "/chat/:id",
+  CHAT_DETAIL_ID: (id: string) => `/chat/${id}`,
   SETTINGS: "/settings",
   OFFICES: "/offices",
   OFFICE_NEW: "/offices/new",
@@ -16,5 +19,7 @@ export const ROUTER_PATHS = {
   OFFICE_APPOINTMENTS: "/offices/:id/appointments",
   OFFICE_APPOINTMENTS_ID: (id: string) => `/offices/${id}/appointments`,
   APPOINTMENTS: "/appointments",
+  APPOINTMENTS_CALENDAR: "/appointments/calendar",
+  STAFF: "/staff",
   GOOGLE_AUTH_CALLBACK: "/auth/google/callback",
 } as const;

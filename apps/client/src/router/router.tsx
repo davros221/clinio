@@ -1,9 +1,11 @@
 import { createBrowserRouter, type RouteObject } from "react-router";
 import {
   AppointmentsOverview,
+  CalendarOverview,
   DashboardSwitch,
   OfficesOverview,
   PatientsOverview,
+  StaffOverview,
   RequireAuth,
 } from "@components";
 import {
@@ -18,18 +20,26 @@ import {
   OfficeDetailLayout,
   OfficeDetailContent,
   OfficeAppointmentsContent,
+  CommonErrorPage,
+  NotFoundErrorPage,
 } from "@pages";
 import { ROUTER_PATHS } from "./routes.ts";
 import { AuthenticatedLayout, PublicLayout, AppLayout } from "@layout";
 import { UserRole } from "@clinio/shared";
+import { ChatPage } from "@modules/chat";
 
 export const routes: RouteObject[] = [
   {
     element: <AppLayout />,
+    errorElement: <CommonErrorPage />,
     children: [
       {
         path: ROUTER_PATHS.FORBIDDEN,
         element: <ForbiddenPage />,
+      },
+      {
+        path: "*",
+        element: <NotFoundErrorPage />,
       },
       {
         path: ROUTER_PATHS.GOOGLE_AUTH_CALLBACK,
@@ -59,9 +69,11 @@ export const routes: RouteObject[] = [
       // TODO: route needs to be refactored, the children should be nested in their parents not next to them
       {
         element: <RequireAuth />,
+        errorElement: <CommonErrorPage />,
         children: [
           {
             element: <AuthenticatedLayout />,
+            errorElement: <CommonErrorPage />,
             children: [
               {
                 path: ROUTER_PATHS.HOME,
@@ -73,6 +85,7 @@ export const routes: RouteObject[] = [
               },
               {
                 element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                errorElement: <CommonErrorPage />,
                 children: [
                   {
                     path: ROUTER_PATHS.OFFICE_NEW,
@@ -113,12 +126,44 @@ export const routes: RouteObject[] = [
                 element: <AppointmentsOverview />,
               },
               {
-                path: ROUTER_PATHS.PATIENTS,
-                element: <PatientsOverview />,
+                path: ROUTER_PATHS.APPOINTMENTS_CALENDAR,
+                element: <CalendarOverview />,
+              },
+              {
+                element: (
+                  <RequireAuth
+                    allowedRoles={[UserRole.NURSE, UserRole.DOCTOR]}
+                  />
+                ),
+                errorElement: <CommonErrorPage />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.PATIENTS,
+                    element: <PatientsOverview />,
+                  },
+                ],
+              },
+              {
+                element: <RequireAuth allowedRoles={[UserRole.ADMIN]} />,
+                errorElement: <CommonErrorPage />,
+                children: [
+                  {
+                    path: ROUTER_PATHS.STAFF,
+                    element: <StaffOverview />,
+                  },
+                ],
               },
               {
                 path: ROUTER_PATHS.PATIENT_DETAIL,
                 element: <PatientDetailPage />,
+              },
+              {
+                path: ROUTER_PATHS.CHAT,
+                element: <ChatPage />,
+              },
+              {
+                path: ROUTER_PATHS.CHAT_DETAIL,
+                element: <ChatPage />,
               },
               {
                 path: ROUTER_PATHS.SETTINGS,

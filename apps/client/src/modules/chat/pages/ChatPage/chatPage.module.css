@@ -1,0 +1,20 @@
+.root {
+  /* Just for IDE to shut up about non-existing css vars defined in jsx */
+  --bg-color: "";
+  --bg-transparent: "";
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100%;
+  gap: var(--mantine-spacing-lg);
+}
+
+.conversationPanel {
+  --header-height: 58px;
+  background: var(--mantine-color-gray-1);
+  height: 100%;
+  border-radius: var(--mantine-radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}

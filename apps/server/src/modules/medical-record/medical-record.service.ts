@@ -6,9 +6,9 @@ import { MedicalRecordEntity } from "./medical-record.entity";
 import { OfficeEntity } from "../office/office.entity";
 import { PatientEntity } from "../patient/patient.entity";
 import { CreateMedicalRecordDto } from "./dto/create-medical-record.dto";
+import { UpdateMedicalRecordDto } from "./dto/update-medical-record.dto";
 import {
   forbidden,
-  internalError,
   medicalRecordNotFound,
   notFound,
 } from "../../common/error-messages";
@@ -51,15 +51,10 @@ export class MedicalRecordService {
   ): Promise<MedicalRecordEntity> {
     await this.assertPatientAccess(patientId, currentUser);
 
-    let record: MedicalRecordEntity | null;
-    try {
-      record = await this.medicalRecordRepository.findOne({
-        where: { id, patientId },
-        relations: ["patient", "patient.user", "creator", "office"],
-      });
-    } catch {
-      throw internalError();
-    }
+    const record = await this.medicalRecordRepository.findOne({
+      where: { id, patientId },
+      relations: ["patient", "patient.user", "creator", "office"],
+    });
 
     if (!record) {
       throw medicalRecordNotFound();
@@ -92,16 +87,54 @@ export class MedicalRecordService {
 
     const saved = await this.medicalRecordRepository.save(entity);
 
-    const withRelations = await this.medicalRecordRepository.findOne({
+    return (await this.medicalRecordRepository.findOne({
       where: { id: saved.id },
       relations: ["creator", "office"],
-    });
+    }))!;
+  }
 
-    if (!withRelations) {
-      throw internalError();
+  async update(
+    patientId: string,
+    id: string,
+    dto: UpdateMedicalRecordDto,
+    currentUser: AuthUser
+  ): Promise<MedicalRecordEntity> {
+    await this.assertPatientAccess(patientId, currentUser);
+
+    const { isStaff } = AuthHelper.getRoles(currentUser);
+    if (!isStaff) {
+      throw forbidden();
     }
 
-    return withRelations;
+    if (dto.officeId) {
+      const office = await this.officeRepository.findOne({
+        where: { id: dto.officeId },
+        relations: ["staff"],
+      });
+      if (!office) {
+        throw notFound("Office");
+      }
+      const isMember = office.staff.some((u) => u.id === currentUser.id);
+      if (!isMember) {
+        throw forbidden();
+      }
+    }
+
+    const record = await this.medicalRecordRepository.findOne({
+      where: { id, patientId },
+    });
+
+    if (!record) {
+      throw medicalRecordNotFound();
+    }
+
+    Object.assign(record, dto);
+    await this.medicalRecordRepository.save(record);
+
+    return (await this.medicalRecordRepository.findOne({
+      where: { id },
+      relations: ["patient", "patient.user", "creator", "office"],
+    }))!;
   }
 
   async remove(

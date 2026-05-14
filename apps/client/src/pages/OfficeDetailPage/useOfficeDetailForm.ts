@@ -7,7 +7,7 @@ import {
   useUpdateOfficeMutation,
   useGetUsersQuery,
 } from "@api";
-import { useT } from "@hooks";
+import { useT, useUserRole } from "@hooks";
 import {
   useManageOfficeForm,
   DEFAULT_INTERVAL,
@@ -36,15 +36,19 @@ export function useOfficeDetailForm(
 ) {
   const t = useT();
   const navigate = useNavigate();
+  const { isAdmin } = useUserRole();
   const { mutate: updateOffice, isPending: isUpdating } =
     useUpdateOfficeMutation();
   const { mutate: createOffice, isPending: isCreating } =
     useCreateOfficeMutation();
 
-  const { data: usersData } = useGetUsersQuery({
-    roles: [UserRole.NURSE, UserRole.DOCTOR],
-    limit: 100,
-  });
+  const { data: usersData } = useGetUsersQuery(
+    {
+      roles: [UserRole.NURSE, UserRole.DOCTOR],
+      limit: 100,
+    },
+    isAdmin
+  );
   const users = useMemo(() => usersData?.items ?? [], [usersData]);
 
   const [selectedRole, setSelectedRole] = useState<string | null>(null);

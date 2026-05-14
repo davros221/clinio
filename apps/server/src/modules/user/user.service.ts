@@ -13,29 +13,41 @@ import {
 import { CreateUserDto } from "./dto/create-user.dto";
 import {
   accountNotActive,
+  appNotInitialized,
   badRequest,
   emailAlreadyExists,
   forbidden,
-  internalError,
   notFound,
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import * as bcrypt from "bcryptjs";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
 
-const ADMIN_ONLY_ROLES: UserRole[] = [
-  UserRole.ADMIN,
-  UserRole.DOCTOR,
-  UserRole.NURSE,
-];
-
 @Injectable()
 export class UserService {
+  private adminExists: boolean | null = null;
+
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private dataSource: DataSource
   ) {}
+
+  async isInitialized(): Promise<boolean> {
+    if (this.adminExists !== null) return this.adminExists;
+    this.adminExists = await this.userRepository.exists({
+      where: { role: UserRole.ADMIN as UserRole },
+    });
+    return this.adminExists;
+  }
+
+  public invalidateInitializedCache(): void {
+    this.adminExists = null;
+  }
+
+  private clearInitializedCache(): void {
+    this.invalidateInitializedCache();
+  }
 
   async findAll(
     currentUser: AuthUser,
@@ -43,20 +55,23 @@ export class UserService {
     query: UserListQuery,
     search?: string
   ): Promise<{ items: UserEntity[]; total: number }> {
-    const { isAdmin, isStaff } = AuthHelper.getRoles(currentUser);
-    const requestingStaff = roles.some((r) => ADMIN_ONLY_ROLES.includes(r));
+    const { isAdmin, isStaff, isPatient } = AuthHelper.getRoles(currentUser);
     const requestingPatients = roles.includes(UserRole.CLIENT);
 
-    if (requestingStaff && !isAdmin) {
-      throw forbidden();
-    }
-
-    if (requestingPatients && isAdmin) {
-      throw forbidden();
-    }
-
+    // Staff can list clients; admin lists medical staff; client lists medical staff (for chat)
     if (requestingPatients && !isStaff) {
       throw forbidden();
+    }
+
+    if (!requestingPatients && !isAdmin && !isPatient) {
+      throw forbidden();
+    }
+
+    if (!requestingPatients && isPatient) {
+      const onlyMedicalStaff = roles.every(
+        (r) => r === UserRole.DOCTOR || r === UserRole.NURSE
+      );
+      if (!onlyMedicalStaff) throw forbidden();
     }
 
     const baseWhere: FindOptionsWhere<UserEntity> = { role: In(roles) };
@@ -84,13 +99,7 @@ export class UserService {
   }
 
   async findById(id: string, currentUser?: AuthUser): Promise<UserEntity> {
-    let user: UserEntity | null;
-
-    try {
-      user = await this.userRepository.findOneBy({ id });
-    } catch {
-      throw internalError();
-    }
+    const user = await this.userRepository.findOneBy({ id });
 
     if (!user) {
       throw notFound("User", ErrorCode.USER_NOT_FOUND);
@@ -105,7 +114,9 @@ export class UserService {
 
   private assertReadAccess(user: UserEntity, currentUser: AuthUser): void {
     const { isPatient } = AuthHelper.getRoles(currentUser);
-    if (isPatient && user.id !== currentUser.id) {
+    const isMedicalStaff =
+      user.role === UserRole.DOCTOR || user.role === UserRole.NURSE;
+    if (isPatient && !isMedicalStaff && user.id !== currentUser.id) {
       throw forbidden();
     }
   }
@@ -128,6 +139,10 @@ export class UserService {
     lastName: string;
     googleId: string;
   }): Promise<UserEntity> {
+    if (!(await this.isInitialized())) {
+      throw appNotInitialized();
+    }
+
     return this.dataSource.transaction(async (manager) => {
       const user = manager.create(UserEntity, {
         email: params.email,
@@ -157,10 +172,19 @@ export class UserService {
     user: CreateUserDto,
     currentUser?: AuthUser
   ): Promise<UserEntity> {
-    if (currentUser) {
-      this.validateAuthenticatedCreate(user, currentUser);
+    const initialized = await this.isInitialized();
+
+    if (!initialized) {
+      this.validateInitCreate(user, currentUser);
     } else {
-      this.validatePublicCreate(user);
+      if (user.role === UserRole.ADMIN) {
+        throw forbidden();
+      }
+      if (currentUser) {
+        this.validateAuthenticatedCreate(user, currentUser);
+      } else {
+        this.validatePublicCreate(user);
+      }
     }
 
     // Unique email is checked by database, but system should return a standardized error message
@@ -176,16 +200,16 @@ export class UserService {
       ? await bcrypt.hash(user.password, 10)
       : undefined;
 
-    return this.dataSource.transaction(async (manager) => {
+    const savedUser = await this.dataSource.transaction(async (manager) => {
       const newUser = manager.create(UserEntity, {
         ...user,
         password: hashedPassword,
       });
-      const savedUser = await manager.save(newUser);
+      const saved = await manager.save(newUser);
 
       if (user.role === UserRole.CLIENT) {
         const patient = manager.create(PatientEntity, {
-          userId: savedUser.id,
+          userId: saved.id,
           birthNumber: user.birthNumber!,
           birthdate: user.birthdate!,
           phone: user.phone!,
@@ -193,8 +217,14 @@ export class UserService {
         await manager.save(patient);
       }
 
-      return savedUser;
+      return saved;
     });
+
+    if (savedUser.role === UserRole.ADMIN) {
+      this.clearInitializedCache();
+    }
+
+    return savedUser;
   }
 
   /**
@@ -204,6 +234,21 @@ export class UserService {
    * @param currentUser
    * @private
    */
+  private validateInitCreate(
+    user: CreateUserDto,
+    currentUser?: AuthUser
+  ): void {
+    if (currentUser) {
+      throw appNotInitialized();
+    }
+    if (user.role !== UserRole.ADMIN) {
+      throw appNotInitialized();
+    }
+    if (!user.password) {
+      throw badRequest("Password is required for admin account.");
+    }
+  }
+
   private validateAuthenticatedCreate(
     user: CreateUserDto,
     currentUser: AuthUser
