@@ -14,11 +14,10 @@ import {
   MessageModule,
 } from "../modules";
 import { AuthModule } from "../auth/auth.module";
-import { AppController } from "./app.controller";
+import { SystemModule } from "../system/system.module";
 import { EventsModule } from "../websocket/events.module";
 
 @Module({
-  controllers: [AppController],
   imports: [
     ConfigModule,
     DatabaseModule,
@@ -34,6 +33,7 @@ import { EventsModule } from "../websocket/events.module";
     RoomModule,
     MessageModule,
     EventsModule,
+    SystemModule,
   ],
 })
 export class AppModule {}
