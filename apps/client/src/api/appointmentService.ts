@@ -40,7 +40,7 @@ export const useGetAppointmentListQuery = (
           sortOrder: filters?.sortOrder,
         },
         signal,
-        throwOnError: true,
+        throwOnError,
       });
       return data;
     },
