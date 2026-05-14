@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router";
 
-export const usePagination = (defaults = { page: 1, pageSize: 20 }) => {
+export const usePagination = (defaults = { page: 1, pageSize: 10 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const rawPage = Number(searchParams.get("page"));

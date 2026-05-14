@@ -1,5 +1,5 @@
 import { AddressService, SuggestItem } from "@clinio/api";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { addressKeys, suggestKeys } from "./queryKeys.ts";
 
 export const useAddressSuggestQuery = (query: string) => {
@@ -12,6 +12,5 @@ export const useAddressSuggestQuery = (query: string) => {
       return data?.items ?? [];
     },
     enabled: query.length >= 3,
-    placeholderData: keepPreviousData,
   });
 };

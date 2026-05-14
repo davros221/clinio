@@ -25,11 +25,11 @@ export const useGetAppointmentListQuery = (
   enabled = true,
   throwOnError = true
 ) => {
-  return useQuery<Appointment[]>({
+  return useQuery({
     queryKey: appointmentKeys.list(filters),
     enabled,
     throwOnError,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const { data } = await AppointmentService.getAppointments({
         query: {
           status: filters?.status,
@@ -39,8 +39,10 @@ export const useGetAppointmentListQuery = (
           sortBy: filters?.sortBy,
           sortOrder: filters?.sortOrder,
         },
+        signal,
+        throwOnError,
       });
-      return data!.items;
+      return data;
     },
   });
 };

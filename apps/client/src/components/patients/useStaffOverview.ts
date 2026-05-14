@@ -1,24 +1,30 @@
 import { tableOptions } from "../DataTable/tableOptions.ts";
-import { useT } from "@hooks";
+import { usePagination, useT } from "@hooks";
 import { useGetUsersQuery } from "@api";
 import { UserRole } from "@clinio/shared";
 
 export const useStaffOverview = () => {
   const t = useT();
+  const { setPage, page, pageSize } = usePagination();
 
-  const {
-    data = [],
-    isLoading,
-    isError,
-    error,
-  } = useGetUsersQuery({ role: [UserRole.DOCTOR, UserRole.NURSE] });
+  const { data, isLoading, isFetching, isError, error } = useGetUsersQuery({
+    roles: [UserRole.DOCTOR, UserRole.NURSE],
+    page,
+    limit: pageSize,
+  });
 
   const staffOverviewTableOptions = tableOptions({
-    data,
+    data: data?.items ?? [],
     keyExtractor: (row) => row.id,
     isLoading,
+    isFetching,
     isError,
     error,
+    pagination: {
+      current: page,
+      total: data?.totalPages ?? 0,
+      onChange: setPage,
+    },
     columns: [
       {
         key: "firstName",
