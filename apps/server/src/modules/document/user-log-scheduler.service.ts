@@ -25,8 +25,6 @@ export class UserLogSchedulerService {
     }
   }
 
-  // Runs every 1 minute for testing.
-  @Cron(CronExpression.EVERY_MINUTE)
   async processUserLogs() {
     if (!fs.existsSync(this.activeLogPath)) return;
 
