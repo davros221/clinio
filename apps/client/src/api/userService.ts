@@ -24,6 +24,12 @@ export const useCreateUserMutation = () => {
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
       if (variables.role === UserRole.ADMIN) {
+        queryClient.setQueryData(systemKeys.status, (currentStatus) => ({
+          ...(typeof currentStatus === "object" && currentStatus !== null
+            ? currentStatus
+            : {}),
+          initialized: true,
+        }));
         void queryClient.invalidateQueries({ queryKey: systemKeys.status });
       }
       notifySuccess(
