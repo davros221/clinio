@@ -7,6 +7,7 @@ import {
 import { UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
+import { systemKeys } from "./systemService";
 import { t } from "../i18n";
 import { notifySuccess } from "@utils";
 
@@ -20,11 +21,14 @@ export const useCreateUserMutation = () => {
 
   return useMutation({
     mutationFn: createUserFn,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      if (variables.role === UserRole.ADMIN) {
+        void queryClient.invalidateQueries({ queryKey: systemKeys.status });
+      }
       notifySuccess(
-        t("patient.notification.createSuccessTitle"),
-        t("patient.notification.createSuccessMessage")
+        t("user.notification.createSuccessTitle"),
+        t("user.notification.createSuccessMessage")
       );
     },
   });

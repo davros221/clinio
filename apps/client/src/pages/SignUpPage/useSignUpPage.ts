@@ -6,19 +6,19 @@ import { useCreateUserMutation } from "@api";
 import { useNavigate } from "react-router";
 import { ROUTER_PATHS } from "@router";
 
-const initialValues: CreateUserDto = {
-  role: UserRole.CLIENT,
-  firstName: "",
-  lastName: "",
-  email: "",
-  birthdate: "",
-  phone: "",
-  birthNumber: "",
-};
-
-export const useSignUpPage = () => {
+export const useSignUpPage = (initialized: boolean) => {
   const signUpSchema = buildCreateUserSchema({ passwordFields: true });
   const navigate = useNavigate();
+
+  const initialValues: CreateUserDto = {
+    role: initialized ? UserRole.CLIENT : UserRole.ADMIN,
+    firstName: "",
+    lastName: "",
+    email: "",
+    birthdate: "",
+    phone: "",
+    birthNumber: "",
+  };
 
   const form = useUserForm({
     validate: schemaResolver(signUpSchema, { sync: true }),
@@ -38,14 +38,9 @@ export const useSignUpPage = () => {
     });
   });
 
-  const handleLogin = () => {
-    navigate(ROUTER_PATHS.LOGIN);
-  };
-
   return {
     handleSubmit,
     form,
     isPending,
-    handleLogin,
   };
 };
