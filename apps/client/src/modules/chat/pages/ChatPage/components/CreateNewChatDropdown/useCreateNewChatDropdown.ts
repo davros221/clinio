@@ -26,12 +26,12 @@ export const useCreateNewChatDropdown = () => {
 
   const roles = getRoles();
   const { data, isFetching } = useGetUsersQuery({
-    role: roles,
+    roles,
     search,
     limit: 10,
   });
 
-  const selectData = data?.map((user) => ({
+  const selectData = data?.items?.map((user) => ({
     label: composeUserName(user),
     value: user.id,
   }));

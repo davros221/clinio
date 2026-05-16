@@ -1,6 +1,7 @@
 import { Office, OfficeHoursTemplateDto } from "@clinio/api";
 import { Link } from "react-router";
 import { MapPreview } from "../common/MapPreview";
+import { Pagination } from "../common/Pagination";
 import { useGetOfficeListQuery } from "@api";
 import {
   Alert,
@@ -13,7 +14,7 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useT } from "@hooks";
+import { usePagination, useT } from "@hooks";
 import { DAYS } from "@clinio/shared";
 import { ROUTER_PATHS } from "@router";
 import classes from "./OfficesOverviewOfficesTable.module.css";
@@ -97,12 +98,13 @@ function OfficeCard({ office }: { office: Office }) {
 
 export function OfficesOverviewOfficesTable() {
   const t = useT();
-  const {
-    data: offices = [],
-    isLoading,
-    isError,
-    error,
-  } = useGetOfficeListQuery();
+  const { page, pageSize, setPage } = usePagination();
+  const { data, isLoading, isFetching, isError, error } = useGetOfficeListQuery(
+    {
+      page,
+      limit: pageSize,
+    }
+  );
 
   if (isLoading) {
     return <Loader />;
@@ -116,11 +118,21 @@ export function OfficesOverviewOfficesTable() {
     );
   }
 
+  const offices = data?.items ?? [];
+
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
-      {offices.map((office) => (
-        <OfficeCard key={office.id} office={office} />
-      ))}
-    </SimpleGrid>
+    <Stack gap="lg">
+      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="lg">
+        {offices.map((office) => (
+          <OfficeCard key={office.id} office={office} />
+        ))}
+      </SimpleGrid>
+      <Pagination
+        total={data?.totalPages ?? 0}
+        current={page}
+        onChange={setPage}
+        disabled={isFetching}
+      />
+    </Stack>
   );
 }

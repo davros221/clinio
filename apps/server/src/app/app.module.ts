@@ -20,12 +20,12 @@ import {
 } from "../modules";
 import { AuthModule } from "../auth/auth.module";
 import { AppController } from "./app.controller";
+import { SystemModule } from "../system/system.module";
 import { EventsModule } from "../websocket/events.module";
 import { ExecutionLoggingInterceptor } from "../common/interceptors/execution-logging.interceptor";
 import { DocumentModule } from "../modules/document/document.module";
 
 @Module({
-  controllers: [AppController],
   imports: [
     ScheduleModule.forRoot(),
     WinstonModule.forRoot({
@@ -63,6 +63,7 @@ import { DocumentModule } from "../modules/document/document.module";
     MessageModule,
     EventsModule,
     DocumentModule,
+    SystemModule,
   ],
   providers: [
     {

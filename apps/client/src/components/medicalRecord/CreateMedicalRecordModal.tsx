@@ -35,7 +35,8 @@ export function CreateMedicalRecordModal({
   const { user } = useUser();
   const { mutate: createRecord, isPending } =
     useCreatePatientMedicalRecordMutation(patientId);
-  const { data: offices = [] } = useGetOfficeListQuery();
+  const { data: officesData } = useGetOfficeListQuery();
+  const offices = officesData?.items ?? [];
 
   const now = new Date().toLocaleString();
   const createdByName = user ? `${user.firstName} ${user.lastName}` : "";

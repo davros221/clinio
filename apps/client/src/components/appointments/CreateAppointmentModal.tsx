@@ -74,7 +74,8 @@ export function CreateAppointmentModal({
 
   const { mutate: createAppointment, isPending } =
     useCreateAppointmentMutation();
-  const { data: offices = [] } = useGetOfficeListQuery();
+  const { data: officeData } = useGetOfficeListQuery();
+  const offices = officeData?.items ?? [];
   const { data: patientData } = useGetPatientList(undefined, isStaff);
   const patients = patientData?.items ?? [];
 
@@ -125,11 +126,12 @@ export function CreateAppointmentModal({
     label: `${p.firstName} ${p.lastName}`,
   }));
 
-  const { data: officeAppointments = [] } = useGetAppointmentListQuery(
-    selectedOfficeId ? { officeId: selectedOfficeId } : undefined,
+  const { data: appointmentsData } = useGetAppointmentListQuery(
+    selectedOfficeId ? { officeId: selectedOfficeId, limit: 100 } : undefined,
     !!selectedOfficeId,
     false
   );
+  const officeAppointments = appointmentsData?.items ?? [];
 
   const availableHours = useMemo(() => {
     if (!selectedOfficeId || !selectedDate) return [];

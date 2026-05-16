@@ -4,7 +4,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { User, UserService, CreateUserDto } from "@clinio/api";
+import { UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
 import { userKeys } from "./queryKeys";
 import { t } from "../i18n";
@@ -30,30 +30,38 @@ export const useCreateUserMutation = () => {
   });
 };
 
-type UseGetUsersQueryOptions = {
-  role: Array<UserRole>;
-  search?: string;
+type GetUsersParams = {
+  roles: Array<UserRole>;
   limit?: number;
-  enabled?: boolean;
+  page?: number;
+  search?: string;
   sortBy?: "firstName" | "lastName" | "email" | "role";
   sortOrder?: "ASC" | "DESC";
 };
 
-// TODO: API returns paginated response — expose pagination metadata when needed.
-export const useGetUsersQuery = (opt: UseGetUsersQueryOptions) => {
-  const { enabled, ...query } = opt;
-
-  return useQuery<User[]>({
-    queryKey: userKeys.list({ ...query }),
+const getUsersListOptions = (params: GetUsersParams, enabled = true) =>
+  queryOptions({
     queryFn: async ({ signal }) => {
-      const { data } = await UserService.get({
+      const res = await UserService.get({
+        query: {
+          role: params.roles,
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+          sortBy: params.sortBy,
+          sortOrder: params.sortOrder,
+        },
         signal,
-        query,
+        throwOnError: true,
       });
-      return data?.items ?? [];
+      return res.data;
     },
+    queryKey: userKeys.list(params),
     enabled,
   });
+
+export const useGetUsersQuery = (params: GetUsersParams, enabled = true) => {
+  return useQuery(getUsersListOptions(params, enabled));
 };
 
 /*

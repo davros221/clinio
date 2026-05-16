@@ -1,5 +1,4 @@
 import {
-  keepPreviousData,
   queryOptions,
   useMutation,
   useQuery,
@@ -26,12 +25,12 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
           search: params?.search,
         },
         signal,
+        throwOnError: true,
       });
       return res.data;
     },
     staleTime: 1000 * 60 * 3,
     queryKey: patientKeys.list(params),
-    placeholderData: keepPreviousData,
   });
 
 export const useGetPatientList = (

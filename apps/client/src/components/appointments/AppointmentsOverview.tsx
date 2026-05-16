@@ -15,8 +15,10 @@ export function CalendarOverview() {
   const [modalOpened, setModalOpened] = useState(false);
   const [time, setTime] = useState(() => Date.now());
 
-  const { data: offices = [] } = useGetOfficeListQuery();
+  const { data: officesData } = useGetOfficeListQuery();
+  const offices = officesData?.items ?? [];
   const handleAppointmentMove = useAppointmentMove(time);
+
   const { data: calendarDays = [] } = useGetCalendarQuery(
     selectedOfficeId!,
     time,
