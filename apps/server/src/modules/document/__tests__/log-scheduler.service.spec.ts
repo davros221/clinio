@@ -72,7 +72,7 @@ describe("LogSchedulerService", () => {
 
       // Check if the original log was truncated
       expect(fs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining("daily-execution.log"),
+        expect.stringContaining("backend-execution.log"),
         ""
       );
     });

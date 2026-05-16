@@ -7,11 +7,10 @@ import * as path from "path";
 @Injectable()
 export class LogSchedulerService {
   private readonly logger = new Logger(LogSchedulerService.name);
-  // 👇 Change this path to point to the daily accumulator file
   private readonly logFilePath = path.join(
     process.cwd(),
     "logs",
-    "daily-execution.log"
+    "backend-execution.log"
   );
   private readonly archiveDir = path.join(process.cwd(), "logs", "archives");
 
