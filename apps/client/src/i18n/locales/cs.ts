@@ -299,6 +299,25 @@ const cs: TranslationKeys = {
     onboardingWarningTitle: "Dokončete svůj profil",
     onboardingWarningMessage:
       "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
+    dangerZoneTitle: "Nebezpečná zóna",
+    dangerZoneDescription:
+      "Trvale smazat všechna data aplikace. Tuto akci nelze vrátit zpět.",
+    shutdownButton: "Vypnout aplikaci",
+    shutdown: {
+      confirmTitle: "Vypnout aplikaci",
+      confirmMessage:
+        "Tato akce je nevratná. Všechna data — uživatelé, pacienti, návštěvy, ordinace a zprávy — budou trvale smazána. Opravdu chcete pokračovat?",
+      continueLabel: "Pokračovat",
+      cancelLabel: "Zrušit",
+      confirmLabel: "Vypnout",
+      passwordLabel: "Heslo administrátora",
+      passwordPlaceholder: "Pro potvrzení zadejte své heslo",
+      passwordError: "Špatné heslo. Zbývá pokusů: {{count}}.",
+      tooManyAttemptsTitle: "Příliš mnoho pokusů",
+      tooManyAttemptsMessage: "Po 3 neúspěšných pokusech jste byli odhlášeni.",
+      successTitle: "Aplikace resetována",
+      successMessage: "Všechna data byla smazána.",
+    },
   },
   chat: {
     sidebar: {

@@ -300,6 +300,26 @@ const en = {
     onboardingWarningTitle: "Complete your profile",
     onboardingWarningMessage:
       "Please fill in all required fields below to get full access to the application.",
+    dangerZoneTitle: "Danger zone",
+    dangerZoneDescription:
+      "Permanently wipe all application data. This cannot be undone.",
+    shutdownButton: "Shutdown application",
+    shutdown: {
+      confirmTitle: "Shutdown application",
+      confirmMessage:
+        "This action is irreversible. All data — users, patients, appointments, offices and messages — will be permanently deleted. Are you sure you want to continue?",
+      continueLabel: "Continue",
+      cancelLabel: "Cancel",
+      confirmLabel: "Shutdown",
+      passwordLabel: "Admin password",
+      passwordPlaceholder: "Enter your password to confirm",
+      passwordError: "Wrong password. Attempts remaining: {{count}}.",
+      tooManyAttemptsTitle: "Too many attempts",
+      tooManyAttemptsMessage:
+        "You have been logged out after 3 failed attempts.",
+      successTitle: "Application reset",
+      successMessage: "All data has been deleted.",
+    },
   },
   chat: {
     sidebar: {
