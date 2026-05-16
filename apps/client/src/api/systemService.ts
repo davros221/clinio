@@ -38,5 +38,9 @@ export const useShutdownMutation = () => {
       AuthToken.clear();
       queryClient.clear();
     },
+    throwOnError: false,
+    meta: {
+      skipGlobalErrorHandler: true,
+    },
   });
 };
