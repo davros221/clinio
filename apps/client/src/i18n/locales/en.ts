@@ -71,6 +71,15 @@ const en = {
       confirm: "Delete",
       cancel: "Cancel",
     },
+    errorPage: {
+      title: "Something went wrong",
+      retry: "Retry",
+      backToDashboard: "Back to Dashboard",
+    },
+    notFoundPage: {
+      title: "Page not found",
+      backHome: "Back home",
+    },
     forbidden: "Forbidden",
     forbiddenMessage: "You do not have permission to access this page.",
     returnHome: "Go Back Home",
@@ -105,15 +114,18 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     offices: "Offices",
+    calendar: "Calendar",
     appointments: "Appointments",
     patients: "Patients",
     staff: "Staff",
     settings: "Settings",
+    messages: "Messages",
     logout: "Logout",
     openMenu: "Open navigation menu",
     closeMenu: "Close navigation menu",
   },
   appointment: {
+    durationLabel: "duration",
     createModal: {
       title: "New Appointment",
       fields: {
@@ -140,6 +152,12 @@ const en = {
         status: "Status",
         office: "Office",
         note: "Note",
+        cancel: "Cancel",
+      },
+      cancelConfirm: {
+        title: "Cancel appointment?",
+        message: "Are you sure you want to cancel this appointment?",
+        confirm: "Cancel appointment",
       },
     },
     status: {
@@ -150,6 +168,9 @@ const en = {
     notification: {
       createSuccess: "Appointment created",
       deleteSuccess: "Appointment deleted",
+      updateSuccess: "Appointment updated",
+      rescheduleSuccess: "Appointment rescheduled",
+      cancelSuccess: "Appointment cancelled",
     },
   },
   login: {
@@ -221,6 +242,14 @@ const en = {
       },
       title: "Offices Overview",
     },
+    detail: {
+      viewAppointments: "View appointments",
+      backToDetail: "Back to office",
+      breadcrumb: {
+        new: "New office",
+        appointments: "Appointments",
+      },
+    },
   },
   signUp: {
     title: "CREATE ACCOUNT",
@@ -272,6 +301,27 @@ const en = {
     onboardingWarningMessage:
       "Please fill in all required fields below to get full access to the application.",
   },
+  chat: {
+    sidebar: {
+      title: "Chat",
+      newMessage: "New message",
+      noChats: {
+        title: "No chats yet",
+        message: "Start a new conversation and it will appear here.",
+      },
+    },
+    content: {
+      noMessages: "No messages yet. Say hi!",
+      messagePlaceholder: "Write a message…",
+    },
+    newChat: {
+      placeholder: "To: ",
+      noUsers: "No users found",
+    },
+    notification: {
+      newMessage: "New message",
+    },
+  },
   calendar: {
     today: "Today",
   },
@@ -307,8 +357,16 @@ const en = {
         diagnosis: "Diagnosis",
       },
     },
+    editModal: {
+      title: "Edit Medical Record",
+      buttons: {
+        cancel: "Cancel",
+        submit: "Save",
+      },
+    },
     notification: {
       createSuccess: "Medical record created",
+      updateSuccess: "Medical record updated",
       deleteSuccess: "Medical record deleted",
     },
   },

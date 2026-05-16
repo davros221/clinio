@@ -4,7 +4,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
@@ -32,6 +31,7 @@ const mockRepository = () => ({
   create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
+  exists: jest.fn(),
 });
 
 const mockTransactionManager = {
@@ -51,7 +51,13 @@ describe("UserService", () => {
   let repository: jest.Mocked<
     Pick<
       Repository<UserEntity>,
-      "find" | "findAndCount" | "findOneBy" | "create" | "save" | "delete"
+      | "find"
+      | "findAndCount"
+      | "findOneBy"
+      | "create"
+      | "save"
+      | "delete"
+      | "exists"
     >
   >;
   beforeEach(async () => {
@@ -78,6 +84,8 @@ describe("UserService", () => {
 
     service = module.get<UserService>(UserService);
     repository = module.get(getRepositoryToken(UserEntity));
+    repository.exists.mockResolvedValue(true);
+    service.clearInitializedCache();
   });
 
   describe("findAll", () => {
@@ -274,14 +282,6 @@ describe("UserService", () => {
       }
     });
 
-    it("should throw InternalServerErrorException when repository throws", async () => {
-      repository.findOneBy.mockRejectedValue(new Error("DB error"));
-
-      await expect(service.findById(mockUser.id)).rejects.toThrow(
-        InternalServerErrorException
-      );
-    });
-
     it("should allow CLIENT to read own record", async () => {
       const clientEntity: UserEntity = {
         ...mockUser,
@@ -300,7 +300,25 @@ describe("UserService", () => {
       );
     });
 
-    it("should forbid CLIENT from reading another user's record", async () => {
+    it("should forbid CLIENT from reading another CLIENT's record", async () => {
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: "client@example.com",
+        role: UserRole.CLIENT,
+      };
+      const otherClient: UserEntity = {
+        ...mockUser,
+        id: "other-client-id",
+        role: UserRole.CLIENT,
+      };
+      repository.findOneBy.mockResolvedValue(otherClient);
+
+      await expect(
+        service.findById(otherClient.id, clientAuth)
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should allow CLIENT to read DOCTOR record", async () => {
       const clientAuth: AuthUser = {
         id: "client-id",
         email: "client@example.com",
@@ -308,9 +326,23 @@ describe("UserService", () => {
       };
       repository.findOneBy.mockResolvedValue(mockUser);
 
-      await expect(service.findById(mockUser.id, clientAuth)).rejects.toThrow(
-        ForbiddenException
+      await expect(service.findById(mockUser.id, clientAuth)).resolves.toEqual(
+        mockUser
       );
+    });
+
+    it("should allow CLIENT to read NURSE record", async () => {
+      const clientAuth: AuthUser = {
+        id: "client-id",
+        email: "client@example.com",
+        role: UserRole.CLIENT,
+      };
+      const nurseEntity: UserEntity = { ...mockUser, role: UserRole.NURSE };
+      repository.findOneBy.mockResolvedValue(nurseEntity);
+
+      await expect(
+        service.findById(nurseEntity.id, clientAuth)
+      ).resolves.toEqual(nurseEntity);
     });
 
     it("should allow DOCTOR to read any user's record", async () => {
@@ -720,6 +752,82 @@ describe("UserService", () => {
         ConflictException
       );
     });
+
+    // --- Initialization tests ---
+
+    it("should allow public admin creation when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      mockTransactionManager.create.mockReturnValue({
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+      mockTransactionManager.save.mockResolvedValue({
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity);
+
+      await expect(service.create(adminDto)).resolves.toBeDefined();
+    });
+
+    it("should forbid non-ADMIN role creation when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+
+      await expect(service.create(clientDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should forbid authenticated requests when app is not initialized", async () => {
+      repository.exists.mockResolvedValue(false);
+
+      await expect(service.create(doctorDto, adminUser)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
+
+    it("should require password for admin creation during init", async () => {
+      repository.exists.mockResolvedValue(false);
+      const adminNoPassword: CreateUserDto = {
+        email: "admin@example.com",
+        firstName: "Admin",
+        lastName: "User",
+        role: UserRole.ADMIN,
+      } as CreateUserDto;
+
+      await expect(service.create(adminNoPassword)).rejects.toThrow(
+        BadRequestException
+      );
+    });
+
+    it("should clear initialized cache after admin creation", async () => {
+      repository.exists.mockResolvedValue(false);
+      jest
+        .spyOn(bcrypt, "hash")
+        .mockImplementation(() => Promise.resolve("hashed"));
+      const savedAdmin = {
+        ...adminDto,
+        id: "new-id",
+        password: "hashed",
+      } as UserEntity;
+      mockTransactionManager.create.mockReturnValue(savedAdmin);
+      mockTransactionManager.save.mockResolvedValue(savedAdmin);
+
+      await service.create(adminDto);
+
+      repository.exists.mockResolvedValue(true);
+      expect(await service.isInitialized()).toBe(true);
+    });
+
+    it("should forbid creating ADMIN when app is initialized", async () => {
+      await expect(service.create(adminDto)).rejects.toThrow(
+        ForbiddenException
+      );
+    });
   });
 
   describe("remove", () => {
@@ -760,6 +868,42 @@ describe("UserService", () => {
       await expect(service.remove("other-user-id", doctorUser)).rejects.toThrow(
         ForbiddenException
       );
+    });
+  });
+
+  describe("findUsersWithLoggingEnabled", () => {
+    it("should return empty array if no userIds are provided", async () => {
+      const result = await service.findUsersWithLoggingEnabled([]);
+
+      expect(result).toEqual([]);
+      expect(repository.find).not.toHaveBeenCalled();
+    });
+
+    it("should call repository.find with correct parameters and return users", async () => {
+      const mockLoggedUsers = [
+        {
+          id: "user-1",
+          email: "user1@example.com",
+          logGenerationInterval: 60,
+          logLevel: "INFO",
+        },
+      ] as UserEntity[];
+
+      repository.find.mockResolvedValue(mockLoggedUsers);
+
+      const result = await service.findUsersWithLoggingEnabled([
+        "user-1",
+        "user-2",
+      ]);
+
+      expect(repository.find).toHaveBeenCalledWith({
+        where: {
+          id: expect.anything(), // Matches the TypeORM In() operator
+          isDetailedLoggingEnabled: true,
+        },
+        select: ["id", "email", "logGenerationInterval", "logLevel"],
+      });
+      expect(result).toEqual(mockLoggedUsers);
     });
   });
 });

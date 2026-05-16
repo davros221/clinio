@@ -96,6 +96,18 @@ After running the server
 - modules: feature modules (e.g. user, appointment, etc.)
 - openapi: OpenAPI configuration and code (e.g. controllers, DTOs, etc.)
 
+### Database & Migrations
+
+We use TypeORM for database interactions. When you make changes to an entity (e.g., adding a new column to `UserEntity`), you must generate and run a migration so the database schema matches the code.
+
+**To generate a new migration:**
+
+1. Make your changes to the `*.entity.ts` files.
+2. Run the migration generation script (ensure your local DB is running):
+   ```bash
+   pnpm typeorm migration:generate -n YourMigrationName
+   ```
+
 ### Documenting APIs
 
 We use **OpenAPI** and **Swagger** to document and generate API contracts. Validation schemas are shared between frontend and backend using **Zod** (defined in `@clinio/shared`).

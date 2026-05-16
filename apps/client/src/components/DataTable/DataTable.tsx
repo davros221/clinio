@@ -1,12 +1,4 @@
-import {
-  Table,
-  Box,
-  Alert,
-  LoadingOverlay,
-  Pagination,
-  Center,
-  Paper,
-} from "@mantine/core";
+import { Table, Box, Alert, LoadingOverlay, Paper } from "@mantine/core";
 import { useT } from "@hooks";
 import classes from "./DataTable.module.css";
 import {
@@ -17,6 +9,7 @@ import {
 import { DataTableBody } from "./components/DataTableBody.tsx";
 import { MdErrorOutline } from "react-icons/md";
 import { ApiError } from "@clinio/shared";
+import { Pagination } from "../common/Pagination.tsx";
 
 export type DataTableProps<T> = {
   data: T[];
@@ -118,15 +111,13 @@ export const DataTable = <T,>(props: DataTableProps<T>) => {
         </Box>
         <LoadingOverlay visible={isFetching} />
       </Box>
-      {pagination && pagination.total > 1 && (
-        <Center py="md">
-          <Pagination
-            total={pagination.total}
-            value={pagination.current}
-            onChange={pagination.onChange}
-            disabled={isFetching}
-          />
-        </Center>
+      {pagination && (
+        <Pagination
+          total={pagination.total}
+          current={pagination.current}
+          onChange={pagination.onChange}
+          disabled={isFetching}
+        />
       )}
     </Paper>
   );

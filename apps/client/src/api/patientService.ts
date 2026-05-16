@@ -1,5 +1,4 @@
 import {
-  keepPreviousData,
   queryOptions,
   useMutation,
   useQuery,
@@ -7,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { PatientService, UpdatePatientDto } from "@clinio/api";
 import { authKeys, patientKeys } from "./queryKeys.ts";
-import { handleError } from "@utils";
 
 // ToDO: Gen from swagger def
 type GetPatientListParams = {
@@ -26,16 +24,19 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
           search: params?.search,
         },
         signal,
+        throwOnError: true,
       });
       return res.data;
     },
     staleTime: 1000 * 60 * 3,
     queryKey: patientKeys.list(params),
-    placeholderData: keepPreviousData,
   });
 
-export const useGetPatientList = (params?: GetPatientListParams) => {
-  return useQuery(getPatientListOptions(params));
+export const useGetPatientList = (
+  params?: GetPatientListParams,
+  enabled = true
+) => {
+  return useQuery({ ...getPatientListOptions(params), enabled });
 };
 
 const getPatientDetailOptions = (id: string) =>
@@ -62,16 +63,12 @@ export const useUpdatePatientMutation = () => {
       const res = await PatientService.updatePatient({
         path: { id: data.id },
         body: data.body,
-        throwOnError: true,
       });
       return res.data;
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [authKeys.me] });
       void queryClient.invalidateQueries({ queryKey: patientKeys.all });
-    },
-    onError: (e) => {
-      handleError(e);
     },
   });
 };

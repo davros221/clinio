@@ -73,7 +73,7 @@ describe("AuthController", () => {
     const dto = { email: "user@example.com" };
 
     it("should call authService.requestPasswordReset and return success", async () => {
-      service.requestPasswordReset.mockResolvedValue(true);
+      service.requestPasswordReset.mockResolvedValue(undefined);
 
       const result = await controller.requestPasswordReset(dto);
 

@@ -67,11 +67,16 @@ export const PatientDetailPage = () => {
     isFetching: isFetchingRecords,
     isError,
     error,
-  } = useGetPatientMedicalRecordsQuery(patientId!);
+  } = useGetPatientMedicalRecordsQuery(patientId ?? "");
 
   const handleRowClick = (row: MedicalRecord) => {
     setSelectedRecord(row);
     openDetail();
+  };
+
+  const handleDetailClose = () => {
+    closeDetail();
+    setSelectedRecord(null);
   };
 
   const columns = [
@@ -169,11 +174,14 @@ export const PatientDetailPage = () => {
         />
       )}
 
-      <MedicalRecordDetailModal
-        record={selectedRecord}
-        opened={detailOpened}
-        onClose={closeDetail}
-      />
+      {selectedRecord && (
+        <MedicalRecordDetailModal
+          key={selectedRecord.id}
+          record={selectedRecord}
+          opened={detailOpened}
+          onClose={handleDetailClose}
+        />
+      )}
     </div>
   );
 };

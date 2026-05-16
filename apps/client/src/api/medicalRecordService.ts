@@ -3,21 +3,22 @@ import {
   CreateMedicalRecordDto,
   MedicalRecord,
   MedicalRecordService,
+  UpdateMedicalRecordDto,
   type DeletePatientMedicalRecordData,
 } from "@clinio/api";
 import { t } from "../i18n";
-import { notifyError, notifySuccess } from "../utils/notification";
+import { notifySuccess } from "../utils/notification";
 import { medicalRecordKeys } from "./queryKeys";
 
 export const useGetPatientMedicalRecordsQuery = (patientId: string) => {
   return useQuery({
     queryKey: medicalRecordKeys.list({ patientId }),
     queryFn: async () => {
-      const res = await MedicalRecordService.getPatientMedicalRecords({
+      const { data } = await MedicalRecordService.getPatientMedicalRecords({
         path: { patientId },
         query: { sortBy: "createdAt", sortOrder: "DESC" },
       });
-      return res.data?.items ?? [];
+      return data!.items;
     },
     enabled: !!patientId,
   });
@@ -26,46 +27,64 @@ export const useGetPatientMedicalRecordsQuery = (patientId: string) => {
 export const useCreatePatientMedicalRecordMutation = (patientId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation<MedicalRecord, Error, CreateMedicalRecordDto>({
+  return useMutation<MedicalRecord, unknown, CreateMedicalRecordDto>({
     mutationFn: async (body) => {
       const { data } = await MedicalRecordService.createPatientMedicalRecord({
         path: { patientId },
         body,
-        throwOnError: true,
       });
-      if (!data) throw new Error(t("common.error.noData"));
-      return data;
+      return data!;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: medicalRecordKeys.list({ patientId }),
       });
       notifySuccess(t("medicalRecord.notification.createSuccess"), "");
     },
-    onError: (error) =>
-      notifyError(t("common.error.createFailed"), error.message),
+  });
+};
+
+type UpdateMutationVars = {
+  path: { patientId: string; id: string };
+  body: UpdateMedicalRecordDto;
+};
+
+export const useUpdatePatientMedicalRecordMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<MedicalRecord, unknown, UpdateMutationVars>({
+    mutationFn: async ({ path, body }) => {
+      const { data } = await MedicalRecordService.updatePatientMedicalRecord({
+        path,
+        body,
+      });
+      return data!;
+    },
+    onSuccess: (_, { path }) => {
+      void queryClient.invalidateQueries({
+        queryKey: medicalRecordKeys.list({ patientId: path.patientId }),
+      });
+      notifySuccess(t("medicalRecord.notification.updateSuccess"), "");
+    },
   });
 };
 
 export const useDeletePatientMedicalRecordMutation = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<void, Error, Pick<DeletePatientMedicalRecordData, "path">>(
-    {
-      mutationFn: async ({ path }) => {
-        await MedicalRecordService.deletePatientMedicalRecord({
-          path,
-          throwOnError: true,
-        });
-      },
-      onSuccess: (_, { path }) => {
-        queryClient.invalidateQueries({
-          queryKey: medicalRecordKeys.list({ patientId: path.patientId }),
-        });
-        notifySuccess(t("medicalRecord.notification.deleteSuccess"), "");
-      },
-      onError: (error) =>
-        notifyError(t("common.error.deleteFailed"), error.message),
-    }
-  );
+  return useMutation<
+    void,
+    unknown,
+    Pick<DeletePatientMedicalRecordData, "path">
+  >({
+    mutationFn: async ({ path }) => {
+      await MedicalRecordService.deletePatientMedicalRecord({ path });
+    },
+    onSuccess: (_, { path }) => {
+      void queryClient.invalidateQueries({
+        queryKey: medicalRecordKeys.list({ patientId: path.patientId }),
+      });
+      notifySuccess(t("medicalRecord.notification.deleteSuccess"), "");
+    },
+  });
 };

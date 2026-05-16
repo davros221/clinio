@@ -1,4 +1,5 @@
 export * from "./LoginPage/LoginPage.tsx";
+export * from "./ErrorPages";
 export * from "./SignUpPage/SignUpPage.tsx";
 export * from "./PatientDetailPage/PatientDetailPage.tsx";
 export * from "./ActivateAccountPage/ActivateAccountPage.tsx";
@@ -8,4 +9,5 @@ export * from "./LoginPage/GoogleAuthCallback.tsx";
 export * from "./SettingsPage/SettingsPage.tsx";
 export * from "./OfficeDetailPage/OfficeDetailLayout.tsx";
 export * from "./OfficeDetailPage/OfficeDetailContent.tsx";
+export * from "./OfficeDetailPage/OfficeAppointmentsContent.tsx";
 export * from "./dashboards";

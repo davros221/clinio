@@ -71,6 +71,15 @@ const cs: TranslationKeys = {
       confirm: "Smazat",
       cancel: "Zrušit",
     },
+    errorPage: {
+      title: "Něco se pokazilo",
+      retry: "Zkusit znovu",
+      backToDashboard: "Zpět na nástěnku",
+    },
+    notFoundPage: {
+      title: "Stránka nenalezena",
+      backHome: "Zpět domů",
+    },
     forbidden: "Zakázáno",
     forbiddenMessage: "Nemáte oprávnění přistoupit na tuto stránku.",
     returnHome: "Zpět na domovskou stránku",
@@ -105,15 +114,18 @@ const cs: TranslationKeys = {
   nav: {
     dashboard: "Přehled",
     offices: "Ordinace",
+    calendar: "Kalendář",
     appointments: "Rezervace",
     patients: "Pacienti",
     staff: "Personál",
     settings: "Nastavení",
+    messages: "Zprávy",
     logout: "Odhlásit se",
     openMenu: "Otevřít navigační menu",
     closeMenu: "Zavřít navigační menu",
   },
   appointment: {
+    durationLabel: "délka",
     createModal: {
       title: "Nová rezervace",
       fields: {
@@ -140,6 +152,12 @@ const cs: TranslationKeys = {
         status: "Stav",
         office: "Ordinace",
         note: "Poznámka",
+        cancel: "Zrušit",
+      },
+      cancelConfirm: {
+        title: "Zrušit rezervaci?",
+        message: "Opravdu chcete zrušit tuto rezervaci?",
+        confirm: "Zrušit rezervaci",
       },
     },
     status: {
@@ -150,6 +168,9 @@ const cs: TranslationKeys = {
     notification: {
       createSuccess: "Rezervace byla vytvořena",
       deleteSuccess: "Rezervace byla smazána",
+      updateSuccess: "Rezervace byla upravena",
+      rescheduleSuccess: "Rezervace byla přesunuta",
+      cancelSuccess: "Rezervace byla zrušena",
     },
   },
   login: {
@@ -220,6 +241,14 @@ const cs: TranslationKeys = {
       },
       title: "Přehled ordinací",
     },
+    detail: {
+      viewAppointments: "Zobrazit rezervace",
+      backToDetail: "Zpět na ordinaci",
+      breadcrumb: {
+        new: "Nová ordinace",
+        appointments: "Rezervace",
+      },
+    },
   },
   signUp: {
     title: "VYTVOŘIT ÚČET",
@@ -271,6 +300,27 @@ const cs: TranslationKeys = {
     onboardingWarningMessage:
       "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
   },
+  chat: {
+    sidebar: {
+      title: "Chat",
+      newMessage: "Nová zpráva",
+      noChats: {
+        title: "Zatím žádné chaty",
+        message: "Zahajte nový rozhovor a zobrazí se zde.",
+      },
+    },
+    content: {
+      noMessages: "Zatím žádné zprávy. Pozdravte se!",
+      messagePlaceholder: "Napište zprávu…",
+    },
+    newChat: {
+      placeholder: "Komu: ",
+      noUsers: "Žádní uživatelé nenalezeni",
+    },
+    notification: {
+      newMessage: "Nová zpráva",
+    },
+  },
   calendar: {
     today: "Dnes",
   },
@@ -307,8 +357,16 @@ const cs: TranslationKeys = {
         diagnosis: "Diagnóza",
       },
     },
+    editModal: {
+      title: "Upravit zdravotní záznam",
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Uložit",
+      },
+    },
     notification: {
       createSuccess: "Zdravotní záznam byl vytvořen",
+      updateSuccess: "Zdravotní záznam byl upraven",
       deleteSuccess: "Zdravotní záznam byl smazán",
     },
   },

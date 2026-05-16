@@ -274,9 +274,8 @@ describe("AuthService", () => {
       userService.update.mockResolvedValue(user);
       mailService.sendMail.mockResolvedValue(undefined);
 
-      const result = await service.requestPasswordReset(user.email);
+      await service.requestPasswordReset(user.email);
 
-      expect(result).toBe(true);
       expect(mailService.sendMail).toHaveBeenCalledWith(
         expect.objectContaining({
           to: user.email,

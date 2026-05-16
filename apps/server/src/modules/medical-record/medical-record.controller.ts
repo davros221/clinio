@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from "@nestjs/common";
@@ -27,14 +28,19 @@ import {
   medicalRecordListSchema,
   MedicalRecordSortField,
   SortOrder,
+  updateMedicalRecordSchema,
   UserRole,
 } from "@clinio/shared";
 import { MedicalRecordService } from "./medical-record.service";
 import { CreateMedicalRecordDto } from "./dto/create-medical-record.dto";
+import { UpdateMedicalRecordDto } from "./dto/update-medical-record.dto";
 import { MedicalRecordListQueryDto } from "./dto/medical-record-list-query.dto";
 import { MedicalRecord } from "./dto/medical-record.dto";
 import { MedicalRecordMapper } from "./mapper/MedicalRecordMapper";
-import { PaginatedResponseDto } from "../../common/dto/paginated-response.dto";
+import {
+  PaginatedResponseDto,
+  paginatedResponse,
+} from "../../common/dto/paginated-response.dto";
 import { Roles } from "../../common/decorators/roles.decorator";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { type AuthUser } from "../../auth/strategies/jwt.strategy";
@@ -87,13 +93,11 @@ export class MedicalRecordController {
       query,
       currentUser
     );
-    return {
-      items: MedicalRecordMapper.toDtoList(items),
+    return paginatedResponse(
+      MedicalRecordMapper.toDtoList(items),
       total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+      query
+    );
   }
 
   @Get(":id")
@@ -130,6 +134,29 @@ export class MedicalRecordController {
   ) {
     const entity = await this.medicalRecordService.create(
       patientId,
+      dto,
+      currentUser
+    );
+    return MedicalRecordMapper.toDto(entity);
+  }
+
+  @Patch(":id")
+  @Roles(UserRole.DOCTOR, UserRole.NURSE)
+  @ApiOperation({ operationId: "updatePatientMedicalRecord" })
+  @ApiOkResponse({ type: MedicalRecord })
+  @ApiBadRequestResponse({ description: "Bad Request" })
+  @ApiForbiddenResponse({ description: "Forbidden" })
+  @ApiNotFoundResponse({ description: "Medical record or office not found" })
+  async update(
+    @CurrentUser() currentUser: AuthUser,
+    @Param("patientId", ParseUUIDPipe) patientId: string,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ZodValidationPipe(updateMedicalRecordSchema))
+    dto: UpdateMedicalRecordDto
+  ) {
+    const entity = await this.medicalRecordService.update(
+      patientId,
+      id,
       dto,
       currentUser
     );

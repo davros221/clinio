@@ -14,6 +14,8 @@ export const calendarKeys = createQueryKeys("calendar");
 export const officeKeys = createQueryKeys("offices");
 export const userKeys = createQueryKeys("users");
 export const patientKeys = createQueryKeys("patients");
+export const roomKeys = createQueryKeys("rooms");
+export const messageKeys = createQueryKeys("messages");
 // Auth servicer is not generic entity / list service, so there should be custom keys
 export const authKeys = {
   me: "ME",

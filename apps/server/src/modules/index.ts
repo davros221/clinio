@@ -6,3 +6,5 @@ export * from "./appointment/appointment.module";
 export * from "./patient/patient.module";
 export * from "./medical-record/medical-record.module";
 export * from "./mail/mail.module";
+export * from "./room/room.module";
+export * from "./message/message.module";

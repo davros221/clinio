@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   AuthService,
   LoginDto,
@@ -6,24 +11,36 @@ import {
   ResetPasswordDto,
 } from "@clinio/api";
 import { authKeys } from "./queryKeys.ts";
-import { AuthToken, handleError, notifySuccess } from "@utils";
+import { AuthToken, notifySuccess } from "@utils";
 import { useT } from "@hooks";
 
-const meFn = async () => {
-  const res = await AuthService.me();
-  return res.data;
-};
+export const getMeQueryOptions = queryOptions({
+  queryKey: [authKeys.me],
+  queryFn: async () => {
+    const res = await AuthService.me();
+    return res.data;
+  },
+});
 
 export const useGetMeQuery = (enabled = true) => {
-  return useQuery({
-    queryFn: meFn,
-    queryKey: [authKeys.me],
-    enabled,
-  });
+  return useQuery({ ...getMeQueryOptions, enabled });
+};
+
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+
+  return () => {
+    AuthToken.clear();
+    queryClient.setQueryData<MeResponse>([authKeys.me], {
+      auth: false,
+      authData: null,
+    });
+    queryClient.clear();
+  };
 };
 
 const loginFn = async (data: LoginDto) => {
-  const res = await AuthService.login({ body: data, throwOnError: true });
+  const res = await AuthService.login({ body: data });
   return res.data;
 };
 
@@ -40,16 +57,12 @@ export const useLoginMutation = () => {
         authData: res.authData,
       }));
     },
-    onError: (e) => {
-      handleError(e);
-    },
   });
 };
 
 const requestPassResetFn = async (email: string) => {
   const res = await AuthService.requestPasswordReset({
     body: { email },
-    throwOnError: true,
   });
   return res;
 };
@@ -64,16 +77,12 @@ export const useRequestPassReset = () => {
         t("common.auth.emailSent.message")
       );
     },
-    onError: (e) => {
-      handleError(e);
-    },
   });
 };
 
 const resetPasswordFn = async (data: ResetPasswordDto) => {
   const res = await AuthService.resetPassword({
     body: data,
-    throwOnError: true,
   });
   return res.data;
 };
@@ -87,9 +96,6 @@ export const useResetPasswordMutation = () => {
         t("common.auth.passwordReset.title"),
         t("common.auth.passwordReset.message")
       );
-    },
-    onError: (e) => {
-      handleError(e);
     },
   });
 };

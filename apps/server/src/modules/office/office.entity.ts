@@ -31,7 +31,4 @@ export class OfficeEntity {
   @ManyToMany(() => UserEntity, (user) => user.offices)
   @JoinTable({ name: "office_staff" })
   staff!: UserEntity[];
-
-  // @OneToMany(() => AppointmentEntity, (appointment) => appointment.officeId)
-  // appointments?: AppointmentEntity[];
 }

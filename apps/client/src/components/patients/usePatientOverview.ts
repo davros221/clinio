@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 
 export const usePatientOverview = () => {
   const t = useT();
-  const { setPage, page, pageSize } = usePagination({ pageSize: 10, page: 1 });
+  const { setPage, page, pageSize } = usePagination();
 
   const { data, isLoading, isFetching, isError, error } = useGetPatientList({
     page,

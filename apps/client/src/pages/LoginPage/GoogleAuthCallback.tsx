@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AuthToken } from "@utils";
-import { authKeys } from "@api";
+import { getMeQueryOptions } from "@api";
 import { ROUTER_PATHS } from "@router";
 
 export const GoogleAuthCallback = () => {
@@ -23,11 +23,16 @@ export const GoogleAuthCallback = () => {
 
     let cancelled = false;
 
-    void queryClient.invalidateQueries({ queryKey: [authKeys.me] }).then(() => {
-      if (!cancelled) {
-        navigate(ROUTER_PATHS.HOME, { replace: true });
-      }
-    });
+    void queryClient
+      .fetchQuery(getMeQueryOptions)
+      .then(() => {
+        if (!cancelled) {
+          navigate(ROUTER_PATHS.HOME, { replace: true });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) navigate(ROUTER_PATHS.LOGIN, { replace: true });
+      });
 
     return () => {
       cancelled = true;

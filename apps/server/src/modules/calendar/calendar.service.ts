@@ -62,6 +62,7 @@ export class CalendarService {
   ): CalendarAppointment {
     return {
       id: appointment.id,
+      status: appointment.status,
       note: appointment.note,
       patient: appointment.patient
         ? this.mapPatientToDto(appointment.patient)
@@ -77,6 +78,7 @@ export class CalendarService {
 
     return {
       id: appointment.id,
+      status: appointment.status,
       note: appointment.note,
       patient: appointment.patient
         ? this.mapPatientToDto(appointment.patient)
