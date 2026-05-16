@@ -6,7 +6,7 @@ import {
   ApiBearerAuth,
 } from "@nestjs/swagger";
 import { UserLogSchedulerService } from "./user-log-scheduler.service";
-import { Response } from "express";
+import type { Response, Request } from "express";
 
 @ApiTags("Documents")
 @ApiBearerAuth()
@@ -25,7 +25,7 @@ export class DocumentController {
     status: 200,
     description: "Word document downloaded successfully.",
   })
-  async downloadLogs(@Req() req: any, @Res() res: Response) {
+  async downloadLogs(@Req() req: Request, @Res() res: Response) {
     // 1. Get the authenticated user's ID
     const userId = req.user?.id;
     if (!userId) {
@@ -33,7 +33,9 @@ export class DocumentController {
     }
 
     // 2. Generate the Buffer
-    const docBuffer = await this.userLogSchedulerService.getUserLogBuffer(userId);
+    const docBuffer = await this.userLogSchedulerService.getUserLogBuffer(
+      userId
+    );
 
     // 3. Set headers to force browser download
     res.set({

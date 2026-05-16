@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { UserLogSchedulerService } from "../user-log-scheduler.service";
 import { DocumentService } from "../document.service";
 import { UserService } from "../../user/user.service";
+import { NotFoundException } from "@nestjs/common";
 import * as fs from "fs";
 
 jest.mock("fs");
@@ -37,78 +38,64 @@ describe("UserLogSchedulerService", () => {
     jest.clearAllMocks();
   });
 
-  describe("processUserLogs", () => {
-    it("should abort if active log does not exist", async () => {
-      (fs.existsSync as jest.Mock).mockReturnValue(false);
+  describe("getUserLogBuffer", () => {
+    const mockUserId = "123e4567-e89b-12d3-a456-426614174000";
 
-      await service.processUserLogs();
-
-      expect(fs.readFileSync).not.toHaveBeenCalled();
-    });
-
-    it("should read, truncate, and process logs for enabled users", async () => {
-      const mockUserId = "123e4567-e89b-12d3-a456-426614174000";
-      const rawLogText = `[User: ${mockUserId} | Role: ADMIN] [START] HTTP GET /api\n[Anonymous] [START] GET /api/health`;
-      const mockBuffer = Buffer.from("mock-doc");
-
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockReturnValue(rawLogText);
-
-      // Mock user service to return the user from the regex match
-      userService.findUsersWithLoggingEnabled.mockResolvedValue([
-        { id: mockUserId, email: "test@example.com" } as any,
-      ]);
-      documentService.generateExecutionLogDoc.mockResolvedValue(mockBuffer);
-
-      await service.processUserLogs();
-
-      // 1. Ensure file was read and truncated immediately
-      expect(fs.readFileSync).toHaveBeenCalledWith(
-        expect.stringContaining("backend-execution.log"),
-        "utf-8"
-      );
-      expect(fs.writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining("backend-execution.log"),
-        ""
-      );
-
-      // 2. Ensure DB was queried with the parsed User ID
-      expect(userService.findUsersWithLoggingEnabled).toHaveBeenCalledWith([
-        mockUserId,
-      ]);
-
-      // 3. Ensure document was generated only for the user's logs
-      expect(documentService.generateExecutionLogDoc).toHaveBeenCalledWith([
-        `[User: ${mockUserId} | Role: ADMIN] [START] HTTP GET /api`,
-      ]);
-
-      // 4. Ensure it was appended to daily master log
-      expect(fs.appendFileSync).toHaveBeenCalledWith(
-        expect.stringContaining("daily-execution.log"),
-        rawLogText
-      );
-    });
-
-    it("should skip document generation if user has logging disabled", async () => {
-      const mockUserId = "disabled-user-id";
-      const rawLogText = `[User: ${mockUserId} | Role: ADMIN] [START] HTTP GET /api`;
-
-      (fs.existsSync as jest.Mock).mockReturnValue(true);
-      (fs.readFileSync as jest.Mock).mockReturnValue(rawLogText);
-
-      // Database returns empty array, meaning the user opted out
+    it("should throw NotFoundException if user has logging disabled", async () => {
       userService.findUsersWithLoggingEnabled.mockResolvedValue([]);
 
-      await service.processUserLogs();
-
-      // Ensure doc was NOT generated
-      expect(documentService.generateExecutionLogDoc).not.toHaveBeenCalled();
-
-      // Ensure logs were still moved to daily file
-      expect(fs.appendFileSync).toHaveBeenCalledWith(
-        expect.stringContaining("daily-execution.log"),
-        rawLogText
+      await expect(service.getUserLogBuffer(mockUserId)).rejects.toThrow(
+        new NotFoundException("Detailed logging is not enabled for this user.")
       );
+    });
+
+    it("should throw NotFoundException if active log file does not exist", async () => {
+      userService.findUsersWithLoggingEnabled.mockResolvedValue([
+        { id: mockUserId },
+      ] as any);
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+
+      await expect(service.getUserLogBuffer(mockUserId)).rejects.toThrow(
+        new NotFoundException("No active logs available to process.")
+      );
+    });
+
+    it("should throw NotFoundException if no logs match the user ID", async () => {
+      userService.findUsersWithLoggingEnabled.mockResolvedValue([
+        { id: mockUserId },
+      ] as any);
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+
+      // File has logs, but none for our mockUserId
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        "[User: different-id | Role: ADMIN] [START] HTTP GET /api"
+      );
+
+      await expect(service.getUserLogBuffer(mockUserId)).rejects.toThrow(
+        new NotFoundException("No execution logs found for your account.")
+      );
+    });
+
+    it("should filter user logs and return a document buffer successfully", async () => {
+      const targetLog = `[User: ${mockUserId} | Role: ADMIN] [START] HTTP GET /api`;
+      const otherLog = `[User: different-id | Role: ADMIN] [START] HTTP GET /api`;
+      const rawLogs = `${targetLog}\n${otherLog}`;
+      const mockBuffer = Buffer.from("mock-doc");
+
+      userService.findUsersWithLoggingEnabled.mockResolvedValue([
+        { id: mockUserId },
+      ] as any);
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(rawLogs);
+      documentService.generateExecutionLogDoc.mockResolvedValue(mockBuffer);
+
+      const result = await service.getUserLogBuffer(mockUserId);
+
+      // Verify it only passed the filtered logs to the document generator
+      expect(documentService.generateExecutionLogDoc).toHaveBeenCalledWith([
+        targetLog,
+      ]);
+      expect(result).toEqual(mockBuffer);
     });
   });
 });
