@@ -870,4 +870,40 @@ describe("UserService", () => {
       );
     });
   });
+
+  describe("findUsersWithLoggingEnabled", () => {
+    it("should return empty array if no userIds are provided", async () => {
+      const result = await service.findUsersWithLoggingEnabled([]);
+
+      expect(result).toEqual([]);
+      expect(repository.find).not.toHaveBeenCalled();
+    });
+
+    it("should call repository.find with correct parameters and return users", async () => {
+      const mockLoggedUsers = [
+        {
+          id: "user-1",
+          email: "user1@example.com",
+          logGenerationInterval: 60,
+          logLevel: "INFO",
+        },
+      ] as UserEntity[];
+
+      repository.find.mockResolvedValue(mockLoggedUsers);
+
+      const result = await service.findUsersWithLoggingEnabled([
+        "user-1",
+        "user-2",
+      ]);
+
+      expect(repository.find).toHaveBeenCalledWith({
+        where: {
+          id: expect.anything(), // Matches the TypeORM In() operator
+          isDetailedLoggingEnabled: true,
+        },
+        select: ["id", "email", "logGenerationInterval", "logLevel"],
+      });
+      expect(result).toEqual(mockLoggedUsers);
+    });
+  });
 });
