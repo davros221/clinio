@@ -41,8 +41,12 @@ export class UserService {
     return this.adminExists;
   }
 
-  private clearInitializedCache(): void {
+  public invalidateInitializedCache(): void {
     this.adminExists = null;
+  }
+
+  private clearInitializedCache(): void {
+    this.invalidateInitializedCache();
   }
 
   async findAll(
