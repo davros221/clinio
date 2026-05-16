@@ -63,6 +63,10 @@ const en = {
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
           "Appointment is already completed",
         [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Appointment cannot be edited",
+        [ErrorCode.APP_NOT_INITIALIZED]:
+          "Application is not initialized. Create an admin account to continue.",
+        [ErrorCode.ROOM_NOT_FOUND]: "Chat room not found",
+        [ErrorCode.MESSAGE_NOT_FOUND]: "Message not found",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
