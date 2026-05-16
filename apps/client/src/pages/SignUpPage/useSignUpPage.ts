@@ -15,9 +15,9 @@ export const useSignUpPage = (initialized: boolean) => {
     firstName: "",
     lastName: "",
     email: "",
-    birthdate: "",
-    phone: "",
-    birthNumber: "",
+    birthdate: initialized ? "" : undefined,
+    phone: initialized ? "" : undefined,
+    birthNumber: initialized ? "" : undefined,
   };
 
   const form = useUserForm({
