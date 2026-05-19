@@ -63,6 +63,10 @@ const en = {
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
           "Appointment is already completed",
         [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Appointment cannot be edited",
+        [ErrorCode.APP_NOT_INITIALIZED]:
+          "Application is not initialized. Create an admin account to continue.",
+        [ErrorCode.ROOM_NOT_FOUND]: "Chat room not found",
+        [ErrorCode.MESSAGE_NOT_FOUND]: "Message not found",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -300,6 +304,26 @@ const en = {
     onboardingWarningTitle: "Complete your profile",
     onboardingWarningMessage:
       "Please fill in all required fields below to get full access to the application.",
+    dangerZoneTitle: "Danger zone",
+    dangerZoneDescription:
+      "Permanently wipe all application data. This cannot be undone.",
+    shutdownButton: "Shutdown application",
+    shutdown: {
+      confirmTitle: "Shutdown application",
+      confirmMessage:
+        "This action is irreversible. All data — users, patients, appointments, offices and messages — will be permanently deleted. Are you sure you want to continue?",
+      continueLabel: "Continue",
+      cancelLabel: "Cancel",
+      confirmLabel: "Shutdown",
+      passwordLabel: "Admin password",
+      passwordPlaceholder: "Enter your password to confirm",
+      passwordError: "Wrong password. Attempts remaining: {{count}}.",
+      tooManyAttemptsTitle: "Too many attempts",
+      tooManyAttemptsMessage:
+        "You have been logged out after 3 failed attempts.",
+      successTitle: "Application reset",
+      successMessage: "All data has been deleted.",
+    },
   },
   chat: {
     sidebar: {

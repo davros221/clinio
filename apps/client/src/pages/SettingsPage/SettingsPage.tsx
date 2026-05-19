@@ -1,11 +1,11 @@
 import { Stack, Alert, TextInput, Button } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { useSettingsPage } from "./useSettingsPage.ts";
-import { OverviewHeader, PhoneInputField } from "@components";
+import { OverviewHeader, PhoneInputField, ShutdownSection } from "@components";
 
 export const SettingsPage = () => {
   const t = useT();
-  const { isOnboardingClient, isClient } = useUserRole();
+  const { isOnboardingClient, isClient, isAdmin } = useUserRole();
   const { form, handleSubmit, isPending } = useSettingsPage();
 
   return (
@@ -45,6 +45,8 @@ export const SettingsPage = () => {
           </form>
         </Stack>
       )}
+
+      {isAdmin && <ShutdownSection />}
     </Stack>
   );
 };
