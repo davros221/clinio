@@ -22,6 +22,7 @@ import { MedicalRecord } from "@clinio/api";
 import { openConfirmModal } from "../../utils/confirmModal.tsx";
 import { useDeletePatientMutation } from "../../api/patientService.ts";
 import { UpdatePatientModal } from "../../components/patients/UpdatePatientModal";
+import { ROUTER_PATHS } from "../../router/routes";
 
 function formatDate(raw: string): string {
   return new Date(raw).toLocaleDateString();
@@ -49,7 +50,7 @@ export const PatientDetailPage = () => {
       onConfirm: () => {
         if (patientId) {
           deletePatient(patientId, {
-            onSuccess: () => navigate(-1),
+            onSuccess: () => navigate(ROUTER_PATHS.PATIENTS),
           });
         }
       },

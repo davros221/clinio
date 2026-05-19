@@ -342,21 +342,45 @@ export type UpdateMedicalRecordDto = {
     diagnosis?: string | null;
 };
 
-export type HealthCheckData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/api/health';
+export type RoomParticipant = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
 };
 
-export type HealthCheckResponses = {
-    200: unknown;
+export type RoomDto = {
+    id: string;
+    participants: Array<RoomParticipant>;
+    unreadCount: number;
+    createdAt: string;
+};
+
+export type MessageDto = {
+    id: string;
+    roomId: string;
+    senderId: string;
+    text: string;
+    createdAt: string;
+};
+
+export type PaginatedMessageDtoResponse = {
+    items: Array<MessageDto>;
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+};
+
+export type ShutdownDto = {
+    password: string;
 };
 
 export type GetData = {
     body?: never;
     path?: never;
     query: {
+        role: Array<string>;
         /**
          * Search by first name or last name
          */
@@ -377,7 +401,6 @@ export type GetData = {
          * Sort order (default: ASC)
          */
         sortOrder?: 'ASC' | 'DESC';
-        role: Array<'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT'>;
     };
     url: '/api/users';
 };
@@ -625,6 +648,26 @@ export type GetPatientsResponses = {
 
 export type GetPatientsResponse = GetPatientsResponses[keyof GetPatientsResponses];
 
+export type DeletePatientData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/api/patients/{id}';
+};
+
+export type DeletePatientErrors = {
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Patient not found
+     */
+    404: unknown;
+};
+
 export type GetPatientByIdData = {
     body?: never;
     path: {
@@ -715,6 +758,10 @@ export type GetAppointmentsData = {
     path?: never;
     query?: {
         /**
+         * Filter by status
+         */
+        status?: Array<string>;
+        /**
          * Filter by office (required for DOCTOR/NURSE)
          */
         officeId?: string;
@@ -734,10 +781,6 @@ export type GetAppointmentsData = {
          * Sort order (default: ASC)
          */
         sortOrder?: 'ASC' | 'DESC';
-        /**
-         * Filter by status
-         */
-        status?: Array<'PLANNED' | 'COMPLETED' | 'CANCELLED'>;
     };
     url: '/api/appointments';
 };
@@ -1290,7 +1333,7 @@ export type UpdatePatientMedicalRecordErrors = {
      */
     403: unknown;
     /**
-     * Medical record not found
+     * Medical record or office not found
      */
     404: unknown;
 };
@@ -1300,3 +1343,138 @@ export type UpdatePatientMedicalRecordResponses = {
 };
 
 export type UpdatePatientMedicalRecordResponse = UpdatePatientMedicalRecordResponses[keyof UpdatePatientMedicalRecordResponses];
+
+export type GetRoomsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/rooms';
+};
+
+export type GetRoomsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type GetRoomsResponses = {
+    200: Array<RoomDto>;
+};
+
+export type GetRoomsResponse = GetRoomsResponses[keyof GetRoomsResponses];
+
+export type MarkRoomAsReadData = {
+    body?: never;
+    path: {
+        roomId: string;
+    };
+    query?: never;
+    url: '/api/rooms/{roomId}/read';
+};
+
+export type MarkRoomAsReadErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Room not found
+     */
+    404: unknown;
+};
+
+export type MarkRoomAsReadResponses = {
+    204: void;
+};
+
+export type MarkRoomAsReadResponse = MarkRoomAsReadResponses[keyof MarkRoomAsReadResponses];
+
+export type GetMessagesData = {
+    body?: never;
+    path: {
+        roomId: string;
+    };
+    query?: {
+        page?: number;
+        limit?: number;
+    };
+    url: '/api/rooms/{roomId}/messages';
+};
+
+export type GetMessagesErrors = {
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+    /**
+     * Forbidden
+     */
+    403: unknown;
+    /**
+     * Room not found
+     */
+    404: unknown;
+};
+
+export type GetMessagesResponses = {
+    200: PaginatedMessageDtoResponse;
+};
+
+export type GetMessagesResponse = GetMessagesResponses[keyof GetMessagesResponses];
+
+export type DocumentControllerDownloadLogsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/documents/download-my-logs';
+};
+
+export type DocumentControllerDownloadLogsResponses = {
+    /**
+     * Word document downloaded successfully.
+     */
+    200: unknown;
+};
+
+export type HealthCheckData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/system/health';
+};
+
+export type HealthCheckResponses = {
+    200: unknown;
+};
+
+export type GetAppStatusData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/system/status';
+};
+
+export type GetAppStatusResponses = {
+    200: {
+        initialized?: boolean;
+    };
+};
+
+export type GetAppStatusResponse = GetAppStatusResponses[keyof GetAppStatusResponses];
+
+export type ShutdownData = {
+    body: ShutdownDto;
+    path?: never;
+    query?: never;
+    url: '/api/system/shutdown';
+};
+
+export type ShutdownResponses = {
+    /**
+     * Application data cleared successfully
+     */
+    204: void;
+};
+
+export type ShutdownResponse = ShutdownResponses[keyof ShutdownResponses];

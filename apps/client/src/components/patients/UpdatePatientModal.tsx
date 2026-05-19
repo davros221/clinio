@@ -6,6 +6,7 @@ import { useT } from "@hooks";
 import { useUpdatePatientMutation } from "../../api/patientService";
 import { type Patient, type UpdatePatientDto } from "@clinio/api";
 import { notifySuccess } from "../../utils/notification";
+import { DatePickerInput } from "@mantine/dates";
 
 type UpdatePatientForm = {
   birthNumber?: string;
@@ -67,11 +68,23 @@ export function UpdatePatientModal({ patient, opened, onClose }: Props) {
             label={t("patient.updateModal.fields.birthNumber")}
             {...form.getInputProps("birthNumber")}
           />
-          <TextInput
+          <DatePickerInput
             key={form.key("birthdate")}
             label={t("patient.updateModal.fields.birthdate")}
-            type="date"
-            {...form.getInputProps("birthdate")}
+            valueFormat="DD-MM-YYYY"
+            placeholder="DD-MM-YYYY"
+            value={
+              form.getValues().birthdate
+                ? new Date(form.getValues().birthdate ?? "")
+                : null
+            }
+            onChange={(date) =>
+              form.setFieldValue(
+                "birthdate",
+                date ? new Date(date).toISOString().split("T")[0] : ""
+              )
+            }
+            dropdownType="modal"
           />
           <TextInput
             key={form.key("phone")}

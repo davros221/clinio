@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { PatientService, UpdatePatientDto } from "@clinio/api";
 import { authKeys, patientKeys } from "./queryKeys.ts";
+import { handleError } from "@utils";
 
 // ToDO: Gen from swagger def
 type GetPatientListParams = {

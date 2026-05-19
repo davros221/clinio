@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, Options as Options2, TDataShape } from './client/index.js';
-import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeletePatientMedicalRecordData, DeletePatientMedicalRecordErrors, DeletePatientMedicalRecordResponses, DeleteResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, RescheduleAppointmentData, RescheduleAppointmentErrors, RescheduleAppointmentResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientResponses, UpdatePatientMedicalRecordData, UpdatePatientMedicalRecordErrors, UpdatePatientMedicalRecordResponses } from './types.gen.js';
+import type { CancelAppointmentData, CancelAppointmentErrors, CancelAppointmentResponses, CreateAppointmentData, CreateAppointmentErrors, CreateAppointmentResponses, CreateData, CreateErrors, CreateOfficeData, CreateOfficeErrors, CreateOfficeResponses, CreatePatientMedicalRecordData, CreatePatientMedicalRecordErrors, CreatePatientMedicalRecordResponses, CreateResponses, DeleteAppointmentData, DeleteAppointmentErrors, DeleteAppointmentResponses, DeleteData, DeleteErrors, DeleteOfficeData, DeleteOfficeErrors, DeleteOfficeResponses, DeletePatientData, DeletePatientErrors, DeletePatientMedicalRecordData, DeletePatientMedicalRecordErrors, DeletePatientMedicalRecordResponses, DeleteResponses, DocumentControllerDownloadLogsData, DocumentControllerDownloadLogsResponses, GetAppointmentByIdData, GetAppointmentByIdErrors, GetAppointmentByIdResponses, GetAppointmentsData, GetAppointmentsErrors, GetAppointmentsResponses, GetAppStatusData, GetAppStatusResponses, GetByIdData, GetByIdErrors, GetByIdResponses, GetCalendarData, GetCalendarErrors, GetCalendarResponses, GetData, GetErrors, GetMessagesData, GetMessagesErrors, GetMessagesResponses, GetOfficeByIdData, GetOfficeByIdErrors, GetOfficeByIdResponses, GetOfficesData, GetOfficesErrors, GetOfficesResponses, GetPatientByIdData, GetPatientByIdErrors, GetPatientByIdResponses, GetPatientMedicalRecordByIdData, GetPatientMedicalRecordByIdErrors, GetPatientMedicalRecordByIdResponses, GetPatientMedicalRecordsData, GetPatientMedicalRecordsErrors, GetPatientMedicalRecordsResponses, GetPatientsData, GetPatientsErrors, GetPatientsResponses, GetResponses, GetRoomsData, GetRoomsErrors, GetRoomsResponses, GoogleAuthCallbackData, GoogleAuthCallbackResponses, GoogleAuthData, GoogleAuthResponses, HealthCheckData, HealthCheckResponses, LoginData, LoginErrors, LoginResponses, MarkRoomAsReadData, MarkRoomAsReadErrors, MarkRoomAsReadResponses, MeData, MeResponses, ReplaceOfficeData, ReplaceOfficeErrors, ReplaceOfficeResponses, RequestPasswordResetData, RequestPasswordResetErrors, RequestPasswordResetResponses, RescheduleAppointmentData, RescheduleAppointmentErrors, RescheduleAppointmentResponses, ResetPasswordData, ResetPasswordErrors, ResetPasswordResponses, ShutdownData, ShutdownResponses, SuggestAddressData, SuggestAddressErrors, SuggestAddressResponses, UpdateAppointmentData, UpdateAppointmentErrors, UpdateAppointmentResponses, UpdateOfficeData, UpdateOfficeErrors, UpdateOfficeResponses, UpdatePatientData, UpdatePatientErrors, UpdatePatientMedicalRecordData, UpdatePatientMedicalRecordErrors, UpdatePatientMedicalRecordResponses, UpdatePatientResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -17,12 +17,6 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
-
-export class AppService {
-    public static healthCheck<ThrowOnError extends boolean = false>(options?: Options<HealthCheckData, ThrowOnError>) {
-        return (options?.client ?? client).get<HealthCheckResponses, unknown, ThrowOnError>({ url: '/api/health', ...options });
-    }
-}
 
 export class UserService {
     public static get<ThrowOnError extends boolean = false>(options: Options<GetData, ThrowOnError>) {
@@ -119,6 +113,10 @@ export class PatientService {
             url: '/api/patients',
             ...options
         });
+    }
+    
+    public static deletePatient<ThrowOnError extends boolean = false>(options: Options<DeletePatientData, ThrowOnError>) {
+        return (options.client ?? client).delete<unknown, DeletePatientErrors, ThrowOnError>({ url: '/api/patients/{id}', ...options });
     }
     
     public static getPatientById<ThrowOnError extends boolean = false>(options: Options<GetPatientByIdData, ThrowOnError>) {
@@ -318,11 +316,73 @@ export class MedicalRecordService {
             ...options
         });
     }
-
+    
     public static updatePatientMedicalRecord<ThrowOnError extends boolean = false>(options: Options<UpdatePatientMedicalRecordData, ThrowOnError>) {
         return (options.client ?? client).patch<UpdatePatientMedicalRecordResponses, UpdatePatientMedicalRecordErrors, ThrowOnError>({
             responseType: 'json',
             url: '/api/patients/{patientId}/medical-records/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+export class RoomService {
+    public static getRooms<ThrowOnError extends boolean = false>(options?: Options<GetRoomsData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetRoomsResponses, GetRoomsErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/rooms',
+            ...options
+        });
+    }
+    
+    public static markRoomAsRead<ThrowOnError extends boolean = false>(options: Options<MarkRoomAsReadData, ThrowOnError>) {
+        return (options.client ?? client).post<MarkRoomAsReadResponses, MarkRoomAsReadErrors, ThrowOnError>({ url: '/api/rooms/{roomId}/read', ...options });
+    }
+}
+
+export class MessageService {
+    public static getMessages<ThrowOnError extends boolean = false>(options: Options<GetMessagesData, ThrowOnError>) {
+        return (options.client ?? client).get<GetMessagesResponses, GetMessagesErrors, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/rooms/{roomId}/messages',
+            ...options
+        });
+    }
+}
+
+export class DocumentsService {
+    /**
+     * Generate and stream your execution logs as a Word document
+     */
+    public static documentControllerDownloadLogs<ThrowOnError extends boolean = false>(options?: Options<DocumentControllerDownloadLogsData, ThrowOnError>) {
+        return (options?.client ?? client).post<DocumentControllerDownloadLogsResponses, unknown, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/documents/download-my-logs',
+            ...options
+        });
+    }
+}
+
+export class SystemService {
+    public static healthCheck<ThrowOnError extends boolean = false>(options?: Options<HealthCheckData, ThrowOnError>) {
+        return (options?.client ?? client).get<HealthCheckResponses, unknown, ThrowOnError>({ url: '/api/system/health', ...options });
+    }
+    
+    public static getAppStatus<ThrowOnError extends boolean = false>(options?: Options<GetAppStatusData, ThrowOnError>) {
+        return (options?.client ?? client).get<GetAppStatusResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/system/status',
+            ...options
+        });
+    }
+    
+    public static shutdown<ThrowOnError extends boolean = false>(options: Options<ShutdownData, ThrowOnError>) {
+        return (options.client ?? client).post<ShutdownResponses, unknown, ThrowOnError>({
+            url: '/api/system/shutdown',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
