@@ -8,7 +8,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useMemo } from "react";
-import { useT } from "@hooks";
+import { useT, useUserRole } from "@hooks";
 import { User } from "@clinio/api";
 
 type Props = {
@@ -39,6 +39,7 @@ export function OfficeDetailPersonnel({
   staffIds,
 }: Props) {
   const t = useT();
+  const { isAdmin } = useUserRole();
 
   const staffMembers = useMemo(() => {
     const usersById = new Map(users.map((u) => [u.id, u]));
@@ -59,7 +60,7 @@ export function OfficeDetailPersonnel({
         {t("office.form.sections.personnel")}
       </Title>
 
-      {editing && (
+      {editing && isAdmin && (
         <Group grow align="flex-end" mb="md" wrap="wrap">
           <Select
             label={t("office.form.fields.role")}
