@@ -63,6 +63,9 @@ const en = {
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]:
           "Appointment is already completed",
         [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Appointment cannot be edited",
+        [ErrorCode.APP_NOT_INITIALIZED]: "Application is not initialized",
+        [ErrorCode.ROOM_NOT_FOUND]: "Room not found",
+        [ErrorCode.MESSAGE_NOT_FOUND]: "Message not found",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -391,6 +394,8 @@ const en = {
     notification: {
       createSuccessTitle: "Done!",
       createSuccessMessage: "Patient was successfully created.",
+      updateSuccessTitle: "Done!",
+      updateSuccessMessage: "Patient was successfully updated.",
     },
     delete: {
       button: "Delete Patient",
@@ -399,6 +404,18 @@ const en = {
         "Are you sure you want to delete this patient? This action cannot be undone.",
       confirm: "Delete",
       cancel: "Cancel",
+    },
+    updateModal: {
+      title: "Update Patient",
+      fields: {
+        birthNumber: "Birth Number",
+        birthdate: "Date of Birth",
+        phone: "Phone",
+      },
+      buttons: {
+        cancel: "Cancel",
+        submit: "Save",
+      },
     },
   },
 } as const;

@@ -63,6 +63,9 @@ const cs: TranslationKeys = {
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Zdravotní záznam nebyl nalezen",
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]: "Rezervace je již dokončena",
         [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Rezervaci nelze upravit",
+        [ErrorCode.APP_NOT_INITIALIZED]: "Aplikace není inicializována",
+        [ErrorCode.ROOM_NOT_FOUND]: "Místnost nebyla nalezena",
+        [ErrorCode.MESSAGE_NOT_FOUND]: "Zpráva nebyla nalezena",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -391,6 +394,8 @@ const cs: TranslationKeys = {
     notification: {
       createSuccessTitle: "Hotovo!",
       createSuccessMessage: "Pacient byl úspěšně vytvořen.",
+      updateSuccessTitle: "Hotovo!",
+      updateSuccessMessage: "Pacient byl úspěšně aktualizován.",
     },
     delete: {
       button: "Smazat pacienta",
@@ -398,6 +403,18 @@ const cs: TranslationKeys = {
       message: "Opravdu chcete smazat tohoto pacienta? Tato akce je nevratná.",
       confirm: "Smazat",
       cancel: "Zrušit",
+    },
+    updateModal: {
+      title: "Upravit pacienta",
+      fields: {
+        birthNumber: "Rodné číslo",
+        birthdate: "Datum narození",
+        phone: "Telefon",
+      },
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Uložit",
+      },
     },
   },
 } as const;

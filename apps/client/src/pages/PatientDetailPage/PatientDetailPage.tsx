@@ -21,6 +21,7 @@ import { useT } from "@hooks";
 import { MedicalRecord } from "@clinio/api";
 import { openConfirmModal } from "../../utils/confirmModal.tsx";
 import { useDeletePatientMutation } from "../../api/patientService.ts";
+import { UpdatePatientModal } from "../../components/patients/UpdatePatientModal";
 
 function formatDate(raw: string): string {
   return new Date(raw).toLocaleDateString();
@@ -31,11 +32,13 @@ function formatText(value: string | null | undefined): string {
 }
 
 export const PatientDetailPage = () => {
-  const { info, isFetching } = usePatientDetailPage();
+  const { info, isFetching, data } = usePatientDetailPage();
   const { id: patientId } = useParams();
   const t = useT();
   const navigate = useNavigate();
   const { mutate: deletePatient } = useDeletePatientMutation();
+  const [updateOpened, { open: openUpdate, close: closeUpdate }] =
+    useDisclosure(false);
 
   const handleDelete = () => {
     openConfirmModal({
@@ -148,6 +151,7 @@ export const PatientDetailPage = () => {
             <Button color="red" onClick={handleDelete}>
               {t("patient.delete.button")}
             </Button>
+            <Button onClick={openUpdate}>{t("common.action.edit")}</Button>
             <Button onClick={openCreate}>
               {t("medicalRecord.overview.createButton")}
             </Button>
@@ -180,6 +184,14 @@ export const PatientDetailPage = () => {
           record={selectedRecord}
           opened={detailOpened}
           onClose={handleDetailClose}
+        />
+      )}
+
+      {data && (
+        <UpdatePatientModal
+          patient={data}
+          opened={updateOpened}
+          onClose={closeUpdate}
         />
       )}
     </div>
