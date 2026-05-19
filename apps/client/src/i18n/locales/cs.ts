@@ -316,9 +316,9 @@ const cs: TranslationKeys = {
       confirmLabel: "Vypnout",
       passwordLabel: "Heslo administrátora",
       passwordPlaceholder: "Pro potvrzení zadejte své heslo",
-      passwordError: "Špatné heslo. Zbývá pokusů: {{count}}.",
-      tooManyAttemptsTitle: "Příliš mnoho pokusů",
-      tooManyAttemptsMessage: "Po 3 neúspěšných pokusech jste byli odhlášeni.",
+      wrongPasswordError: "Špatné heslo.",
+      rateLimitedError:
+        "Příliš mnoho neúspěšných pokusů. Zkuste to znovu za {{count}} minutu/minut.",
       successTitle: "Aplikace resetována",
       successMessage: "Všechna data byla smazána.",
     },

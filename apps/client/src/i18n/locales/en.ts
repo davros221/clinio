@@ -317,10 +317,9 @@ const en = {
       confirmLabel: "Shutdown",
       passwordLabel: "Admin password",
       passwordPlaceholder: "Enter your password to confirm",
-      passwordError: "Wrong password. Attempts remaining: {{count}}.",
-      tooManyAttemptsTitle: "Too many attempts",
-      tooManyAttemptsMessage:
-        "You have been logged out after 3 failed attempts.",
+      wrongPasswordError: "Wrong password.",
+      rateLimitedError:
+        "Too many failed attempts. Try again in {{count}} minute(s).",
       successTitle: "Application reset",
       successMessage: "All data has been deleted.",
     },

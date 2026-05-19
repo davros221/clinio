@@ -2,9 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
-  TooManyRequestsException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ErrorCode } from "@clinio/shared";
@@ -156,13 +157,13 @@ export function messageNotFound(): NotFoundException {
   });
 }
 
-export function shutdownRateLimited(
-  retryAfterSeconds: number
-): TooManyRequestsException {
-  return new TooManyRequestsException({
-    errorCode: ErrorCode.SHUTDOWN_RATE_LIMITED,
-    message: `Too many failed attempts. Try again in ${Math.ceil(
-      retryAfterSeconds / 60
-    )} minute(s).`,
-  });
+export function shutdownRateLimited(retryAfterSeconds: number): HttpException {
+  return new HttpException(
+    {
+      errorCode: ErrorCode.SHUTDOWN_RATE_LIMITED,
+      message: "Too many failed attempts.",
+      meta: { retryAfterMinutes: Math.ceil(retryAfterSeconds / 60) },
+    },
+    HttpStatus.TOO_MANY_REQUESTS
+  );
 }

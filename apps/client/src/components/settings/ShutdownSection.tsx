@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import {
   Alert,
   Button,
@@ -9,14 +9,16 @@ import {
   Text,
 } from "@mantine/core";
 import { useNavigate } from "react-router";
-import { useT, useUser } from "@hooks";
+import { useT } from "@hooks";
 import { useShutdownMutation } from "@api";
 import { ROUTER_PATHS } from "@router";
-import { notifyError, notifySuccess } from "@utils";
-
-const MAX_ATTEMPTS = 3;
+import { extractErrorCode, notifySuccess } from "@utils";
+import { ErrorCode } from "@clinio/shared";
 
 type Step = "confirm" | "password";
+type PasswordError =
+  | { type: "wrongPassword" }
+  | { type: "rateLimited"; retryAfterMinutes: number };
 
 export const ShutdownSection = () => {
   const t = useT();
@@ -46,17 +48,18 @@ type ShutdownModalProps = {
 const ShutdownModal = ({ opened, onClose }: ShutdownModalProps) => {
   const t = useT();
   const navigate = useNavigate();
-  const { logout } = useUser();
   const { mutate: shutdown, isPending } = useShutdownMutation();
 
   const [step, setStep] = useState<Step>("confirm");
   const [password, setPassword] = useState("");
-  const [attempts, setAttempts] = useState(0);
+  const [passwordError, setPasswordError] = useState<PasswordError | null>(
+    null
+  );
 
   const reset = () => {
     setStep("confirm");
     setPassword("");
-    setAttempts(0);
+    setPasswordError(null);
   };
 
   const handleClose = () => {
@@ -64,7 +67,7 @@ const ShutdownModal = ({ opened, onClose }: ShutdownModalProps) => {
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
     shutdown(password, {
       onSuccess: () => {
@@ -76,26 +79,32 @@ const ShutdownModal = ({ opened, onClose }: ShutdownModalProps) => {
         onClose();
         navigate(ROUTER_PATHS.SIGN_UP, { replace: true });
       },
-      onError: () => {
-        const next = attempts + 1;
-        if (next >= MAX_ATTEMPTS) {
-          notifyError(
-            t("settings.shutdown.tooManyAttemptsTitle"),
-            t("settings.shutdown.tooManyAttemptsMessage")
-          );
-          reset();
-          onClose();
-          logout();
+      onError: (error) => {
+        const code = extractErrorCode(error);
+        setPassword("");
+
+        if (code === ErrorCode.SHUTDOWN_RATE_LIMITED) {
+          const minutes =
+            (error as any)?.response?.data?.meta?.retryAfterMinutes ?? 60;
+          setPasswordError({ type: "rateLimited", retryAfterMinutes: minutes });
         } else {
-          setAttempts(next);
-          setPassword("");
+          setPasswordError({ type: "wrongPassword" });
         }
       },
     });
   };
 
-  const remaining = MAX_ATTEMPTS - attempts;
-  const showAttemptsError = attempts > 0;
+  const getPasswordErrorMessage = () => {
+    if (passwordError?.type === "rateLimited") {
+      return t("settings.shutdown.rateLimitedError", {
+        count: passwordError.retryAfterMinutes,
+      });
+    }
+    if (passwordError?.type === "wrongPassword") {
+      return t("settings.shutdown.wrongPasswordError");
+    }
+    return null;
+  };
 
   return (
     <Modal
@@ -128,11 +137,8 @@ const ShutdownModal = ({ opened, onClose }: ShutdownModalProps) => {
               placeholder={t("settings.shutdown.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
-              error={
-                showAttemptsError
-                  ? t("settings.shutdown.passwordError", { count: remaining })
-                  : null
-              }
+              disabled={passwordError?.type === "rateLimited"}
+              error={getPasswordErrorMessage()}
             />
             <Group justify="flex-end">
               <Button
@@ -148,7 +154,7 @@ const ShutdownModal = ({ opened, onClose }: ShutdownModalProps) => {
                 color="red"
                 type="submit"
                 loading={isPending}
-                disabled={!password}
+                disabled={!password || passwordError?.type === "rateLimited"}
               >
                 {t("settings.shutdown.confirmLabel")}
               </Button>

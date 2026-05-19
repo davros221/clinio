@@ -29,4 +29,5 @@ export enum ErrorCode {
 export interface ApiError {
   errorCode: ErrorCode;
   message: string;
+  meta?: Record<string, unknown>;
 }
