@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
+  TooManyRequestsException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { ErrorCode } from "@clinio/shared";
@@ -152,5 +153,16 @@ export function messageNotFound(): NotFoundException {
   return new NotFoundException({
     errorCode: ErrorCode.MESSAGE_NOT_FOUND,
     message: "Message not found",
+  });
+}
+
+export function shutdownRateLimited(
+  retryAfterSeconds: number
+): TooManyRequestsException {
+  return new TooManyRequestsException({
+    errorCode: ErrorCode.SHUTDOWN_RATE_LIMITED,
+    message: `Too many failed attempts. Try again in ${Math.ceil(
+      retryAfterSeconds / 60
+    )} minute(s).`,
   });
 }
