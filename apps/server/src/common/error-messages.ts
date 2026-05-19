@@ -2,6 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
@@ -153,4 +155,15 @@ export function messageNotFound(): NotFoundException {
     errorCode: ErrorCode.MESSAGE_NOT_FOUND,
     message: "Message not found",
   });
+}
+
+export function shutdownRateLimited(retryAfterSeconds: number): HttpException {
+  return new HttpException(
+    {
+      errorCode: ErrorCode.SHUTDOWN_RATE_LIMITED,
+      message: "Too many failed attempts.",
+      meta: { retryAfterMinutes: Math.ceil(retryAfterSeconds / 60) },
+    },
+    HttpStatus.TOO_MANY_REQUESTS
+  );
 }

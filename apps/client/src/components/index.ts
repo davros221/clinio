@@ -15,3 +15,4 @@ export * from "./RoleGuard/RoleGuard.tsx";
 export * from "./DataTable/DataTable.tsx";
 export * from "./Login/GoogleAuthButton.tsx";
 export * from "./common/PhoneInputField.tsx";
+export * from "./settings/ShutdownSection.tsx";

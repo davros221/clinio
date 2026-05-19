@@ -63,6 +63,10 @@ const cs: TranslationKeys = {
         [ErrorCode.MEDICAL_RECORD_NOT_FOUND]: "Zdravotní záznam nebyl nalezen",
         [ErrorCode.APPOINTMENT_ALREADY_COMPLETED]: "Rezervace je již dokončena",
         [ErrorCode.APPOINTMENT_NOT_EDITABLE]: "Rezervaci nelze upravit",
+        [ErrorCode.APP_NOT_INITIALIZED]:
+          "Aplikace není inicializována. Pro pokračování vytvořte účet administrátora.",
+        [ErrorCode.ROOM_NOT_FOUND]: "Konverzace nebyla nalezena",
+        [ErrorCode.MESSAGE_NOT_FOUND]: "Zpráva nebyla nalezena",
       } satisfies Record<ErrorCode, string>),
     },
     confirmModal: {
@@ -299,6 +303,25 @@ const cs: TranslationKeys = {
     onboardingWarningTitle: "Dokončete svůj profil",
     onboardingWarningMessage:
       "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",
+    dangerZoneTitle: "Nebezpečná zóna",
+    dangerZoneDescription:
+      "Trvale smazat všechna data aplikace. Tuto akci nelze vrátit zpět.",
+    shutdownButton: "Vypnout aplikaci",
+    shutdown: {
+      confirmTitle: "Vypnout aplikaci",
+      confirmMessage:
+        "Tato akce je nevratná. Všechna data — uživatelé, pacienti, návštěvy, ordinace a zprávy — budou trvale smazána. Opravdu chcete pokračovat?",
+      continueLabel: "Pokračovat",
+      cancelLabel: "Zrušit",
+      confirmLabel: "Vypnout",
+      passwordLabel: "Heslo administrátora",
+      passwordPlaceholder: "Pro potvrzení zadejte své heslo",
+      wrongPasswordError: "Špatné heslo.",
+      rateLimitedError:
+        "Příliš mnoho neúspěšných pokusů. Zkuste to znovu za {{count}} minutu/minut.",
+      successTitle: "Aplikace resetována",
+      successMessage: "Všechna data byla smazána.",
+    },
   },
   chat: {
     sidebar: {
