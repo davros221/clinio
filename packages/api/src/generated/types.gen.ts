@@ -1423,6 +1423,20 @@ export type GetMessagesResponses = {
 
 export type GetMessagesResponse = GetMessagesResponses[keyof GetMessagesResponses];
 
+export type DocumentControllerDownloadLogsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/documents/download-my-logs';
+};
+
+export type DocumentControllerDownloadLogsResponses = {
+    /**
+     * Word document downloaded successfully.
+     */
+    200: unknown;
+};
+
 export type HealthCheckData = {
     body?: never;
     path?: never;
