@@ -414,6 +414,27 @@ const cs: TranslationKeys = {
     notification: {
       createSuccessTitle: "Hotovo!",
       createSuccessMessage: "Pacient byl úspěšně vytvořen.",
+      updateSuccessTitle: "Hotovo!",
+      updateSuccessMessage: "Pacient byl úspěšně aktualizován.",
+    },
+    delete: {
+      button: "Smazat pacienta",
+      title: "Smazat pacienta",
+      message: "Opravdu chcete smazat tohoto pacienta? Tato akce je nevratná.",
+      confirm: "Smazat",
+      cancel: "Zrušit",
+    },
+    updateModal: {
+      title: "Upravit pacienta",
+      fields: {
+        birthNumber: "Rodné číslo",
+        birthdate: "Datum narození",
+        phone: "Telefon",
+      },
+      buttons: {
+        cancel: "Zrušit",
+        submit: "Uložit",
+      },
     },
   },
 } as const;

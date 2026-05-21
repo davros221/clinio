@@ -414,6 +414,28 @@ const en = {
     notification: {
       createSuccessTitle: "Done!",
       createSuccessMessage: "Patient was successfully created.",
+      updateSuccessTitle: "Done!",
+      updateSuccessMessage: "Patient was successfully updated.",
+    },
+    delete: {
+      button: "Delete Patient",
+      title: "Delete Patient",
+      message:
+        "Are you sure you want to delete this patient? This action cannot be undone.",
+      confirm: "Delete",
+      cancel: "Cancel",
+    },
+    updateModal: {
+      title: "Update Patient",
+      fields: {
+        birthNumber: "Birth Number",
+        birthdate: "Date of Birth",
+        phone: "Phone",
+      },
+      buttons: {
+        cancel: "Cancel",
+        submit: "Save",
+      },
     },
   },
 } as const;

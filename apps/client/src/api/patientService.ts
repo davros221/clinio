@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { PatientService, UpdatePatientDto } from "@clinio/api";
 import { authKeys, patientKeys } from "./queryKeys.ts";
+import { handleError } from "@utils";
 
 // ToDO: Gen from swagger def
 type GetPatientListParams = {
@@ -18,7 +19,6 @@ const getPatientListOptions = (params?: GetPatientListParams) =>
   queryOptions({
     queryFn: async ({ signal }) => {
       const res = await PatientService.getPatients({
-        // ToDo: Add search params when refactoring the table
         query: {
           limit: params?.limit,
           page: params?.page,
@@ -70,6 +70,25 @@ export const useUpdatePatientMutation = () => {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [authKeys.me] });
       void queryClient.invalidateQueries({ queryKey: patientKeys.all });
+    },
+  });
+};
+
+export const useDeletePatientMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await PatientService.deletePatient({
+        path: { id },
+        throwOnError: true,
+      });
+      return res.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: patientKeys.all });
+    },
+    onError: (e) => {
+      handleError(e);
     },
   });
 };

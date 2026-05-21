@@ -337,7 +337,6 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-
   async findUsersWithLoggingEnabled(userIds: string[]): Promise<UserEntity[]> {
     if (userIds.length === 0) return [];
 

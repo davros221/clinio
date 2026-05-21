@@ -23,5 +23,6 @@ export const usePatientDetailPage = () => {
   return {
     info,
     isFetching,
+    data,
   };
 };

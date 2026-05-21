@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import styles from "./patientDetailpage.module.css";
 import { PatientDetailInfoRow } from "./components/PatientDetailInfoRow.tsx";
 import { usePatientDetailPage } from "./usePatientDetailPage.ts";
@@ -19,6 +19,10 @@ import { MedicalRecordDetailModal } from "../../components/medicalRecord/Medical
 import { useGetPatientMedicalRecordsQuery } from "@api";
 import { useT } from "@hooks";
 import { MedicalRecord } from "@clinio/api";
+import { openConfirmModal } from "../../utils/confirmModal.tsx";
+import { useDeletePatientMutation } from "../../api/patientService.ts";
+import { UpdatePatientModal } from "../../components/patients/UpdatePatientModal";
+import { ROUTER_PATHS } from "../../router/routes";
 
 function formatDate(raw: string): string {
   return new Date(raw).toLocaleDateString();
@@ -29,9 +33,29 @@ function formatText(value: string | null | undefined): string {
 }
 
 export const PatientDetailPage = () => {
-  const { info, isFetching } = usePatientDetailPage();
+  const { info, isFetching, data } = usePatientDetailPage();
   const { id: patientId } = useParams();
   const t = useT();
+  const navigate = useNavigate();
+  const { mutate: deletePatient } = useDeletePatientMutation();
+  const [updateOpened, { open: openUpdate, close: closeUpdate }] =
+    useDisclosure(false);
+
+  const handleDelete = () => {
+    openConfirmModal({
+      title: t("patient.delete.title"),
+      message: t("patient.delete.message"),
+      confirmLabel: t("patient.delete.confirm"),
+      cancelLabel: t("patient.delete.cancel"),
+      onConfirm: () => {
+        if (patientId) {
+          deletePatient(patientId, {
+            onSuccess: () => navigate(ROUTER_PATHS.PATIENTS),
+          });
+        }
+      },
+    });
+  };
 
   const [createOpened, { open: openCreate, close: closeCreate }] =
     useDisclosure(false);
@@ -47,7 +71,7 @@ export const PatientDetailPage = () => {
     isFetching: isFetchingRecords,
     isError,
     error,
-  } = useGetPatientMedicalRecordsQuery(patientId!);
+  } = useGetPatientMedicalRecordsQuery(patientId ?? "");
 
   const handleRowClick = (row: MedicalRecord) => {
     setSelectedRecord(row);
@@ -124,9 +148,15 @@ export const PatientDetailPage = () => {
       <Stack mt="xl" gap="md">
         <Group justify="space-between">
           <Title order={4}>{t("medicalRecord.overview.title")}</Title>
-          <Button onClick={openCreate}>
-            {t("medicalRecord.overview.createButton")}
-          </Button>
+          <Group>
+            <Button color="red" onClick={handleDelete}>
+              {t("patient.delete.button")}
+            </Button>
+            <Button onClick={openUpdate}>{t("common.action.edit")}</Button>
+            <Button onClick={openCreate}>
+              {t("medicalRecord.overview.createButton")}
+            </Button>
+          </Group>
         </Group>
 
         <DataTable
@@ -155,6 +185,14 @@ export const PatientDetailPage = () => {
           record={selectedRecord}
           opened={detailOpened}
           onClose={handleDetailClose}
+        />
+      )}
+
+      {data && (
+        <UpdatePatientModal
+          patient={data}
+          opened={updateOpened}
+          onClose={closeUpdate}
         />
       )}
     </div>
