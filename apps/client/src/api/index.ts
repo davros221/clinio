@@ -9,3 +9,4 @@ export * from "./userService.ts";
 export * from "./addressService.ts";
 export * from "./medicalRecordService.ts";
 export * from "./queryClient.ts";
+export * from "./systemService.ts";

@@ -5,7 +5,7 @@ import { CreateUserFormPatientFields } from "./components/CreateUserFormPatientF
 import { CreateUserFormRoleSelect } from "./components/CreateUserFormRoleSelect.tsx";
 
 type Props = {
-  userRole: "staff" | "patient";
+  userRole: "staff" | "patient" | "admin";
   withPassword?: boolean;
 };
 
@@ -17,6 +17,33 @@ export const CreateUserForm = (props: Props) => {
   const t = useT();
   const { userRole, withPassword = false } = props;
   const form = useUserFormContext();
+
+  if (userRole === "admin") {
+    return (
+      <Stack gap="md">
+        <TextInput
+          label={t("patient.form.firstName")}
+          {...form.getInputProps("firstName")}
+        />
+        <TextInput
+          label={t("patient.form.lastName")}
+          {...form.getInputProps("lastName")}
+        />
+        <TextInput
+          label={t("patient.form.email")}
+          {...form.getInputProps("email")}
+        />
+        <PasswordInput
+          label={t("patient.form.password")}
+          {...form.getInputProps("password")}
+        />
+        <PasswordInput
+          label={t("patient.form.passwordConfirm")}
+          {...form.getInputProps("passwordConfirm")}
+        />
+      </Stack>
+    );
+  }
 
   return (
     <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">

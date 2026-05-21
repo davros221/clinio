@@ -23,9 +23,11 @@ export enum ErrorCode {
   APP_NOT_INITIALIZED = "APP_NOT_INITIALIZED",
   ROOM_NOT_FOUND = "ROOM_NOT_FOUND",
   MESSAGE_NOT_FOUND = "MESSAGE_NOT_FOUND",
+  SHUTDOWN_RATE_LIMITED = "SHUTDOWN_RATE_LIMITED",
 }
 
 export interface ApiError {
   errorCode: ErrorCode;
   message: string;
+  meta?: Record<string, unknown>;
 }
