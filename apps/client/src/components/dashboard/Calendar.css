@@ -3,9 +3,9 @@
 :root {
   --cal-slot-height: 60px;
   --cal-half-slot: 30px;
-  --cal-border: 1px solid var(--mantine-color-gray-9);
-  --cal-border-outer: 1.5px solid var(--mantine-color-gray-9);
-  --cal-header-bg: var(--mantine-color-blue-3);
+  --cal-border: 1px solid var(--mantine-color-gray-3);
+  --cal-border-outer: 1px solid var(--mantine-color-gray-3);
+  --cal-header-bg: transparent;
   --cal-slot-bg: var(--mantine-color-body);
 }
 
