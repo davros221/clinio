@@ -52,8 +52,8 @@ export class SystemService {
     try {
       await queryRunner.query(`
         TRUNCATE TABLE
-          "user", "patient", "appointment", "medical_record",
-          "office", "room", "message", "room_read_cursor"
+          "users", "patients", "appointments", "medical_records",
+          "offices", "rooms", "messages", "room_read_cursors"
         RESTART IDENTITY CASCADE
       `);
     } finally {
