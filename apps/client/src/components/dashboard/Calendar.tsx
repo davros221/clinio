@@ -24,6 +24,7 @@ import {
 import "./Calendar.css";
 import { useT } from "@hooks";
 import { DateUtils } from "@utils";
+import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 type Props = {
   calendarDays: CalendarDay[];
@@ -130,7 +131,7 @@ export const Calendar = ({
               setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, -1))
             }
           >
-            ←
+            <MdKeyboardArrowLeft />
           </Button>
           <Text size="sm" fw={500} w={170} ta="center">
             {DateUtils.fmt(weekStart)} – {DateUtils.fmt(weekEnd)}{" "}
@@ -143,7 +144,7 @@ export const Calendar = ({
               setWeekTimestamp(DateUtils.addWeeks(weekTimestamp, 1))
             }
           >
-            →
+            <MdKeyboardArrowRight />
           </Button>
           <Button
             variant="subtle"
@@ -172,7 +173,7 @@ export const Calendar = ({
               disabled={mobileDayIdx === 0}
               onClick={() => setMobileDayIdx((d) => Math.max(0, d - 1))}
             >
-              ←
+              <MdKeyboardArrowLeft />
             </Button>
             <Text size="sm" fw={500} w={170} ta="center">
               {CAP_WORK_DAYS[mobileDayIdx]}
@@ -183,7 +184,7 @@ export const Calendar = ({
               disabled={mobileDayIdx === 4}
               onClick={() => setMobileDayIdx((d) => Math.min(4, d + 1))}
             >
-              →
+              <MdKeyboardArrowRight />
             </Button>
           </Group>
         )}
