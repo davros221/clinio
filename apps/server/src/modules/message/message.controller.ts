@@ -9,7 +9,7 @@ import {
   ApiNotFoundResponse,
 } from "@nestjs/swagger";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
-import { AuthUser } from "../../auth/strategies/jwt.strategy";
+import { type AuthUser } from "../../auth/strategies/jwt.strategy";
 import { MessageService } from "./message.service";
 import { MessageDto } from "./dto/message.dto";
 import { MessageMapper } from "./mapper/MessageMapper";
