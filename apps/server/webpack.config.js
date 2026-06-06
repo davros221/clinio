@@ -15,7 +15,9 @@ module.exports = {
       if (
         request === "swagger-ui-dist" ||
         (request && request.startsWith("swagger-ui-dist/")) ||
-        (request && request.startsWith("@css-inline/"))
+        (request && request.startsWith("@css-inline/")) ||
+        request === "mjml" ||
+        (request && request.startsWith("mjml-"))
       ) {
         return callback(null, "commonjs " + request);
       }
@@ -62,7 +64,7 @@ module.exports = {
         "./src/assets",
         {
           input: "./src/modules/mail/templates",
-          glob: "**/*.hbs",
+          glob: "**/*.mjml",
           output: "templates",
         },
       ],

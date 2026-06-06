@@ -1,0 +1,89 @@
+/* CSS custom properties — :root is always global even in CSS modules */
+:root {
+  --cal-slot-height: 60px;
+  --cal-half-slot: 30px;
+  --cal-border: 1px solid var(--mantine-color-gray-3);
+  --cal-border-outer: 1px solid var(--mantine-color-gray-3);
+  --cal-header-bg: transparent;
+  --cal-slot-bg: var(--mantine-color-body);
+}
+
+/* Calendar wrapper */
+
+.calendar {
+  width: 100%;
+  padding-bottom: var(--mantine-spacing-xl);
+}
+
+.weekNav {
+  position: relative;
+}
+
+.todayBtn {
+  position: absolute;
+  right: 0;
+}
+
+/* Table */
+
+.table {
+  border: var(--cal-border-outer);
+  border-radius: var(--mantine-radius-md);
+  overflow: hidden;
+  background: var(--mantine-color-body);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 48px repeat(5, 1fr);
+}
+
+.timeAxis {
+  display: flex;
+  flex-direction: column;
+}
+
+.hourLabel {
+  height: var(--cal-slot-height);
+  border-bottom: var(--cal-border);
+  border-right: var(--cal-border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 3px var(--mantine-spacing-xs) 0 0;
+  background: var(--cal-slot-bg);
+  font-size: var(--mantine-font-size-xs);
+  color: var(--mantine-color-text);
+}
+
+.dayCol {
+  position: relative;
+  border-right: var(--cal-border);
+}
+
+.dayCol:last-child {
+  border-right: none;
+}
+
+.hourRow {
+  height: var(--cal-slot-height);
+  border-bottom: var(--cal-border);
+}
+
+/* DragOverlay */
+
+.dragOverlay {
+  padding: 2px var(--mantine-spacing-xs);
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  cursor: grabbing;
+  opacity: 0.95;
+}
+
+.dragOverlayRoom {
+  font-size: 10px;
+  opacity: 0.75;
+}

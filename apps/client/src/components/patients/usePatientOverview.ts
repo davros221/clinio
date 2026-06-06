@@ -55,7 +55,7 @@ export const usePatientOverview = () => {
       {
         key: "birthDate",
         header: t("patient.form.birthdate"),
-        render: (row) => format(row.birthdate, "dd.MM.yyyy"),
+        render: (row) => format(row.birthdate || new Date(), "dd.MM.yyyy"),
       },
     ],
     highlightOnHover: false,

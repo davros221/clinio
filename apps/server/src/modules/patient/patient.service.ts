@@ -7,6 +7,7 @@ import {
   type PatientListQuery,
 } from "@clinio/shared";
 import { PatientEntity } from "./patient.entity";
+import { UserEntity } from "../user/user.entity";
 import { UpdatePatientDto } from "./dto/update-patient.dto";
 import { forbidden, notFound } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
@@ -16,7 +17,9 @@ import { AuthHelper } from "../../common/helpers/AuthHelper";
 export class PatientService {
   constructor(
     @InjectRepository(PatientEntity)
-    private patientRepository: Repository<PatientEntity>
+    private patientRepository: Repository<PatientEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>
   ) {}
 
   async findAll(
@@ -81,7 +84,7 @@ export class PatientService {
     }
 
     const patient = await this.findById(id, user);
-    await this.patientRepository.remove(patient);
+    await this.userRepository.delete(patient.userId);
   }
 
   private assertAccess(patient: PatientEntity, currentUser: AuthUser): void {

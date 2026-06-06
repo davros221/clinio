@@ -1,4 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
+import clsx from "clsx";
+import s from "./DroppableSlot.module.css";
 
 type Props = {
   dayIdx: number;
@@ -20,22 +22,16 @@ export const DroppableSlot = ({
     disabled: closed || booked,
   });
 
-  const stateClass = closed
-    ? "week-table__half-slot--closed"
-    : booked
-    ? "week-table__half-slot--booked"
-    : isOver
-    ? "week-table__half-slot--over"
-    : "";
-
   return (
     <div
       ref={setNodeRef}
-      className={[
-        "week-table__half-slot",
-        minute === 30 ? "week-table__half-slot--bottom" : "",
-        stateClass,
-      ].join(" ")}
+      className={clsx(
+        s.slot,
+        minute === 30 && s.bottom,
+        closed && s.closed,
+        booked && s.booked,
+        isOver && s.over
+      )}
     />
   );
 };

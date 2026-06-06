@@ -346,6 +346,8 @@ const cs: TranslationKeys = {
   },
   calendar: {
     today: "Dnes",
+    tomorrow: "Zítra",
+    dayAfterTomorrow: "Pozítří",
   },
   medicalRecord: {
     detailModal: {

@@ -3,8 +3,8 @@ import { Appointment } from "@clinio/api";
 import { DataTable } from "../DataTable";
 import { useGetAppointmentListQuery, useCancelAppointmentMutation } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
-import { usePagination, useT } from "@hooks";
-import { DateUtils, APPOINTMENT_STATUS_COLOR, openConfirmModal } from "@utils";
+import { usePagination, useT, useIntl } from "@hooks";
+import { APPOINTMENT_STATUS_COLOR, openConfirmModal } from "@utils";
 import { NavLink } from "react-router";
 import { ROUTER_PATHS } from "@router";
 
@@ -14,6 +14,7 @@ type Props = {
 
 export function AppointmentsOverviewTable({ officeId }: Props = {}) {
   const t = useT();
+  const { formatDateTime } = useIntl();
   const { page, pageSize, setPage } = usePagination();
   const { data, isLoading, isFetching, isError, error } =
     useGetAppointmentListQuery({
@@ -38,7 +39,7 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
     {
       key: "date",
       header: t("appointment.overview.table.date"),
-      render: (row: Appointment) => DateUtils.formatDate(row.date),
+      render: (row: Appointment) => formatDateTime(row.date),
     },
     {
       key: "hour",

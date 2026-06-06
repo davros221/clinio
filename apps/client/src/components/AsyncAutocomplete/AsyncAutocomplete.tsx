@@ -25,18 +25,12 @@ export const AsyncAutocomplete = (props: AsyncAutocompleteProps) => {
         />
       </Combobox.Target>
       <Combobox.Dropdown>
-        <Combobox.Options>
+        <Combobox.Options mah={200} style={{ overflowY: "auto" }}>
           {data?.length === 0 && (
             <Combobox.Empty>{emptyMessage}</Combobox.Empty>
           )}
           {data.map((option) => (
-            <Combobox.Option
-              mah={200}
-              // This is directly from Mantine docs
-              style={{ overflowY: "auto" }}
-              value={option.value}
-              key={option.value}
-            >
+            <Combobox.Option value={option.value} key={option.value}>
               {option.label}
             </Combobox.Option>
           ))}

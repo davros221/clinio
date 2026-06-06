@@ -23,8 +23,8 @@ import {
   useCreateAppointmentMutation,
   useGetAppointmentListQuery,
   useGetOfficeListQuery,
-  useGetPatientList,
 } from "@api";
+import { PatientSelectField } from "./PatientSelectField";
 
 const formSchema = createAppointmentSchema.omit({ status: true }).extend({
   officeId: createAppointmentSchema.shape.officeId.nullable(),
@@ -76,8 +76,6 @@ export function CreateAppointmentModal({
     useCreateAppointmentMutation();
   const { data: officeData } = useGetOfficeListQuery();
   const offices = officeData?.items ?? [];
-  const { data: patientData } = useGetPatientList(undefined, isStaff);
-  const patients = patientData?.items ?? [];
 
   const form = useForm<FormValues>({
     mode: "uncontrolled",
@@ -120,11 +118,6 @@ export function CreateAppointmentModal({
   }, [opened]);
 
   const officeSelectData = offices.map((o) => ({ value: o.id, label: o.name }));
-
-  const patientSelectData = patients.map((p) => ({
-    value: p.id,
-    label: `${p.firstName} ${p.lastName}`,
-  }));
 
   const { data: appointmentsData } = useGetAppointmentListQuery(
     selectedOfficeId ? { officeId: selectedOfficeId, limit: 100 } : undefined,
@@ -210,16 +203,11 @@ export function CreateAppointmentModal({
           />
 
           {isStaff && (
-            <Select
+            <PatientSelectField
               key={form.key("patientId")}
-              label={t("appointment.createModal.fields.patient")}
-              placeholder={t(
-                "appointment.createModal.fields.patientPlaceholder"
-              )}
-              data={patientSelectData}
-              searchable
-              clearable
-              {...form.getInputProps("patientId")}
+              value={form.getValues().patientId}
+              onChange={(id) => form.setFieldValue("patientId", id)}
+              error={form.errors.patientId as string | undefined}
             />
           )}
 

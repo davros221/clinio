@@ -1,0 +1,25 @@
+.header {
+  display: grid;
+  grid-template-columns: 48px repeat(5, 1fr);
+  border-bottom: var(--cal-border-outer);
+}
+
+.corner {
+  background: var(--cal-header-bg);
+  border-right: var(--cal-border);
+}
+
+.cell {
+  background: var(--cal-header-bg);
+  text-align: center;
+  padding: var(--mantine-spacing-xs) 4px;
+  border-right: var(--cal-border);
+}
+
+.cell:last-child {
+  border-right: none;
+}
+
+.cellToday {
+  background: var(--mantine-color-blue-1);
+}

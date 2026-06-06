@@ -3,6 +3,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { CalendarSlot } from "../utils/types";
 import { APPOINTMENT_STATUS_STYLE } from "@utils";
+import s from "./AppointmentCard.module.css";
 
 type Props = {
   appt: CalendarSlot;
@@ -31,9 +32,7 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        className={`week-table__appt ${
-          isDragging ? "week-table__appt--dragging" : "week-table__appt--idle"
-        }`}
+        className={s.appt}
         style={
           {
             "--appt-top": `${top}px`,
@@ -41,13 +40,14 @@ export const AppointmentCard = ({ appt, top, height, onClick }: Props) => {
             "--appt-bg": bg,
             "--appt-color": color,
             "--appt-border": border,
+            opacity: isDragging ? 0.4 : 1,
             transform: CSS.Translate.toString(transform),
           } as React.CSSProperties
         }
         onClick={onClick}
       >
         <span>{appt.patientName}</span>
-        <span className="week-table__appt-room">
+        <span className={s.room}>
           {appt.start} · {appt.room}
         </span>
       </div>

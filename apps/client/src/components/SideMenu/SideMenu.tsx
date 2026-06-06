@@ -1,4 +1,13 @@
-import { Stack, Avatar, Text, Group, Divider, Badge } from "@mantine/core";
+import {
+  Stack,
+  Avatar,
+  Text,
+  Group,
+  Divider,
+  Badge,
+  SegmentedControl,
+} from "@mantine/core";
+import { useTranslation } from "react-i18next";
 import { SideMenuItem } from "./SideMenuItem.tsx";
 import { useSideMenu } from "./useSideMenu.ts";
 
@@ -8,6 +17,7 @@ interface SideMenuProps {
 
 export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
   const { navItems, bottomItems, initials, user } = useSideMenu(showUserInfo);
+  const { i18n } = useTranslation();
 
   return (
     <Stack gap="xs" h="100%">
@@ -38,6 +48,17 @@ export const SideMenu = ({ showUserInfo = true }: SideMenuProps) => {
         ))}
 
         <Stack gap="xxs" mt="auto">
+          <SegmentedControl
+            size="xs"
+            fullWidth
+            color={"blue"}
+            value={i18n.language}
+            onChange={(lang) => i18n.changeLanguage(lang)}
+            data={[
+              { label: "EN", value: "en" },
+              { label: "CS", value: "cs" },
+            ]}
+          />
           {bottomItems.map((item, i) => (
             <SideMenuItem key={i} {...item} />
           ))}

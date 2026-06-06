@@ -1,9 +1,7 @@
 import { Module } from "@nestjs/common";
 import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/adapters/handlebars.adapter";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { ConfigService } from "@nestjs/config";
-import { join } from "path";
 import { MailService } from "./mail.service";
 
 @Module({
@@ -22,7 +20,7 @@ import { MailService } from "./mail.service";
         const transport = host
           ? {
               host,
-              port: configService.get("mail.port"),
+              port: Number(configService.get("mail.port")),
               secure: configService.get("mail.secure"),
               auth: {
                 user: configService.get("mail.user"),
@@ -35,13 +33,6 @@ import { MailService } from "./mail.service";
           transport,
           defaults: {
             from: configService.get("mail.from"),
-          },
-          template: {
-            dir: join(__dirname, "templates"),
-            adapter: new HandlebarsAdapter(),
-            options: {
-              strict: true,
-            },
           },
         };
       },

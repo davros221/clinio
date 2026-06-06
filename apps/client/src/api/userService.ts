@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { UserService, CreateUserDto } from "@clinio/api";
 import { UserRole } from "@clinio/shared";
-import { userKeys } from "./queryKeys";
+import { userKeys, patientKeys } from "./queryKeys";
 import { systemKeys } from "./systemService";
 import { t } from "../i18n";
 import { notifySuccess } from "@utils";
@@ -22,7 +22,8 @@ export const useCreateUserMutation = () => {
   return useMutation({
     mutationFn: createUserFn,
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: userKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: patientKeys.list() });
       if (variables.role === UserRole.ADMIN) {
         queryClient.setQueryData(systemKeys.status, (currentStatus) => ({
           ...(typeof currentStatus === "object" && currentStatus !== null

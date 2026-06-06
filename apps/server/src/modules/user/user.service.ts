@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { ConfigService } from "@nestjs/config";
 import { ErrorCode, UserRole, type UserListQuery } from "@clinio/shared";
 import { UserEntity } from "./user.entity";
 import { PatientEntity } from "../patient/patient.entity";
@@ -21,16 +22,22 @@ import {
 } from "../../common/error-messages";
 import { AuthUser } from "../../auth/strategies/jwt.strategy";
 import * as bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { addHours, format } from "date-fns";
 import { AuthHelper } from "../../common/helpers/AuthHelper";
+import { MailService } from "../mail/mail.service";
 
 @Injectable()
 export class UserService {
   private adminExists: boolean | null = null;
+  private inviteLinkExpirationHours = 24;
 
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private dataSource: DataSource
+    private dataSource: DataSource,
+    private mailService: MailService,
+    private configService: ConfigService
   ) {}
 
   async isInitialized(): Promise<boolean> {
@@ -224,7 +231,44 @@ export class UserService {
       this.clearInitializedCache();
     }
 
+    if (savedUser.role === UserRole.CLIENT && !user.password) {
+      await this.sendClientInvite(savedUser, currentUser);
+    }
+
     return savedUser;
+  }
+
+  private async sendClientInvite(
+    user: UserEntity,
+    invitedBy?: AuthUser
+  ): Promise<void> {
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = addHours(new Date(), this.inviteLinkExpirationHours);
+
+    user.resetToken = token;
+    user.resetTokenExpiresAt = expiresAt;
+    await this.userRepository.save(user);
+
+    const clientUrl = this.configService.getOrThrow<string>("client.url");
+    const activateUrl = `${clientUrl}/activate?token=${token}`;
+
+    let invitedByName: string | undefined;
+    if (invitedBy) {
+      const inviter = await this.userRepository.findOne({
+        where: { id: invitedBy.id },
+      });
+      if (inviter) {
+        invitedByName = `${inviter.firstName} ${inviter.lastName}`;
+      }
+    }
+
+    await this.mailService.sendWelcomeEmail(
+      user.email,
+      user.firstName,
+      activateUrl,
+      format(expiresAt, "d. M. yyyy HH:mm"),
+      invitedByName
+    );
   }
 
   /**

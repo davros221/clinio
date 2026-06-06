@@ -1,0 +1,29 @@
+.slot {
+  height: var(--cal-half-slot);
+  background: var(--cal-slot-bg);
+  transition: background-color 0.1s;
+}
+
+.bottom {
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.over {
+  background: var(--mantine-color-blue-light);
+}
+
+.closed {
+  background: var(--mantine-color-gray-1);
+  cursor: not-allowed;
+}
+
+.booked {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--mantine-color-gray-1),
+    var(--mantine-color-gray-1) 4px,
+    var(--mantine-color-gray-2) 4px,
+    var(--mantine-color-gray-2) 8px
+  );
+  cursor: not-allowed;
+}

@@ -11,7 +11,8 @@ import {
   Divider,
 } from "@mantine/core";
 import { useNavigate } from "react-router";
-import { CalendarSlot, CAP_WORK_DAYS } from "../utils/types";
+import { CalendarSlot } from "../utils/types";
+import { useIntl, useT, useUserRole } from "@hooks";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
 import { GoNote } from "react-icons/go";
@@ -19,20 +20,20 @@ import {
   useDeleteAppointmentMutation,
   useUpdateAppointmentMutation,
   useCancelAppointmentMutation,
-} from "../../api";
-import { t } from "../../i18n";
-import { useUserRole } from "../../hooks/useUserRole";
-import { openConfirmModal } from "../../utils";
-import { APPOINTMENT_STATUS_COLOR } from "../../utils";
+} from "@api";
+import { openConfirmModal, APPOINTMENT_STATUS_COLOR } from "@utils";
 import { AppointmentStatus } from "@clinio/shared";
 
 type Props = {
   appt: CalendarSlot | null;
   onClose: () => void;
+  weekStart?: Date;
 };
 
-export const AppointmentModal = ({ appt, onClose }: Props) => {
+export const AppointmentModal = ({ appt, onClose, weekStart }: Props) => {
   const { isStaff } = useUserRole();
+  const { getDayName, formatDateTime, getRelativeDayLabel } = useIntl();
+  const t = useT();
   const navigate = useNavigate();
   const { mutate: deleteAppointment } = useDeleteAppointmentMutation();
   const { mutate: updateAppointment, isPending } =
@@ -51,6 +52,14 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
   }, [appt]);
 
   const isPlanned = appt?.status === AppointmentStatus.PLANNED;
+
+  const apptDate = (() => {
+    if (!appt || !weekStart) return null;
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + (appt.day - 1));
+    return d;
+  })();
+  const relativeLabel = apptDate ? getRelativeDayLabel(apptDate) : null;
 
   const statusLabel: Record<AppointmentStatus, string> = {
     [AppointmentStatus.PLANNED]: t("appointment.status.planned"),
@@ -117,7 +126,19 @@ export const AppointmentModal = ({ appt, onClose }: Props) => {
 
           <Group gap="xs">
             <IoCalendarNumberOutline />
-            <Text size="sm">{CAP_WORK_DAYS[appt.day - 1]}</Text>
+            <Text size="sm">
+              {getDayName(appt.day - 1)}
+              {apptDate &&
+                ` ${formatDateTime(apptDate, {
+                  day: "numeric",
+                  month: "numeric",
+                })}`}
+            </Text>
+            {relativeLabel && (
+              <Text size="sm" c="dimmed">
+                ({relativeLabel})
+              </Text>
+            )}
           </Group>
 
           <Group gap="xs">

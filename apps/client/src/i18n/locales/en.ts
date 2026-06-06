@@ -347,6 +347,8 @@ const en = {
   },
   calendar: {
     today: "Today",
+    tomorrow: "Tomorrow",
+    dayAfterTomorrow: "Day after tomorrow",
   },
   medicalRecord: {
     detailModal: {
