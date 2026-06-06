@@ -50,13 +50,18 @@ export const useSideMenu = (showUserInfo = true) => {
         to: ROUTER_PATHS.CHAT,
         label: t("nav.messages"),
         badge: totalUnread > 0 ? String(totalUnread) : undefined,
+        allowed: [UserRole.CLIENT, UserRole.NURSE, UserRole.DOCTOR],
       },
     ] as SideMenuItemProps[];
   }, [t, isAdmin, isOnboardingClient, totalUnread]);
 
   const bottomItems = useMemo<SideMenuItemProps[]>(
     () => [
-      { to: ROUTER_PATHS.SETTINGS, label: t("nav.settings") },
+      {
+        to: ROUTER_PATHS.SETTINGS,
+        label: t("nav.settings"),
+        allowed: [UserRole.ADMIN, UserRole.CLIENT],
+      },
       { label: t("nav.logout"), onClick: logout },
     ],
     [t, logout]

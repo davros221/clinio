@@ -40,7 +40,7 @@ export const useLogout = () => {
 };
 
 const loginFn = async (data: LoginDto) => {
-  const res = await AuthService.login({ body: data });
+  const res = await AuthService.login({ body: data, throwOnError: false });
   return res.data;
 };
 
@@ -52,7 +52,7 @@ export const useLoginMutation = () => {
     onSuccess: (res) => {
       if (!res) return;
       AuthToken.set(res.accessToken);
-      queryClient.setQueryData<MeResponse>([authKeys.me], (old) => ({
+      queryClient.setQueryData<MeResponse>([authKeys.me], () => ({
         auth: true,
         authData: res.authData,
       }));
@@ -61,10 +61,9 @@ export const useLoginMutation = () => {
 };
 
 const requestPassResetFn = async (email: string) => {
-  const res = await AuthService.requestPasswordReset({
+  return await AuthService.requestPasswordReset({
     body: { email },
   });
-  return res;
 };
 
 export const useRequestPassReset = () => {

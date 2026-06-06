@@ -1,7 +1,6 @@
 import styles from "./chatPageContent.module.css";
 import { ActionIcon, Loader, Text } from "@mantine/core";
-import { ImAttachment } from "react-icons/im";
-import { BsEmojiHeartEyes, BsSendFill } from "react-icons/bs";
+import { BsSendFill } from "react-icons/bs";
 import { useChatContent } from "./useChatContent";
 import { useParams } from "react-router";
 import { NEW_CHAT_ID } from "@modules/chat";
@@ -52,12 +51,12 @@ export const ChatPageContent = () => {
             disabled={!hasRoom}
           />
           <div className={styles.messageButtons}>
-            <ActionIcon size={34} variant="white" color="gray">
-              <ImAttachment size={18} />
-            </ActionIcon>
-            <ActionIcon size={34} variant="white" color="gray">
-              <BsEmojiHeartEyes size={18} />
-            </ActionIcon>
+            {/*<ActionIcon size={34} variant="white" color="gray">*/}
+            {/*  <ImAttachment size={18} />*/}
+            {/*</ActionIcon>*/}
+            {/*<ActionIcon size={34} variant="white" color="gray">*/}
+            {/*  <BsEmojiHeartEyes size={18} />*/}
+            {/*</ActionIcon>*/}
             <ActionIcon
               size={34}
               onClick={handleSend}

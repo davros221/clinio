@@ -6,8 +6,6 @@ import { useT } from "@hooks";
 import { useUpdatePatientMutation } from "../../api/patientService";
 import { type Patient, type UpdatePatientDto } from "@clinio/api";
 import { notifySuccess } from "../../utils/notification";
-import { DatePickerInput } from "@mantine/dates";
-import { useState } from "react";
 
 type UpdatePatientForm = {
   birthNumber?: string;
@@ -55,10 +53,6 @@ export function UpdatePatientModal({ patient, opened, onClose }: Props) {
     onClose();
   };
 
-  const [birthdateValue, setBirthdateValue] = useState<string | null>(
-    patient.birthdate ?? null
-  );
-
   return (
     <Modal
       opened={opened}
@@ -73,26 +67,11 @@ export function UpdatePatientModal({ patient, opened, onClose }: Props) {
             label={t("patient.updateModal.fields.birthNumber")}
             {...form.getInputProps("birthNumber")}
           />
-          <DatePickerInput
+          <TextInput
+            type={"date"}
             label={t("patient.updateModal.fields.birthdate")}
-            valueFormat="DD-MM-YYYY"
             placeholder="DD-MM-YYYY"
-            value={birthdateValue ? new Date(birthdateValue) : null}
-            onChange={(date) => {
-              if (date) {
-                const d = new Date(date);
-                const year = d.getFullYear();
-                const month = String(d.getMonth() + 1).padStart(2, "0");
-                const day = String(d.getDate()).padStart(2, "0");
-                const formatted = `${year}-${month}-${day}`;
-                setBirthdateValue(formatted);
-                form.setFieldValue("birthdate", formatted);
-              } else {
-                setBirthdateValue(null);
-                form.setFieldValue("birthdate", "");
-              }
-            }}
-            dropdownType="modal"
+            {...form.getInputProps("birthdate")}
           />
           <TextInput
             key={form.key("phone")}
