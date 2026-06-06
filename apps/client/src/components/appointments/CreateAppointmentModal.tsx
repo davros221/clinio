@@ -205,7 +205,7 @@ export function CreateAppointmentModal({
           {isStaff && (
             <PatientSelectField
               key={form.key("patientId")}
-              value={form.getValues().patientId}
+              value={form.getValues().patientId || ""}
               onChange={(id) => form.setFieldValue("patientId", id)}
               error={form.errors.patientId as string | undefined}
             />
