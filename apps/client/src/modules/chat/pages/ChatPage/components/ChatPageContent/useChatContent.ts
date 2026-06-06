@@ -7,6 +7,7 @@ import {
   useGetMessagesQuery,
   getChatSocket,
   emitSendMessage,
+  emitJoin,
   markRoomAsRead,
 } from "@modules/chat";
 import type { Message } from "@modules/chat";
@@ -22,6 +23,14 @@ export const useChatContent = () => {
   );
 
   const { data: messages, isLoading } = useGetMessagesQuery(room?.id);
+
+  useEffect(() => {
+    if (!otherUserId || room) return;
+    if (rooms === undefined) return; // wait for rooms to load before deciding
+    emitJoin(otherUserId)
+      .then(() => queryClient.invalidateQueries({ queryKey: roomKeys.lists() }))
+      .catch(console.error);
+  }, [otherUserId, room, rooms, queryClient]);
 
   /**
    * Mark all room messages as read
