@@ -1,4 +1,4 @@
-import { Office } from "../dto/office.dto";
+import { Office, OfficeStaffDto } from "../dto/office.dto";
 import { OfficeEntity } from "../office.entity";
 
 export class OfficeMapper {
@@ -9,7 +9,15 @@ export class OfficeMapper {
       specialization: entity.specialization,
       address: entity.address,
       officeHoursTemplate: entity.officeHoursTemplate,
-      staffIds: (entity.staff ?? []).map((u) => u.id),
+      staff: (entity.staff ?? []).map(
+        (u): OfficeStaffDto => ({
+          id: u.id,
+          firstName: u.firstName,
+          lastName: u.lastName,
+          email: u.email,
+          role: u.role,
+        })
+      ),
     };
   }
 

@@ -1,4 +1,22 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { UserRole } from "@clinio/shared";
+
+export class OfficeStaffDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  firstName!: string;
+
+  @ApiProperty()
+  lastName!: string;
+
+  @ApiProperty()
+  email!: string;
+
+  @ApiProperty({ enum: UserRole })
+  role!: UserRole;
+}
 
 export class OfficeHoursInterval {
   @ApiProperty()
@@ -47,6 +65,6 @@ export class Office {
   @ApiProperty({ type: () => OfficeHoursTemplateDto })
   officeHoursTemplate!: OfficeHoursTemplateDto;
 
-  @ApiProperty({ type: [String] })
-  staffIds!: string[];
+  @ApiProperty({ type: [OfficeStaffDto] })
+  staff!: OfficeStaffDto[];
 }
