@@ -23,7 +23,7 @@ export const useCreateUserMutation = () => {
     mutationFn: createUserFn,
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: userKeys.list() });
-      void queryClient.invalidateQueries({ queryKey: patientKeys.list() });
+      void queryClient.invalidateQueries({ queryKey: patientKeys.lists() });
       if (variables.role === UserRole.ADMIN) {
         queryClient.setQueryData(systemKeys.status, (currentStatus) => ({
           ...(typeof currentStatus === "object" && currentStatus !== null
