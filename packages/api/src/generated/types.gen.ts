@@ -135,9 +135,15 @@ export type CalendarDay = {
     hours: Array<CalendarHour>;
 };
 
+export type AppointmentOffice = {
+    id: string;
+    name: string;
+};
+
 export type Appointment = {
     id: string;
     officeId: string;
+    office: AppointmentOffice | null;
     patientId: string | null;
     date: string;
     hour: number;
