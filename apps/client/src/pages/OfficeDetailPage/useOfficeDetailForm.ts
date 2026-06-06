@@ -153,7 +153,7 @@ export function useOfficeDetailForm(
       name: office.name,
       specialization: office.specialization,
       address: office.address,
-      staffIds: office.staffIds,
+      staffIds: office.staff.map((s) => s.id),
       days: mappedDays,
     });
     setMapPosition(null);
