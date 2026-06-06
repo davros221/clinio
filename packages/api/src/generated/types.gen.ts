@@ -135,9 +135,15 @@ export type CalendarDay = {
     hours: Array<CalendarHour>;
 };
 
+export type AppointmentOffice = {
+    id: string;
+    name: string;
+};
+
 export type Appointment = {
     id: string;
     officeId: string;
+    office: AppointmentOffice | null;
     patientId: string | null;
     date: string;
     hour: number;
@@ -187,13 +193,21 @@ export type OfficeHoursTemplateDto = {
     sunday: Array<OfficeHoursInterval>;
 };
 
+export type OfficeStaffDto = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'ADMIN' | 'NURSE' | 'DOCTOR' | 'CLIENT';
+};
+
 export type Office = {
     id: string;
     name: string;
     specialization: string;
     address: string;
     officeHoursTemplate: OfficeHoursTemplateDto;
-    staffIds: Array<string>;
+    staff: Array<OfficeStaffDto>;
 };
 
 export type PaginatedOfficeResponse = {

@@ -1,15 +1,12 @@
 import { Badge, Button } from "@mantine/core";
 import { Appointment } from "@clinio/api";
-import { DataTable } from "../DataTable/DataTable";
-import {
-  useGetOfficeListQuery,
-  useGetAppointmentListQuery,
-  useCancelAppointmentMutation,
-} from "@api";
+import { DataTable } from "../DataTable";
+import { useGetAppointmentListQuery, useCancelAppointmentMutation } from "@api";
 import { AppointmentStatus } from "@clinio/shared";
 import { usePagination, useT } from "@hooks";
 import { DateUtils, APPOINTMENT_STATUS_COLOR, openConfirmModal } from "@utils";
-import { useMemo } from "react";
+import { NavLink } from "react-router";
+import { ROUTER_PATHS } from "@router";
 
 type Props = {
   officeId?: string;
@@ -24,16 +21,9 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
       limit: pageSize,
       officeId,
     });
-  const { data: officesData } = useGetOfficeListQuery();
-  const offices = officesData?.items ?? [];
   const { mutate: cancelAppointment } = useCancelAppointmentMutation();
 
   const appointments = data?.items ?? [];
-
-  const officeMap = useMemo(
-    () => Object.fromEntries(offices.map((o) => [o.id, o.name])),
-    [offices]
-  );
 
   const handleCancel = (row: Appointment) => {
     openConfirmModal({
@@ -75,8 +65,14 @@ export function AppointmentsOverviewTable({ officeId }: Props = {}) {
       key: "officeId",
       header: t("appointment.overview.table.office"),
       render: (row: Appointment) => {
-        const id = typeof row.officeId === "string" ? row.officeId : null;
-        return id ? officeMap[id] ?? id : "—";
+        if (row.officeId) {
+          return (
+            <NavLink to={ROUTER_PATHS.OFFICE_DETAIL_ID(row.officeId)}>
+              {row.office?.name ?? "—"}
+            </NavLink>
+          );
+        }
+        return " - ";
       },
     },
     {
