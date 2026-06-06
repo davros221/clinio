@@ -40,21 +40,23 @@ describe("OfficeMapper", () => {
         specialization: mockEntity.specialization,
         address: mockEntity.address,
         officeHoursTemplate: mockEntity.officeHoursTemplate,
-        staffIds: ["staff-1"],
+        staff: [
+          {
+            id: "staff-1",
+            firstName: "Doc",
+            lastName: "Tor",
+            email: "doc@example.com",
+            role: UserRole.DOCTOR,
+          },
+        ],
       });
-    });
-
-    it("should NOT include full staff objects in DTO", () => {
-      const dto = OfficeMapper.toDto(mockEntity);
-
-      expect(dto).not.toHaveProperty("staff");
     });
 
     it("should return empty array when no staff assigned", () => {
       const empty: OfficeEntity = { ...mockEntity, staff: [] };
       const dto = OfficeMapper.toDto(empty);
 
-      expect(dto.staffIds).toEqual([]);
+      expect(dto.staff).toEqual([]);
     });
   });
 
