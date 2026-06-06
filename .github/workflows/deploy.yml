@@ -21,6 +21,8 @@ jobs:
             cd /var/www/clinio
             git pull
             cd infra
+            docker image prune -af
+            docker builder prune -f
             export GIT_COMMIT=$(git -C .. rev-parse --short HEAD)
             export BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             export APP_VERSION=$(git -C .. describe --tags --always)
