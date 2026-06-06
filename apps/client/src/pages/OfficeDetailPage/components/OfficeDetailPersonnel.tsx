@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Button,
   Group,
   Paper,
@@ -9,6 +10,10 @@ import {
 } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { OfficeStaffDto, User } from "@clinio/api";
+import { MdMessage } from "react-icons/md";
+import { NavLink } from "react-router";
+import { ROUTER_PATHS } from "@router";
+import { RoleGuard } from "@components";
 
 type Props = {
   editing: boolean;
@@ -124,6 +129,9 @@ export function OfficeDetailPersonnel({
             <Table.Tr>
               <Table.Th>{t("office.form.fields.user")}</Table.Th>
               <Table.Th>{t("office.form.table.role")}</Table.Th>
+              <RoleGuard roles={["CLIENT"]}>
+                <Table.Th />
+              </RoleGuard>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -133,6 +141,17 @@ export function OfficeDetailPersonnel({
                   {member.firstName} {member.lastName}
                 </Table.Td>
                 <Table.Td>{member.role}</Table.Td>
+                <RoleGuard roles={["CLIENT"]}>
+                  <Table.Td>
+                    <ActionIcon
+                      component={NavLink}
+                      variant={"default"}
+                      to={ROUTER_PATHS.CHAT_DETAIL_ID(member.id)}
+                    >
+                      <MdMessage />
+                    </ActionIcon>
+                  </Table.Td>
+                </RoleGuard>
               </Table.Tr>
             ))}
           </Table.Tbody>
