@@ -47,7 +47,8 @@ export function OfficeDetailContent() {
         <OfficeDetailPersonnel
           editing={editing}
           users={users}
-          staffIds={editing ? watchedStaffIds : office?.staffIds ?? []}
+          staff={office?.staff ?? []}
+          staffIds={watchedStaffIds}
           selectedRole={selectedRole}
           selectedUserId={selectedUserId}
           roleSelectData={roleSelectData}

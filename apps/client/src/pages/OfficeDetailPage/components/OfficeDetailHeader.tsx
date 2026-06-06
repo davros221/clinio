@@ -49,7 +49,7 @@ export function OfficeDetailHeader({
   const isOfficeDetailRoute =
     !!useMatch(ROUTER_PATHS.OFFICE_DETAIL) && !isCreateRoute;
   const isStaffMemberOfOffice =
-    !isStaff || (office?.staffIds?.includes(user?.id ?? "") ?? false);
+    !isStaff || (office?.staff?.some((s) => s.id === user?.id) ?? false);
   // Save/Cancel show whenever the user is editing (including /new).
   // Edit/Delete + appointments shortcut only show on the existing-office detail route.
   const canShowEditingButtons = !isClient;

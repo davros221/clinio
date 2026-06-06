@@ -7,13 +7,13 @@ import {
   Text,
   Title,
 } from "@mantine/core";
-import { useMemo } from "react";
 import { useT, useUserRole } from "@hooks";
-import { User } from "@clinio/api";
+import { OfficeStaffDto, User } from "@clinio/api";
 
 type Props = {
   editing: boolean;
   users: User[];
+  staff: OfficeStaffDto[];
   selectedRole: string | null;
   selectedUserId: string | null;
   roleSelectData: Array<{ value: string; label: string }>;
@@ -28,6 +28,7 @@ type Props = {
 export function OfficeDetailPersonnel({
   editing,
   users,
+  staff,
   selectedRole,
   selectedUserId,
   roleSelectData,
@@ -40,13 +41,6 @@ export function OfficeDetailPersonnel({
 }: Props) {
   const t = useT();
   const { isAdmin } = useUserRole();
-
-  const staffMembers = useMemo(() => {
-    const usersById = new Map(users.map((u) => [u.id, u]));
-    return staffIds
-      .map((id) => usersById.get(id))
-      .filter((u): u is User => !!u);
-  }, [staffIds, users]);
 
   return (
     <Paper
@@ -90,7 +84,7 @@ export function OfficeDetailPersonnel({
         </Group>
       )}
 
-      {editing ? (
+      {editing && isAdmin ? (
         <Table verticalSpacing="xs">
           <Table.Thead>
             <Table.Tr>
@@ -124,7 +118,7 @@ export function OfficeDetailPersonnel({
             })}
           </Table.Tbody>
         </Table>
-      ) : staffMembers.length > 0 ? (
+      ) : staff.length > 0 ? (
         <Table>
           <Table.Thead>
             <Table.Tr>
@@ -133,7 +127,7 @@ export function OfficeDetailPersonnel({
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {staffMembers.map((member) => (
+            {staff.map((member) => (
               <Table.Tr key={member.id}>
                 <Table.Td>
                   {member.firstName} {member.lastName}
