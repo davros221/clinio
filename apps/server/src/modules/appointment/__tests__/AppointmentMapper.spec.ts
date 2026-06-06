@@ -1,11 +1,14 @@
 import { AppointmentMapper } from "../mapper/AppointmentMapper";
 import { AppointmentEntity } from "../appointment.entity";
 import { AppointmentStatus } from "@clinio/shared";
+import { OfficeEntity } from "../../office/office.entity";
+
+const mockOffice = { id: "office-1", name: "Ordinace Praha" } as OfficeEntity;
 
 const mockEntity: AppointmentEntity = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   officeId: "office-1",
-  office: null,
+  office: mockOffice,
   patientId: "patient-1",
   patient: null,
   date: "2026-04-01",
@@ -22,6 +25,7 @@ describe("AppointmentMapper", () => {
       expect(dto).toEqual({
         id: mockEntity.id,
         officeId: mockEntity.officeId,
+        office: { id: mockOffice.id, name: mockOffice.name },
         patientId: mockEntity.patientId,
         date: mockEntity.date,
         hour: mockEntity.hour,
@@ -30,10 +34,17 @@ describe("AppointmentMapper", () => {
       });
     });
 
-    it("should NOT include office relation in DTO", () => {
+    it("should map office to id and name only", () => {
       const dto = AppointmentMapper.toDto(mockEntity);
 
-      expect(dto).not.toHaveProperty("office");
+      expect(dto.office).toEqual({ id: "office-1", name: "Ordinace Praha" });
+    });
+
+    it("should set office to null when relation is not loaded", () => {
+      const entity: AppointmentEntity = { ...mockEntity, office: null };
+      const dto = AppointmentMapper.toDto(entity);
+
+      expect(dto.office).toBeNull();
     });
 
     it("should handle null patientId", () => {

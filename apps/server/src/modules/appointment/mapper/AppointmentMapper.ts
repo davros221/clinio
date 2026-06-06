@@ -6,6 +6,9 @@ export class AppointmentMapper {
     return {
       id: entity.id,
       officeId: entity.officeId,
+      office: entity.office
+        ? { id: entity.office.id, name: entity.office.name }
+        : null,
       patientId: entity.patientId,
       date: entity.date,
       hour: entity.hour,
