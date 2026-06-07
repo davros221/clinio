@@ -6,9 +6,11 @@ import {
   ForbiddenException,
   NotFoundException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { DataSource, Repository } from "typeorm";
 import * as bcrypt from "bcryptjs";
 import { UserService } from "../user.service";
+import { MailService } from "../../mail/mail.service";
 import { UserEntity } from "../user.entity";
 import { PatientEntity } from "../../patient/patient.entity";
 import { UserRole, ErrorCode, UserSortField, SortOrder } from "@clinio/shared";
@@ -27,6 +29,7 @@ const mockUser: UserEntity = {
 const mockRepository = () => ({
   find: jest.fn(),
   findAndCount: jest.fn(),
+  findOne: jest.fn(),
   findOneBy: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
@@ -78,6 +81,18 @@ describe("UserService", () => {
         {
           provide: DataSource,
           useValue: mockDataSource,
+        },
+        {
+          provide: MailService,
+          useValue: {
+            sendWelcomeEmail: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: jest.fn().mockReturnValue("http://localhost:3000"),
+          },
         },
       ],
     }).compile();
