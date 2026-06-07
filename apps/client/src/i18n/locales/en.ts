@@ -301,6 +301,7 @@ const en = {
     },
   },
   settings: {
+    languageSwitch: "Language",
     onboardingWarningTitle: "Complete your profile",
     onboardingWarningMessage:
       "Please fill in all required fields below to get full access to the application.",
