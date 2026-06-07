@@ -300,6 +300,7 @@ const cs: TranslationKeys = {
     },
   },
   settings: {
+    languageSwitch: "Jazyk",
     onboardingWarningTitle: "Dokončete svůj profil",
     onboardingWarningMessage:
       "Pro plný přístup k aplikaci vyplňte prosím všechna povinná pole níže.",

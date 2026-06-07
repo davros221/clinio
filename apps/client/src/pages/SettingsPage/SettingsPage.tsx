@@ -1,7 +1,12 @@
-import { Stack, Alert, TextInput, Button } from "@mantine/core";
+import { Stack, Alert, TextInput, Button, Group, Text } from "@mantine/core";
 import { useT, useUserRole } from "@hooks";
 import { useSettingsPage } from "./useSettingsPage.ts";
-import { OverviewHeader, PhoneInputField, ShutdownSection } from "@components";
+import {
+  LanguageSwitcher,
+  OverviewHeader,
+  PhoneInputField,
+  ShutdownSection,
+} from "@components";
 
 export const SettingsPage = () => {
   const t = useT();
@@ -11,6 +16,14 @@ export const SettingsPage = () => {
   return (
     <Stack gap="md">
       <OverviewHeader title={t("nav.settings")} />
+
+      <Group>
+        <Text truncate="end" maw={220}>
+          {t("settings.languageSwitch")}:
+        </Text>
+
+        <LanguageSwitcher />
+      </Group>
 
       {(isClient || isOnboardingClient) && (
         <Stack maw={450}>

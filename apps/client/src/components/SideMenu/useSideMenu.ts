@@ -60,7 +60,6 @@ export const useSideMenu = (showUserInfo = true) => {
       {
         to: ROUTER_PATHS.SETTINGS,
         label: t("nav.settings"),
-        allowed: [UserRole.ADMIN, UserRole.CLIENT],
       },
       { label: t("nav.logout"), onClick: logout },
     ],
